@@ -62,6 +62,9 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self.stable_counter = 0
         self._turtle_step_count = 0
 
+        self._touching = False
+        self.has_landed = False
+        self.has_crashed = False
  
         # Posición inicial del dron (se actualiza en reset)
         initial_xyzs = np.array([[0.0, 0.0, 1.0]])
@@ -208,6 +211,9 @@ class MovingPlatformLandingAviary(VelocityAviary):
     def reset(self, seed=None, options=None):
         self.episode_step_counter = 0
         self.stable_counter = 0
+        self._touching = False
+        self.has_landed = False
+        self.has_crashed = False
  
         rng = np.random.default_rng(seed)
  
@@ -234,8 +240,13 @@ class MovingPlatformLandingAviary(VelocityAviary):
         obs, reward, terminated, truncated, info = super().step(action)
 
         self.episode_step_counter += 1
+        
+        self._update_stable_counter()
+        self._touching = self._is_touching_platform()
+        self.has_landed = self._landed_successfully()
+        self.has_crashed = self._crashed()
 
-        return self._computeObs(), reward, terminated, truncated, info
+        return self._computeObs(),self._computeReward(), self._computeTerminated(), self._computeTruncated(), self._computeInfo()
 
     def _computeObs(self):
         state = self._getDroneStateVector(0)
@@ -290,13 +301,13 @@ class MovingPlatformLandingAviary(VelocityAviary):
         # if d_xy < 0.15 and abs(dz) < 0.2:
         #     reward += 0.20
 
-        if self._is_touching_platform():
-            if self._landed_successfully():
+        if self._touching:
+            if self.has_landed:
                 reward += 1.0
             else:
                 reward += 0.10
 
-        if self._crashed():
+        if self.has_crashed:
             reward -= 1.0
 
         # return float(np.clip(reward, -1.0, 1.0))
@@ -324,7 +335,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
         return False
 
 
-    def _landed_successfully(self):
+    def _update_stable_counter(self):
         state = self._getDroneStateVector(0)
 
         drone_pos = state[0:3]
@@ -341,7 +352,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
 
         conditions = (
             self._is_touching_platform()
-            and d_xy < 0.15
+            # and d_xy < 0.15
             and vertical_speed < 0.35
             and abs(roll) < 0.35
             and abs(pitch) < 0.35
@@ -352,8 +363,8 @@ class MovingPlatformLandingAviary(VelocityAviary):
             self.stable_counter += 1
         else:
             self.stable_counter = 0
-        
-        # Requiere 10 steps estables
+    
+    def _landed_successfully(self):
         return self.stable_counter >= 10
 
     def _crashed(self):
@@ -377,8 +388,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
 
     def _computeTerminated(self):
         return bool(
-            self._landed_successfully()
-            or self._crashed()
+            self.has_landed or self.has_crashed
             # or self._out_of_bounds()
         )
 
@@ -395,8 +405,8 @@ class MovingPlatformLandingAviary(VelocityAviary):
         rel_vel = drone_vel - self.platform_vel
 
         return {
-            "is_success": self._landed_successfully(),
-            "crashed": self._crashed(),
+            "is_success": self.has_landed, 
+            "crashed": self.has_crashed,
             "d_xy": float(np.linalg.norm(rel_pos[0:2])),
             "dz": float(abs(rel_pos[2])),
             "v_rel": float(np.linalg.norm(rel_vel)),
