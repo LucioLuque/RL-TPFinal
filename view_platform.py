@@ -9,11 +9,14 @@ from platform1 import MovingPlatformLandingAviary
 MODE = "turtlebot" # Caso 3: movimiento tipo turtlebot
 # ─────────────────────────────────────────────────────────────────
 
+framerate = 24
+episode_duration_seconds = 20
+
 env = MovingPlatformLandingAviary(
     mode=MODE,
     gui=True,
-    ctrl_freq=24,
-    max_episode_seconds=20,
+    ctrl_freq=framerate,
+    max_episode_seconds=episode_duration_seconds,
     platform_radius=0.35,
     # Parámetros opcionales según modo:
     # linear_speed_range=(0.1, 0.4),
@@ -23,21 +26,21 @@ env = MovingPlatformLandingAviary(
 
 obs, info = env.reset()
 
-for i in range(24 * 20):
+for i in range(framerate * episode_duration_seconds):
     action = np.array([0.0, 0.0, 0.0, 0.0], dtype=np.float32)
 
     obs, reward, terminated, truncated, info = env.step(action)
 
-    if i % 24 == 0:
+    if i % framerate == 0:
         print(
-            f"t: {round(i / 24, 2)}s",
+            f"t: {round(i / framerate, 2)}s",
             f"| mode: {MODE}",
             f"| platform_pos: {np.round(env.platform_pos, 3)}",
             f"| platform_vel: {np.round(env.platform_vel, 3)}",
             f"| reward: {round(reward, 3)}",
         )
 
-    time.sleep(1 / 24)
+    time.sleep(1 / framerate)
 
     if terminated or truncated:
         print("── reset ──")

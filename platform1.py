@@ -78,10 +78,12 @@ class MovingPlatformLandingAviary(VelocityAviary):
             obstacles=False,
         )
 
+        obs_low = np.full(14, -np.inf, dtype=np.float32)
+        obs_high = np.full(14, np.inf, dtype=np.float32)
+
         self.observation_space = spaces.Box(
-            low=-np.inf,
-            high=np.inf,
-            shape=(14,),
+            low=obs_low,
+            high=obs_high,
             dtype=np.float32,
         )
 
@@ -279,29 +281,26 @@ class MovingPlatformLandingAviary(VelocityAviary):
 
         reward = 0.0
 
-        # Penalizar distancia a la plataforma
-        reward -= 2.0 * d_total
+        # Dense shaping in a compact range.
+        reward -= 0.5 * np.clip(d_total / 2.0, 0.0, 1.0) # Distancia a plataforma
+        # reward -= 0.20 * np.clip(np.linalg.norm(rel_vel) / 2.0, 0.0, 1.0) # Velocidad relativa
+        # reward -= 0.15 * np.clip((abs(roll) + abs(pitch)) / 0.8, 0.0, 1.0) # Inclinación
 
-        # Penalizar velocidad relativa, se podria ver de escalar segun distancia total, lejos mas rapido, cerca mas lento
-        reward -= 0.5 * np.linalg.norm(rel_vel)
-
-        # Penalizar inclinacion
-        reward -= 0.3 * (abs(roll) + abs(pitch))
-
-        # Bonus por estar cerca
-        if d_xy < 0.15 and abs(dz) < 0.2:
-            reward += 2.0  # ya casi está encima
+        # # Bonus por estar cerca
+        # if d_xy < 0.15 and abs(dz) < 0.2:
+        #     reward += 0.20
 
         if self._is_touching_platform():
             if self._landed_successfully():
-                reward += 100.0
-            else:
                 reward += 1.0
+            else:
+                reward += 0.10
 
         if self._crashed():
-            reward -= 100.0
+            reward -= 1.0
 
-        return reward
+        # return float(np.clip(reward, -1.0, 1.0))
+        return float(reward)
     
 
     def _is_touching_platform(self):
