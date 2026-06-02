@@ -1,14 +1,14 @@
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 
-from utils import parse_args, get_model_path, get_vecnormalize_path, make_env
+from utils import parse_args, get_model_path, get_vecnormalize_path, make_env, set_global_seeds
 
 
 DEFAULT_TOTAL_TIMESTEPS = 300000
 
 
-def train(mode: str, total_timesteps: int = DEFAULT_TOTAL_TIMESTEPS):
-    env = DummyVecEnv([make_env(mode, gui=False)])
+def train(mode: str, total_timesteps: int = DEFAULT_TOTAL_TIMESTEPS, seed: int = 42):
+    env = DummyVecEnv([make_env(mode, gui=False, seed=seed)])
     env = VecNormalize(
         env,
         norm_obs=True,
@@ -33,6 +33,7 @@ def train(mode: str, total_timesteps: int = DEFAULT_TOTAL_TIMESTEPS):
                 vf=[64, 64],
             )
         ),
+        seed=seed,
         verbose=1,
         tensorboard_log=f"./tb_landing_{mode}/",
     )
@@ -52,7 +53,8 @@ def train(mode: str, total_timesteps: int = DEFAULT_TOTAL_TIMESTEPS):
 def main():
     new_arg = ("timesteps", int, DEFAULT_TOTAL_TIMESTEPS, "Total PPO timesteps to train.")
     args = parse_args(new_arg=new_arg)
-    model_path, vecnormalize_path = train(args.mode, args.timesteps)
+    set_global_seeds(args.seed)
+    model_path, vecnormalize_path = train(args.mode, args.timesteps, args.seed)
     print(f"Saved model to {model_path}.zip")
     print(f"Saved normalization stats to {vecnormalize_path}")
 

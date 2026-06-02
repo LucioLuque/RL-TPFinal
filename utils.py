@@ -1,5 +1,11 @@
 import argparse
+import random
+import torch
+import numpy as np
+
 from stable_baselines3.common.monitor import Monitor
+from stable_baselines3.common.utils import set_random_seed
+
 
 from platform1 import MovingPlatformLandingAviary
 
@@ -7,7 +13,8 @@ from platform1 import MovingPlatformLandingAviary
 MODE_CHOICES = ("static", "linear", "turtlebot")
 DEFAULT_CTRL_FREQ = 24
 DEFAULT_MAX_EPISODE_SECONDS = 20
-DEFAULT_PLATFORM_RADIUS = 0.35
+DEFAULT_PLATFORM_RADIUS = 0.2
+DEFAULT_SEED = 42
 
 
 def get_model_path(mode: str, with_extension: bool = False) -> str:
@@ -37,7 +44,22 @@ def parse_args(eval: bool = False, new_arg: tuple | None = None):
             default=new_arg[2],
             help=new_arg[3],
         )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=DEFAULT_SEED,
+        help="Random seed for training and evaluation.",
+    )
     return parser.parse_args()
+
+
+def set_global_seeds(seed: int):
+    random.seed(seed)
+    np.random.seed(seed)
+    set_random_seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
 
 
 def make_env(mode: str, gui: bool, seed: int | None = None):
@@ -60,6 +82,7 @@ def make_env(mode: str, gui: bool, seed: int | None = None):
         env = Monitor(env)
         if seed is not None:
             env.reset(seed=seed)
+            env.action_space.seed(seed)
         return env
 
     return _init

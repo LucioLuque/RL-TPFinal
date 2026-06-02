@@ -61,6 +61,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
  
         self.stable_counter = 0
         self._turtle_step_count = 0
+        self._prev_d_total = None
 
         self._touching = False
         self.has_landed = False
@@ -142,9 +143,11 @@ class MovingPlatformLandingAviary(VelocityAviary):
             p_change = 1 - np.exp(-self._turtle_step_count / 200)  # 200 = "velocidad" del crecimiento
             p_change = np.clip(p_change, 0.002, 0.15)              # mínimo y máximo de prob por step
 
-            if np.random.random() < p_change:
-                self._turtle_v += np.random.uniform(-self.turtle_v_noise, self.turtle_v_noise)
-                self._turtle_w += np.random.uniform(-self.turtle_w_noise, self.turtle_w_noise)
+            rng = getattr(self, "_rng", np.random.default_rng())
+
+            if rng.random() < p_change:
+                self._turtle_v += rng.uniform(-self.turtle_v_noise, self.turtle_v_noise)
+                self._turtle_w += rng.uniform(-self.turtle_w_noise, self.turtle_w_noise)
                 self._turtle_v = np.clip(self._turtle_v, -self.turtle_v_max, self.turtle_v_max)
                 self._turtle_w = np.clip(self._turtle_w, -self.turtle_w_max, self.turtle_w_max)
                 self._turtle_step_count = 0  # resetear contador de pasos desde último cambio
@@ -193,9 +196,9 @@ class MovingPlatformLandingAviary(VelocityAviary):
             ])
  
         elif self.mode == "turtlebot":
-            self._turtle_v = np.random.uniform(-0.2, 0.2)
-            self._turtle_w = np.random.uniform(-0.3, 0.3)
-            self.platform_yaw = np.random.uniform(0, 2 * np.pi)
+            self._turtle_v = rng.uniform(-0.2, 0.2)
+            self._turtle_w = rng.uniform(-0.3, 0.3)
+            self.platform_yaw = rng.uniform(0, 2 * np.pi)
             self.platform_pos = np.array([0.0, 0.0, self.platform_z])
             self.platform_vel = np.zeros(3)
 
@@ -214,8 +217,10 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self._touching = False
         self.has_landed = False
         self.has_crashed = False
+        self._prev_d_total = None
  
-        rng = np.random.default_rng(seed)
+        self._rng = np.random.default_rng(seed)
+        rng = self._rng
  
         # Sortear parámetros de movimiento de la plataforma
         self._sample_platform_params(rng)
@@ -292,10 +297,18 @@ class MovingPlatformLandingAviary(VelocityAviary):
 
         reward = 0.0
 
-        # Dense shaping in a compact range.
-        reward -= 0.5 * np.clip(d_total / 2.0, 0.0, 1.0) # Distancia a plataforma
-        # reward -= 0.20 * np.clip(np.linalg.norm(rel_vel) / 2.0, 0.0, 1.0) # Velocidad relativa
-        # reward -= 0.15 * np.clip((abs(roll) + abs(pitch)) / 0.8, 0.0, 1.0) # Inclinación
+        # Encourage progress toward the platform instead of only minimizing motion.
+        if self._prev_d_total is None:
+            progress = 0.0
+        else:
+            progress = self._prev_d_total - d_total
+        self._prev_d_total = d_total
+
+        reward += np.clip(0.4 * progress, -0.3, 0.3)
+        reward -= np.clip(0.2 * d_total , 0.0, 1.0)
+        # reward -= 0.02 * np.clip(np.linalg.norm(rel_vel) / 2.0, 0.0, 1.0)
+        # reward -= 0.01 * np.clip((abs(roll) + abs(pitch)) / 0.8, 0.0, 1.0)
+        # reward -= 0.005 * np.linalg.norm(last_action)
 
         # # Bonus por estar cerca
         # if d_xy < 0.15 and abs(dz) < 0.2:
@@ -309,6 +322,9 @@ class MovingPlatformLandingAviary(VelocityAviary):
 
         if self.has_crashed:
             reward -= 1.0
+        elif self._computeTruncated() and not self.has_landed:
+            reward -= 0.6
+
 
         # return float(np.clip(reward, -1.0, 1.0))
         return float(reward)
