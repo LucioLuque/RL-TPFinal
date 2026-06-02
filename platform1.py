@@ -66,6 +66,11 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self._touching = False
         self.has_landed = False
         self.has_crashed = False
+        self.is_truncated = False
+
+        self._prev_p  = None
+        self._prev_v  = None
+        self._prev_th = None
  
         # Posición inicial del dron (se actualiza en reset)
         initial_xyzs = np.array([[0.0, 0.0, 1.0]])
@@ -82,8 +87,8 @@ class MovingPlatformLandingAviary(VelocityAviary):
             obstacles=False,
         )
 
-        obs_low = np.full(14, -np.inf, dtype=np.float32)
-        obs_high = np.full(14, np.inf, dtype=np.float32)
+        obs_low = np.full(12, -np.inf, dtype=np.float32)
+        obs_high = np.full(12, np.inf, dtype=np.float32)
 
         self.observation_space = spaces.Box(
             low=obs_low,
@@ -217,6 +222,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self._touching = False
         self.has_landed = False
         self.has_crashed = False
+        self.is_truncated = False
         self._prev_d_total = None
  
         self._rng = np.random.default_rng(seed)
@@ -234,6 +240,11 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self.platform_id = None
         self._create_platform()
         self._update_platform()
+
+
+        self._prev_p  = None
+        self._prev_v  = None
+        self._prev_th = None
  
         return self._computeObs(), info
 
@@ -250,6 +261,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self._touching = self._is_touching_platform()
         self.has_landed = self._landed_successfully()
         self.has_crashed = self._crashed()
+        self.is_truncated = self.episode_step_counter >= self.max_episode_steps
 
         return self._computeObs(),self._computeReward(), self._computeTerminated(), self._computeTruncated(), self._computeInfo()
 
@@ -270,65 +282,105 @@ class MovingPlatformLandingAviary(VelocityAviary):
                 rel_vel,
                 rpy,
                 drone_ang_vel,
-                self.platform_vel[0:2],
+                # self.platform_vel[0:2],
             ]
         )
 
         return obs.astype(np.float32)
     
 
+    # def _computeReward(self):
+    #     state = self._getDroneStateVector(0)
+
+    #     drone_pos = state[0:3]
+    #     rpy = state[7:10]
+    #     drone_vel = state[10:13]
+
+    #     rel_pos = drone_pos - self.platform_pos
+    #     rel_vel = drone_vel - self.platform_vel
+
+    #     p_x = np.linalg.norm(rel_pos)
+    #     v_x = np.linalg.norm(rel_vel)
+
+    #     w_p    = -1.0
+    #     w_v    = -0.5
+    #     # w_w    = -0.3   # w_theta
+    #     w_dur  = -0.1
+    #     w_suc  =  5.0
+    #     w_fail = -5.0
+
+    #     # Límites del escenario
+    #     v_lim     = 1.0   # velocidad máxima esperada (m/s)
+    #     a_lim     = 1.0   # aceleración máxima esperada (m/s²)
+    #     # theta_max = 0.8   # rad
+    #     delta_t   = 1.0 / self.CTRL_FREQ
+
+    #     r_p_max   = abs(w_p) * v_lim * delta_t
+    #     r_v_max   = abs(w_v) * a_lim * delta_t
+    #     # r_th_max  = abs(w_w) * v_lim * (delta_t / theta_max)   # Δθ/θ_max escalado
+    #     r_dur_max = abs(w_dur) * v_lim * delta_t
+
+    #     r_max = r_p_max + r_v_max + r_dur_max
+
+    #     delta_p = 0.0 if self._prev_p is None else (p_x - self._prev_p)
+    #     delta_v = 0.0 if self._prev_v is None else (v_x - self._prev_v)
+
+
+    #     self._prev_p = p_x
+    #     self._prev_v = v_x
+
+    #     r_p   = float(np.clip(w_p * delta_p, -r_p_max, r_p_max))
+    #     r_v   = float(np.clip(w_v * delta_v, -r_v_max, r_v_max))
+    #     r_dur = w_dur * v_lim * delta_t
+
+
+
+    #     if self.has_landed:
+    #         r_term = w_suc * r_max
+    #     elif self.has_crashed or self.is_truncated:
+    #         r_term = w_fail * r_max
+    #     else:
+    #         r_term = 0.0
+
+    #     return float(r_p + r_v + r_dur + r_term)
+
     def _computeReward(self):
         state = self._getDroneStateVector(0)
-
         drone_pos = state[0:3]
-        rpy = state[7:10]
+        rpy       = state[7:10]
         drone_vel = state[10:13]
 
         rel_pos = drone_pos - self.platform_pos
         rel_vel = drone_vel - self.platform_vel
 
-        dx, dy, dz = rel_pos
-        dvx, dvy, dvz = rel_vel
-        roll, pitch, _ = rpy
-
-        d_xy = np.linalg.norm([dx, dy])
         d_total = np.linalg.norm(rel_pos)
-        # dz_abs = abs(dz)
+        v_total = np.linalg.norm(rel_vel)
+        roll, pitch, _ = rpy
 
         reward = 0.0
 
-        # Encourage progress toward the platform instead of only minimizing motion.
-        if self._prev_d_total is None:
-            progress = 0.0
-        else:
-            progress = self._prev_d_total - d_total
-        self._prev_d_total = d_total
+        # Señal densa: distancia (siempre activa, escala razonable)
+        reward -= 0.5 * np.clip(d_total / 2.0, 0.0, 1.0)
 
-        reward += np.clip(0.4 * progress, -0.3, 0.3)
-        reward -= np.clip(0.2 * d_total , 0.0, 1.0)
-        # reward -= 0.02 * np.clip(np.linalg.norm(rel_vel) / 2.0, 0.0, 1.0)
-        # reward -= 0.01 * np.clip((abs(roll) + abs(pitch)) / 0.8, 0.0, 1.0)
-        # reward -= 0.005 * np.linalg.norm(last_action)
+        # Penalización por velocidad relativa alta cerca de la plataforma
+        if d_total < 0.5:
+            reward -= 0.2 * np.clip(v_total / 2.0, 0.0, 1.0)
 
-        # # Bonus por estar cerca
-        # if d_xy < 0.15 and abs(dz) < 0.2:
-        #     reward += 0.20
+        # Penalización por inclinación
+        reward -= 0.1 * np.clip((abs(roll) + abs(pitch)) / 0.8, 0.0, 1.0)
 
-        if self._touching:
-            if self.has_landed:
-                reward += 1.0
-            else:
-                reward += 0.10
+        # Penalización por tiempo (apura al agente)
+        reward -= 0.01
 
-        if self.has_crashed:
-            reward -= 1.0
-        elif self._computeTruncated() and not self.has_landed:
-            reward -= 0.6
+        # Terminal
+        if self.has_landed:
+            reward += 10.0
+        elif self.has_crashed:
+            reward -= 5.0
+        elif self.is_truncated:
+            reward -= 2.0
 
-
-        # return float(np.clip(reward, -1.0, 1.0))
         return float(reward)
-    
 
     def _is_touching_platform(self):
         contacts = p.getContactPoints(
@@ -409,7 +461,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
         )
 
     def _computeTruncated(self):
-        return bool(self.episode_step_counter >= self.max_episode_steps)
+        return bool(self.is_truncated)
 
     def _computeInfo(self):
         state = self._getDroneStateVector(0)

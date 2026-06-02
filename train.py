@@ -20,17 +20,17 @@ def train(mode: str, total_timesteps: int = DEFAULT_TOTAL_TIMESTEPS, seed: int =
         "MlpPolicy",
         env,
         learning_rate=3e-4,
-        n_steps=2048,
+        n_steps=4096,
         batch_size=128,
         n_epochs=10,
         gamma=0.99,
         gae_lambda=0.95,
-        ent_coef=0.003,
+        ent_coef=0.01,
         clip_range=0.2,
         policy_kwargs=dict(
             net_arch=dict(
-                pi=[64, 64],
-                vf=[64, 64],
+                pi=[128, 128],
+                vf=[128, 128],
             )
         ),
         seed=seed,
