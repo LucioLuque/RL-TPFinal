@@ -2,6 +2,7 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 
 from utils import parse_args, get_model_path, get_vecnormalize_path, make_env, set_global_seeds
+import time
 
 
 DEFAULT_TOTAL_TIMESTEPS = 300000
@@ -51,12 +52,16 @@ def train(mode: str, total_timesteps: int = DEFAULT_TOTAL_TIMESTEPS, seed: int =
 
 
 def main():
+
+    time0 = time.time()
     new_arg = ("timesteps", int, DEFAULT_TOTAL_TIMESTEPS, "Total PPO timesteps to train.")
     args = parse_args(new_arg=new_arg)
     set_global_seeds(args.seed)
     model_path, vecnormalize_path = train(args.mode, args.timesteps, args.seed)
     print(f"Saved model to {model_path}.zip")
     print(f"Saved normalization stats to {vecnormalize_path}")
+    timef = time.time() - time0
+    print(f"Training took {timef:.2f} seconds.")
 
 
 if __name__ == "__main__":

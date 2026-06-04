@@ -362,12 +362,12 @@ class MovingPlatformLandingAviary(VelocityAviary):
         # Señal densa: distancia (siempre activa, escala razonable)
         reward -= 0.5 * np.clip(d_total / 2.0, 0.0, 1.0)
 
-        # Penalización por velocidad relativa alta cerca de la plataforma
-        if d_total < 0.5:
-            reward -= 0.2 * np.clip(v_total / 2.0, 0.0, 1.0)
+        # # Penalización por velocidad relativa alta cerca de la plataforma
+        # if d_total < 0.5:
+        #     reward -= 0.2 * np.clip(v_total / 2.0, 0.0, 1.0)
 
-        # Penalización por inclinación
-        reward -= 0.1 * np.clip((abs(roll) + abs(pitch)) / 0.8, 0.0, 1.0)
+        # # Penalización por inclinación
+        # reward -= 0.1 * np.clip((abs(roll) + abs(pitch)) / 0.8, 0.0, 1.0)
 
         # Penalización por tiempo (apura al agente)
         reward -= 0.01
