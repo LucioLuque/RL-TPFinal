@@ -9,10 +9,11 @@ def main():
     new_arg = ("episodes", int, 5, "Number of evaluation episodes.")
     args = parse_args(eval=True, new_arg=new_arg)
     set_global_seeds(args.seed)
-    model_path = get_model_path(args.mode, with_extension=True)
-    vecnormalize_path = get_vecnormalize_path(args.mode)
+    
+    model_path = get_model_path(args.level, with_extension=True)
+    vecnormalize_path = get_vecnormalize_path(args.level)
 
-    env = DummyVecEnv([make_env(args.mode, gui=True, seed=args.seed)])
+    env = DummyVecEnv([make_env(args.level, gui=True, seed=args.seed)])
     env = VecNormalize.load(vecnormalize_path, env)
 
     env.training = False

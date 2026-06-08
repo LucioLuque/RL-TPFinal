@@ -11,32 +11,32 @@ PLATFORM_MODES = ("static", "linear", "turtlebot")
 class MovingPlatformLandingAviary(VelocityAviary):
     def __init__(
         self,
-        mode: str = "static",
+        level: int = 0,
         gui: bool = False,
         ctrl_freq: int = 48,
         max_episode_seconds: int = 8,
         platform_radius: float = 0.18,
         platform_z: float = 0.02,
         
-        # linear
+        # Plataforma
         linear_speed_range: tuple = (0.1, 0.4),   # m/s (min, max)
-        
-        # turtlebot
-        turtle_linear_speed_range: tuple = (0.1, 0.3),   # m/s
-        turtle_angular_speed_range: tuple = (0.2, 0.8),  # rad/s
+        angular_speed_range: tuple = (0.0, 0.0),  # rad/s (min, max)
+        vary_speed: bool = False, # si True, la velocidad cambia en el transcurso del episodio
+        turt_noise: bool = False, # si True, el modo turtlebot tiene ruido en la velocidad para hacerlo menos predecible
     
         # dron 
-        drone_init_xy_range: float = 0.8,  # radio máximo en XY (m)
-        drone_init_z_range: tuple = (0.5, 1.5),  # altura inicial (m)
+        spawn_xy_radius: float = 0.8,  # radio máximo en XY (m)
+        spawn_z_range: tuple = (0.5, 1.5),  # altura inicial (m)
     ):
-        self.mode = mode
+        self.level = level
         self.platform_radius = platform_radius
         self.platform_z = platform_z
         self.linear_speed_range = linear_speed_range
-        self.turtle_linear_speed_range = turtle_linear_speed_range
-        self.turtle_angular_speed_range = turtle_angular_speed_range
-        self.drone_init_xy_range = drone_init_xy_range
-        self.drone_init_z_range = drone_init_z_range
+        self.angular_speed_range = angular_speed_range
+        self.vary_speed = vary_speed
+        self.turt_noise = turt_noise
+        self.spawn_xy_radius = spawn_xy_radius
+        self.spawn_z_range = spawn_z_range
  
         self.episode_step_counter = 0
         self.max_episode_steps = int(max_episode_seconds * ctrl_freq)
@@ -44,20 +44,18 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self.platform_id = None
         self.platform_pos = np.zeros(3)
         self.platform_vel = np.zeros(3)
-        self.platform_yaw = 0.0           # solo usado en modo turtlebot
+        self.platform_yaw = 0.0
  
         # Parámetros que se re-sortean en cada reset
-        self._linear_direction = np.zeros(2)  # modo linear
-        self._linear_speed = 0.0              # modo linear
-        self._turtle_v = 0.0
-        self._turtle_w = 0.0
-        self.platform_yaw = 0.0
+        self._linear_speed = 0.0
+        self._angular_speed = 0.0
+        self._motion_step_count = 0
 
         # Límites
         self.turtle_v_max = 0.3        # m/s máximo
         self.turtle_w_max = 2.0        # rad/s máximo
-        self.turtle_v_noise = 0.03     # qué tan bruscamente cambia la velocidad lineal
-        self.turtle_w_noise = 0.2     # qué tan bruscamente cambia la dirección
+        self.turtle_v_noise = 0.03     # ruido en velocidad lineal
+        self.turtle_w_noise = 0.2      # ruido en velocidad angular
  
         self.stable_counter = 0
         self._turtle_step_count = 0
@@ -126,45 +124,58 @@ class MovingPlatformLandingAviary(VelocityAviary):
             physicsClientId=self.CLIENT,
         )
 
+    def _sample_platform_params(self, rng: np.random.Generator):
+        """Sortea parámetros de movimiento a partir de los rangos configurados."""
+        self.platform_pos = np.array([0.0, 0.0, self.platform_z])
+        self.platform_vel = np.zeros(3)
+        self.platform_yaw = rng.uniform(0, 2 * np.pi)
+        self._linear_speed = rng.uniform(*self.linear_speed_range)
+        self._angular_speed = rng.uniform(*self.angular_speed_range)
+        self._motion_step_count = 0
+
+    def _sample_drone_init(self, rng: np.random.Generator) -> np.ndarray:
+        """Posición inicial aleatoria del dron."""
+        r = rng.uniform(0, self.spawn_xy_radius)
+        theta = rng.uniform(0, 2 * np.pi)
+        x = r * np.cos(theta)
+        y = r * np.sin(theta)
+        z = rng.uniform(*self.spawn_z_range)
+        return np.array([[x, y, z]])
+    
     def _update_platform(self):
         dt = 1.0 / self.CTRL_FREQ
- 
-        if self.mode == "static":
-            # La plataforma no se mueve; pos y vel ya están seteados en reset.
-            pass
- 
-        elif self.mode == "linear":
-            new_xy = self.platform_pos[:2] + self._linear_direction * self._linear_speed * dt
-            self.platform_pos = np.array([new_xy[0], new_xy[1], self.platform_z])
-            self.platform_vel = np.array([
-                self._linear_direction[0] * self._linear_speed,
-                self._linear_direction[1] * self._linear_speed,
-                0.0,
-            ])
- 
-        elif self.mode == "turtlebot":
-            # Probabilidad de cambiar acción crece con el tiempo
-            # Al step 0: prob ≈ 0.002, al step 480 (10s a 48Hz): prob ≈ 0.08
-            p_change = 1 - np.exp(-self._turtle_step_count / 200)  # 200 = "velocidad" del crecimiento
-            p_change = np.clip(p_change, 0.002, 0.15)              # mínimo y máximo de prob por step
 
-            rng = getattr(self, "_rng", np.random.default_rng())
+        rng = getattr(self, "_rng", np.random.default_rng())
+
+        if self.vary_speed:
+            p_change = 1 - np.exp(-self._motion_step_count / 200)
+            p_change = np.clip(p_change, 0.002, 0.15)
 
             if rng.random() < p_change:
-                self._turtle_v += rng.uniform(-self.turtle_v_noise, self.turtle_v_noise)
-                self._turtle_w += rng.uniform(-self.turtle_w_noise, self.turtle_w_noise)
-                self._turtle_v = np.clip(self._turtle_v, -self.turtle_v_max, self.turtle_v_max)
-                self._turtle_w = np.clip(self._turtle_w, -self.turtle_w_max, self.turtle_w_max)
-                self._turtle_step_count = 0  # resetear contador de pasos desde último cambio
+                self._linear_speed = rng.uniform(*self.linear_speed_range)
+                self._angular_speed = rng.uniform(*self.angular_speed_range)
+                self._motion_step_count = 0
 
-            self._turtle_step_count += 1
+        if self.turt_noise:
+            self._linear_speed = np.clip(
+                self._linear_speed + rng.uniform(-self.turtle_v_noise, self.turtle_v_noise),
+                0.0,
+                self.turtle_v_max,
+            )
+            self._angular_speed = np.clip(
+                self._angular_speed + rng.uniform(-self.turtle_w_noise, self.turtle_w_noise),
+                -self.turtle_w_max,
+                self.turtle_w_max,
+            )
 
-            self.platform_yaw += self._turtle_w * dt
-            vx = self._turtle_v * np.cos(self.platform_yaw)
-            vy = self._turtle_v * np.sin(self.platform_yaw)
-            self.platform_pos[:2] += np.array([vx, vy]) * dt
-            self.platform_pos[2] = self.platform_z
-            self.platform_vel = np.array([vx, vy, 0.0])
+        self._motion_step_count += 1
+
+        self.platform_yaw += self._angular_speed * dt
+        vx = self._linear_speed * np.cos(self.platform_yaw)
+        vy = self._linear_speed * np.sin(self.platform_yaw)
+        self.platform_pos[:2] += np.array([vx, vy]) * dt
+        self.platform_pos[2] = self.platform_z
+        self.platform_vel = np.array([vx, vy, 0.0])
  
         # Mover el cuerpo cinemático en PyBullet y setear su velocidad lineal
         # para que el motor de contactos la tenga en cuenta.
@@ -180,41 +191,6 @@ class MovingPlatformLandingAviary(VelocityAviary):
             angularVelocity=[0, 0, 0],
             physicsClientId=self.CLIENT,
         )
-
-    def _sample_platform_params(self, rng: np.random.Generator):
-        """Sortea parámetros de movimiento según el modo activo."""
-        if self.mode == "static":
-            self.platform_pos = np.array([0.0, 0.0, self.platform_z])
-            self.platform_vel = np.zeros(3)
- 
-        elif self.mode == "linear":
-            speed = rng.uniform(*self.linear_speed_range)
-            angle = rng.uniform(0, 2 * np.pi)
-            self._linear_direction = np.array([np.cos(angle), np.sin(angle)])
-            self._linear_speed = speed
-            # Empezar la plataforma en el origen
-            self.platform_pos = np.array([0.0, 0.0, self.platform_z])
-            self.platform_vel = np.array([
-                self._linear_direction[0] * speed,
-                self._linear_direction[1] * speed,
-                0.0,
-            ])
- 
-        elif self.mode == "turtlebot":
-            self._turtle_v = rng.uniform(-0.2, 0.2)
-            self._turtle_w = rng.uniform(-0.3, 0.3)
-            self.platform_yaw = rng.uniform(0, 2 * np.pi)
-            self.platform_pos = np.array([0.0, 0.0, self.platform_z])
-            self.platform_vel = np.zeros(3)
-
-    def _sample_drone_init(self, rng: np.random.Generator) -> np.ndarray:
-        """Posición inicial aleatoria del dron."""
-        r = rng.uniform(0, self.drone_init_xy_range)
-        theta = rng.uniform(0, 2 * np.pi)
-        x = r * np.cos(theta)
-        y = r * np.sin(theta)
-        z = rng.uniform(*self.drone_init_z_range)
-        return np.array([[x, y, z]])
 
     def reset(self, seed=None, options=None):
         self.episode_step_counter = 0
@@ -245,6 +221,8 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self._prev_p  = None
         self._prev_v  = None
         self._prev_th = None
+
+        self._motion_step_count = 0
  
         return self._computeObs(), info
 
@@ -354,6 +332,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
         rel_vel = drone_vel - self.platform_vel
 
         d_total = np.linalg.norm(rel_pos)
+        d_xy = np.linalg.norm(rel_pos[0:2])
         v_total = np.linalg.norm(rel_vel)
         roll, pitch, _ = rpy
 
@@ -361,6 +340,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
 
         # Señal densa: distancia (siempre activa, escala razonable)
         reward -= 0.5 * np.clip(d_total / 2.0, 0.0, 1.0)
+        reward -= 0.3 * np.clip(d_xy / 2.0, 0.0, 1.0)
 
         # # Penalización por velocidad relativa alta cerca de la plataforma
         # if d_total < 0.5:
@@ -478,5 +458,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
             "d_xy": float(np.linalg.norm(rel_pos[0:2])),
             "dz": float(abs(rel_pos[2])),
             "v_rel": float(np.linalg.norm(rel_vel)),
-            "mode": self.mode,
+            "level": self.level,
+            "vary_speed": self.vary_speed,
+            "turt_noise": self.turt_noise,
         }

@@ -8,14 +8,22 @@ import time
 DEFAULT_TOTAL_TIMESTEPS = 300000
 
 
-def train(mode: str, total_timesteps: int = DEFAULT_TOTAL_TIMESTEPS, seed: int = 42):
-    env = DummyVecEnv([make_env(mode, gui=False, seed=seed)])
-    env = VecNormalize(
-        env,
-        norm_obs=True,
-        norm_reward=True,
-        clip_obs=10.0,
-    )
+
+def train(level: int, total_timesteps: int = DEFAULT_TOTAL_TIMESTEPS, seed: int = 42):
+    env = DummyVecEnv([make_env(level, gui=False, seed=seed)])
+    if level > 0:
+        prev_vecnormalize_path = get_vecnormalize_path(level - 1)
+        env = VecNormalize.load(prev_vecnormalize_path, env)
+    else:
+        env = VecNormalize(
+            env,
+            norm_obs=True,
+            norm_reward=True,
+            clip_obs=10.0,
+        )
+
+    env.training = True
+    env.norm_reward = True
 
     model = PPO(
         "MlpPolicy",
@@ -36,13 +44,18 @@ def train(mode: str, total_timesteps: int = DEFAULT_TOTAL_TIMESTEPS, seed: int =
         ),
         seed=seed,
         verbose=1,
-        tensorboard_log=f"./tb_landing_{mode}/",
+        tensorboard_log=f"./logs/landing_level_{level}/",
     )
 
+    # load weights from previous level if not level 0
+    if level > 0:
+        prev_model_path = get_model_path(level - 1, with_extension=True)
+        model = PPO.load(prev_model_path, env=env, device="cpu")
+        
     model.learn(total_timesteps=total_timesteps)
 
-    model_path = get_model_path(mode)
-    vecnormalize_path = get_vecnormalize_path(mode)
+    model_path = get_model_path(level)
+    vecnormalize_path = get_vecnormalize_path(level)
 
     model.save(model_path)
     env.save(vecnormalize_path)
@@ -52,14 +65,17 @@ def train(mode: str, total_timesteps: int = DEFAULT_TOTAL_TIMESTEPS, seed: int =
 
 
 def main():
-
     time0 = time.time()
+
     new_arg = ("timesteps", int, DEFAULT_TOTAL_TIMESTEPS, "Total PPO timesteps to train.")
     args = parse_args(new_arg=new_arg)
     set_global_seeds(args.seed)
-    model_path, vecnormalize_path = train(args.mode, args.timesteps, args.seed)
+
+    model_path, vecnormalize_path = train(args.level, args.timesteps, args.seed)
+
     print(f"Saved model to {model_path}.zip")
     print(f"Saved normalization stats to {vecnormalize_path}")
+
     timef = time.time() - time0
     print(f"Training took {timef:.2f} seconds.")
 
