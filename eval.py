@@ -6,12 +6,17 @@ from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 from utils import DEFAULT_CTRL_FREQ, parse_args, get_model_path, get_vecnormalize_path, make_env, set_global_seeds
 
 def main():
-    new_arg = ("episodes", int, 5, "Number of evaluation episodes.")
-    args = parse_args(eval=True, new_arg=new_arg)
+    new_args = [ # Add argument option to use specific level weights and vecnorms to cross-evaluate on another level
+        ("episodes", int, 5, "Number of evaluation episodes."),
+        ("weights", int, None, "Level of the weights and vecnorms to use for evaluation (defaults to the evaluation level)."),
+    ]
+    args = parse_args(eval=True, new_args=new_args)
     set_global_seeds(args.seed)
-    
-    model_path = get_model_path(args.level, with_extension=True)
-    vecnormalize_path = get_vecnormalize_path(args.level)
+
+    level_load = args.weights if args.weights is not None else args.level
+
+    model_path = get_model_path(level_load, with_extension=True)
+    vecnormalize_path = get_vecnormalize_path(level_load)
 
     env = DummyVecEnv([make_env(args.level, gui=True, seed=args.seed)])
     env = VecNormalize.load(vecnormalize_path, env)

@@ -30,7 +30,7 @@ def get_vecnormalize_path(level: int) -> str:
     return f"vecnorms/vecnormalize_landing_level_{level}.pkl"
 
 
-def parse_args(eval: bool = False, new_arg: tuple | None = None):
+def parse_args(eval: bool = False, new_args: list[tuple[str, type, any, str]] | None = None):
     intent = "evaluate" if eval else "train"
     parser = argparse.ArgumentParser(description=f"Do {intent} a PPO policy on the moving-platform landing task.")
     parser.add_argument(
@@ -46,12 +46,13 @@ def parse_args(eval: bool = False, new_arg: tuple | None = None):
         default=DEFAULT_SEED,
         help="Random seed for training and evaluation.",
     )
-    if new_arg is not None:
-        parser.add_argument(
-            f"--{new_arg[0]}",
-            type=new_arg[1],
-            default=new_arg[2],
-            help=new_arg[3],
+    if new_args is not None:
+        for arg in new_args:
+            parser.add_argument(
+                f"--{arg[0]}",
+                type=arg[1],
+                default=arg[2],
+                help=arg[3],
         )
 
     return parser.parse_args()

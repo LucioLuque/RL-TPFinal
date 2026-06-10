@@ -222,6 +222,10 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self._prev_v  = None
         self._prev_th = None
 
+        # claude:
+        rel_pos0 = self._getDroneStateVector(0)[0:3] - self.platform_pos
+        self.prev_d = np.linalg.norm(rel_pos0)
+
         self._motion_step_count = 0
  
         return self._computeObs(), info
@@ -267,62 +271,62 @@ class MovingPlatformLandingAviary(VelocityAviary):
         return obs.astype(np.float32)
     
 
-    # def _computeReward(self):
-    #     state = self._getDroneStateVector(0)
+    def _computeReward_viejo1(self):
+        state = self._getDroneStateVector(0)
 
-    #     drone_pos = state[0:3]
-    #     rpy = state[7:10]
-    #     drone_vel = state[10:13]
+        drone_pos = state[0:3]
+        rpy = state[7:10]
+        drone_vel = state[10:13]
 
-    #     rel_pos = drone_pos - self.platform_pos
-    #     rel_vel = drone_vel - self.platform_vel
+        rel_pos = drone_pos - self.platform_pos
+        rel_vel = drone_vel - self.platform_vel
 
-    #     p_x = np.linalg.norm(rel_pos)
-    #     v_x = np.linalg.norm(rel_vel)
+        p_x = np.linalg.norm(rel_pos)
+        v_x = np.linalg.norm(rel_vel)
 
-    #     w_p    = -1.0
-    #     w_v    = -0.5
-    #     # w_w    = -0.3   # w_theta
-    #     w_dur  = -0.1
-    #     w_suc  =  5.0
-    #     w_fail = -5.0
+        w_p    = -1.0
+        w_v    = -0.5
+        # w_w    = -0.3   # w_theta
+        w_dur  = -0.1
+        w_suc  =  5.0
+        w_fail = -5.0
 
-    #     # Límites del escenario
-    #     v_lim     = 1.0   # velocidad máxima esperada (m/s)
-    #     a_lim     = 1.0   # aceleración máxima esperada (m/s²)
-    #     # theta_max = 0.8   # rad
-    #     delta_t   = 1.0 / self.CTRL_FREQ
+        # Límites del escenario
+        v_lim     = 1.0   # velocidad máxima esperada (m/s)
+        a_lim     = 1.0   # aceleración máxima esperada (m/s²)
+        # theta_max = 0.8   # rad
+        delta_t   = 1.0 / self.CTRL_FREQ
 
-    #     r_p_max   = abs(w_p) * v_lim * delta_t
-    #     r_v_max   = abs(w_v) * a_lim * delta_t
-    #     # r_th_max  = abs(w_w) * v_lim * (delta_t / theta_max)   # Δθ/θ_max escalado
-    #     r_dur_max = abs(w_dur) * v_lim * delta_t
+        r_p_max   = abs(w_p) * v_lim * delta_t
+        r_v_max   = abs(w_v) * a_lim * delta_t
+        # r_th_max  = abs(w_w) * v_lim * (delta_t / theta_max)   # Δθ/θ_max escalado
+        r_dur_max = abs(w_dur) * v_lim * delta_t
 
-    #     r_max = r_p_max + r_v_max + r_dur_max
+        r_max = r_p_max + r_v_max + r_dur_max
 
-    #     delta_p = 0.0 if self._prev_p is None else (p_x - self._prev_p)
-    #     delta_v = 0.0 if self._prev_v is None else (v_x - self._prev_v)
-
-
-    #     self._prev_p = p_x
-    #     self._prev_v = v_x
-
-    #     r_p   = float(np.clip(w_p * delta_p, -r_p_max, r_p_max))
-    #     r_v   = float(np.clip(w_v * delta_v, -r_v_max, r_v_max))
-    #     r_dur = w_dur * v_lim * delta_t
+        delta_p = 0.0 if self._prev_p is None else (p_x - self._prev_p)
+        delta_v = 0.0 if self._prev_v is None else (v_x - self._prev_v)
 
 
+        self._prev_p = p_x
+        self._prev_v = v_x
 
-    #     if self.has_landed:
-    #         r_term = w_suc * r_max
-    #     elif self.has_crashed or self.is_truncated:
-    #         r_term = w_fail * r_max
-    #     else:
-    #         r_term = 0.0
+        r_p   = float(np.clip(w_p * delta_p, -r_p_max, r_p_max))
+        r_v   = float(np.clip(w_v * delta_v, -r_v_max, r_v_max))
+        r_dur = w_dur * v_lim * delta_t
 
-    #     return float(r_p + r_v + r_dur + r_term)
 
-    def _computeReward(self):
+
+        if self.has_landed:
+            r_term = w_suc * r_max
+        elif self.has_crashed or self.is_truncated:
+            r_term = w_fail * r_max
+        else:
+            r_term = 0.0
+
+        return float(r_p + r_v + r_dur + r_term)
+
+    def _computeReward_viejo2(self):
         state = self._getDroneStateVector(0)
         drone_pos = state[0:3]
         rpy       = state[7:10]
@@ -350,13 +354,68 @@ class MovingPlatformLandingAviary(VelocityAviary):
         # reward -= 0.1 * np.clip((abs(roll) + abs(pitch)) / 0.8, 0.0, 1.0)
 
         # Penalización por tiempo (apura al agente)
-        reward -= 0.01
+        # reward -= 0.01
 
         # Terminal
         if self.has_landed:
-            reward += 10.0
+            reward += 25.0
         elif self.has_crashed:
             reward -= 5.0
+        elif self.is_truncated:
+            reward -= 2.0
+
+        return float(reward)
+
+    def _computeReward(self):
+        state = self._getDroneStateVector(0)
+        drone_pos = state[0:3]
+        rpy       = state[7:10]
+        drone_vel = state[10:13]
+
+        rel_pos = drone_pos - self.platform_pos
+        rel_vel = drone_vel - self.platform_vel
+
+        d_total = np.linalg.norm(rel_pos)
+        d_xy    = np.linalg.norm(rel_pos[0:2])
+        v_xy    = np.linalg.norm(rel_vel[0:2])
+        v_total = np.linalg.norm(rel_vel)
+        roll, pitch, _ = rpy
+        vz_rel  = rel_vel[2]   # +z = up, so descent is negative
+
+        reward = 0.0
+
+        # --- Progreso (potential-based). Escala: ~spawn_radius (0.8 m). ---
+        # reward += 3.0 * (self.prev_d - d_total)
+        sigma = 0.5  # escala donde el gradiente se concentra (m)
+        phi      = np.exp(-d_total / sigma)
+        phi_prev = np.exp(-self.prev_d / sigma)
+        reward += 4.0 * (phi - phi_prev)   # premia cerrar distancia; gradiente máximo cerca del pad
+        self.prev_d = d_total
+
+        # Término absoluto residual. Denominador ~ spawn_radius, no 2.0
+        # reward -= 0.1 * np.clip(d_xy / 0.8, 0.0, 1.0) # descomentar este
+
+        # --- Matching de velocidad relativa. Denominador al regimen real (~0.5 m/s) ---
+        reward -= 0.10 * np.clip(v_xy / 0.5, 0.0, 1.0)
+
+        # --- Suavidad / esfuerzo ---
+        # reward -= 0.05 * np.clip((abs(roll) + abs(pitch)) / 0.8, 0.0, 1.0)
+
+        # --- Gate de descenso: sincronizado antes de bajar ---
+        # if d_xy < 0.3:                                          # radio del pad, no 0.5
+        #     reward -= 0.4 * np.clip(v_xy / 0.5, 0.0, 1.0)       # exige sincronía horizontal
+        #     reward -= 0.2 * max(0.0, -vz_rel - 0.3)             # no bajar demasiado rápido
+
+        # --- Penalización por tiempo ---
+        reward -= 0.005
+
+        # --- Terminal ---
+        if self.has_landed:
+            # Bonus escalado por calidad. exp(-d_xy/0.3) -> sensible a la escala del pad
+            # reward += 25.0 + 10.0 * np.exp(-d_xy / 0.3) - 5.0 * v_total
+            reward += 50
+        elif self.has_crashed:
+            reward -= 40.0
         elif self.is_truncated:
             reward -= 2.0
 
