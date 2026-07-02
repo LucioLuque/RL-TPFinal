@@ -55,9 +55,9 @@ def train(
             "MlpPolicy",
             env,
             learning_rate=3e-4,
-            n_steps=4096,
-            batch_size=128,
-            n_epochs=10,
+            n_steps=4096 // n_envs,
+            batch_size=256,
+            n_epochs=5,
             gamma=0.99,
             gae_lambda=0.95,
             ent_coef=0.01,
@@ -72,8 +72,9 @@ def train(
             verbose=1,
             tensorboard_log=f"./logs/landing_level_{level}/",
         )
-        
-    model.learn(total_timesteps=total_timesteps)
+    
+    reset_num_timesteps = not continue_training
+    model.learn(total_timesteps=total_timesteps, reset_num_timesteps=reset_num_timesteps)
 
     model_path = get_model_path(level)
     vecnormalize_path = get_vecnormalize_path(level)

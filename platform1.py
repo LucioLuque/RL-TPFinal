@@ -5,47 +5,40 @@ from gymnasium import spaces
 from gym_pybullet_drones.envs.VelocityAviary import VelocityAviary
 from gym_pybullet_drones.utils.enums import DroneModel, Physics
 
-PLATFORM_MODES = ("static", "linear", "turtlebot")
-
-
 class MovingPlatformLandingAviary(VelocityAviary):
     def __init__(
         self,
-        level: int = 0,
         gui: bool = False,
         ctrl_freq: int = 48,
         max_episode_seconds: int = 8,
-        platform_radius: float = 0.18,
-        platform_z: float = 0.02,
         
         # Plataforma
-        linear_speed_range: tuple = (0.1, 0.4),   # m/s (min, max)
+        linear_speed_range: tuple = (0.1, 0.1),   # m/s (min, max)
         angular_speed_range: tuple = (0.0, 0.0),  # rad/s (min, max)
-        vary_speed: bool = False, # si True, la velocidad cambia en el transcurso del episodio
-        turt_noise: bool = False, # si True, el modo turtlebot tiene ruido en la velocidad para hacerlo menos predecible
+        vary_speed: bool = False, # cambiar velocidad de la plataforma durante el episodio
+        turt_noise: bool = False, # agregar ruido a la velocidad de la plataforma en cada step
     
         # dron 
-        spawn_xy_radius: float = 0.8,  # radio máximo en XY (m)
+        spawn_xy_radius: float = 2,  # radio máximo en XY (m)
         spawn_z_range: tuple = (0.5, 1.5),  # altura inicial (m)
     ):
-        self.level = level
-        self.platform_radius = platform_radius
-        self.platform_z = platform_z
+        self.platform_radius = 0.25
+        self.platform_height = 0.35
         self.linear_speed_range = linear_speed_range
         self.angular_speed_range = angular_speed_range
         self.vary_speed = vary_speed
         self.turt_noise = turt_noise
         self.spawn_xy_radius = spawn_xy_radius
         self.spawn_z_range = spawn_z_range
- 
+
         self.episode_step_counter = 0
         self.max_episode_steps = int(max_episode_seconds * ctrl_freq)
- 
+
         self.platform_id = None
         self.platform_pos = np.zeros(3)
         self.platform_vel = np.zeros(3)
         self.platform_yaw = 0.0
- 
+
         # Parámetros que se re-sortean en cada reset
         self._linear_speed = 0.0
         self._angular_speed = 0.0
@@ -53,24 +46,28 @@ class MovingPlatformLandingAviary(VelocityAviary):
 
         # Límites
         self.turtle_v_max = 0.3        # m/s máximo
-        self.turtle_w_max = 2.0        # rad/s máximo
+        self.turtle_w_max = 3.0        # rad/s máximo
         self.turtle_v_noise = 0.03     # ruido en velocidad lineal
         self.turtle_w_noise = 0.2      # ruido en velocidad angular
- 
-        self.stable_counter = 0
-        self._turtle_step_count = 0
-        self._prev_d_total = None
 
+        # Parámetros de sampleo de velocidad sobre distribución beta
+        self.linear_beta_params = (4, 2)  
+        self.angular_beta_params = (2, 4)
+        self.spawn_xy_beta_params = (4, 2)
+
+        self.stable_counter = 0
+
+        # flags de estado
         self._touching = False
+        self._contact = None
         self.has_landed = False
         self.has_crashed = False
         self.is_truncated = False
 
-        self._prev_p  = None
-        self._prev_v  = None
-        self._prev_th = None
- 
-        # Posición inicial del dron (se actualiza en reset)
+        self.prev_d = 0.0
+
+        self._rng = np.random.default_rng()
+
         initial_xyzs = np.array([[0.0, 0.0, 1.0]])
 
         super().__init__(
@@ -85,12 +82,10 @@ class MovingPlatformLandingAviary(VelocityAviary):
             obstacles=False,
         )
 
-        obs_low = np.full(12, -np.inf, dtype=np.float32)
-        obs_high = np.full(12, np.inf, dtype=np.float32)
-
+        obs_size = self._computeObs().shape[0]
         self.observation_space = spaces.Box(
-            low=obs_low,
-            high=obs_high,
+            low=np.full(obs_size, -np.inf, dtype=np.float32),
+            high=np.full(obs_size, np.inf, dtype=np.float32),
             dtype=np.float32,
         )
 
@@ -103,67 +98,91 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self._create_platform()
 
     def _create_platform(self):
-        half_extents = [self.platform_radius, self.platform_radius, 0.01]
- 
+        radius = self.platform_radius
+        height = self.platform_height
+
         col = p.createCollisionShape(
-            shapeType=p.GEOM_BOX,
-            halfExtents=half_extents,
+            shapeType=p.GEOM_CYLINDER,
+            radius=radius,
+            height=height,
             physicsClientId=self.CLIENT,
         )
         vis = p.createVisualShape(
-            shapeType=p.GEOM_BOX,
-            halfExtents=half_extents,
-            rgbaColor=[0.1, 0.8, 0.1, 1.0],
+            shapeType=p.GEOM_CYLINDER,
+            radius=radius,
+            length=height, # Cosa de PyBullet, el parámetro se llama length en vez de height
+            rgbaColor=[0.15, 0.15, 0.15, 1.0],
+            specularColor=[0, 0, 0],
             physicsClientId=self.CLIENT,
         )
         self.platform_id = p.createMultiBody(
             baseMass=0,
             baseCollisionShapeIndex=col,
             baseVisualShapeIndex=vis,
-            basePosition=[0, 0, self.platform_z],
+            basePosition=[0, 0, self.platform_height / 2],
             physicsClientId=self.CLIENT,
         )
 
-    def _sample_platform_params(self, rng: np.random.Generator):
-        """Sortea parámetros de movimiento a partir de los rangos configurados."""
-        self.platform_pos = np.array([0.0, 0.0, self.platform_z])
+        # Disco de arriba
+        top_vis = p.createVisualShape(
+            shapeType=p.GEOM_CYLINDER,
+            radius=radius * 0.9,
+            length=0.15,
+            rgbaColor=[0.1, 0.8, 0.1, 0.4],  
+            specularColor=[0, 0, 0],
+            physicsClientId=self.CLIENT,
+        )
+        self.top_disc_id = p.createMultiBody(
+            baseMass=0,
+            baseCollisionShapeIndex=-1,  # Sin colisión
+            baseVisualShapeIndex=top_vis,
+            basePosition=[0, 0, self.platform_height],
+            physicsClientId=self.CLIENT,
+        )
+
+    def _sample_platform_params(self):
+        self.platform_pos = np.array([0.0, 0.0, self.platform_height / 2])
         self.platform_vel = np.zeros(3)
-        self.platform_yaw = rng.uniform(0, 2 * np.pi)
-        self._linear_speed = rng.uniform(*self.linear_speed_range)
-        self._angular_speed = rng.uniform(*self.angular_speed_range)
+        self.platform_yaw = self._rng.uniform(0, 2 * np.pi)
+
+        self._sample_motion_params()
+
+    def _sample_motion_params(self):
+        self._linear_speed = self._beta_sample(self.linear_speed_range, *self.linear_beta_params)
+        self._angular_speed = self._beta_sample(self.angular_speed_range, *self.angular_beta_params)
+        self._angular_speed *= self._rng.choice([-1, 1])
         self._motion_step_count = 0
 
-    def _sample_drone_init(self, rng: np.random.Generator) -> np.ndarray:
-        """Posición inicial aleatoria del dron."""
-        r = rng.uniform(0, self.spawn_xy_radius)
-        theta = rng.uniform(0, 2 * np.pi)
+    def _beta_sample(self, range: tuple, alpha: float, beta: float) -> float:
+        lo, hi = range
+        return lo + self._rng.beta(alpha, beta) * (hi - lo)
+
+    def _sample_drone_init(self) -> np.ndarray:
+        r = self._beta_sample((self.platform_radius, self.spawn_xy_radius), *self.spawn_xy_beta_params)
+        theta = self._rng.uniform(0, 2 * np.pi)
         x = r * np.cos(theta)
         y = r * np.sin(theta)
-        z = rng.uniform(*self.spawn_z_range)
+        z = self._rng.uniform(*self.spawn_z_range)
         return np.array([[x, y, z]])
     
     def _update_platform(self):
         dt = 1.0 / self.CTRL_FREQ
 
-        rng = getattr(self, "_rng", np.random.default_rng())
-
         if self.vary_speed:
             p_change = 1 - np.exp(-self._motion_step_count / 200)
             p_change = np.clip(p_change, 0.002, 0.15)
 
-            if rng.random() < p_change:
-                self._linear_speed = rng.uniform(*self.linear_speed_range)
-                self._angular_speed = rng.uniform(*self.angular_speed_range)
-                self._motion_step_count = 0
+            if self._rng.random() < p_change:
+                self._sample_motion_params()
 
         if self.turt_noise:
             self._linear_speed = np.clip(
-                self._linear_speed + rng.uniform(-self.turtle_v_noise, self.turtle_v_noise),
+                self._linear_speed + self._rng.uniform(-self.turtle_v_noise, self.turtle_v_noise),
                 0.0,
                 self.turtle_v_max,
             )
             self._angular_speed = np.clip(
-                self._angular_speed + rng.uniform(-self.turtle_w_noise, self.turtle_w_noise),
+                self._angular_speed + self._rng.uniform(-self.turtle_w_noise, self.turtle_w_noise),
                 -self.turtle_w_max,
                 self.turtle_w_max,
             )
@@ -174,9 +193,9 @@ class MovingPlatformLandingAviary(VelocityAviary):
         vx = self._linear_speed * np.cos(self.platform_yaw)
         vy = self._linear_speed * np.sin(self.platform_yaw)
         self.platform_pos[:2] += np.array([vx, vy]) * dt
-        self.platform_pos[2] = self.platform_z
+        self.platform_pos[2] = self.platform_height / 2
         self.platform_vel = np.array([vx, vy, 0.0])
- 
+
         # Mover el cuerpo cinemático en PyBullet y setear su velocidad lineal
         # para que el motor de contactos la tenga en cuenta.
         p.resetBasePositionAndOrientation(
@@ -191,43 +210,39 @@ class MovingPlatformLandingAviary(VelocityAviary):
             angularVelocity=[0, 0, 0],
             physicsClientId=self.CLIENT,
         )
+        p.resetBasePositionAndOrientation(
+            self.top_disc_id,
+            [self.platform_pos[0], self.platform_pos[1], self.platform_height],
+            [0, 0, 0, 1],
+            physicsClientId=self.CLIENT,
+        )
 
     def reset(self, seed=None, options=None):
         self.episode_step_counter = 0
         self.stable_counter = 0
         self._touching = False
+        self._contact = None
         self.has_landed = False
         self.has_crashed = False
         self.is_truncated = False
-        self._prev_d_total = None
- 
+
         self._rng = np.random.default_rng(seed)
-        rng = self._rng
- 
-        # Sortear parámetros de movimiento de la plataforma
-        self._sample_platform_params(rng)
- 
-        # Sortear posición inicial del dron
-        self.INIT_XYZS = self._sample_drone_init(rng)
- 
+
+        self._sample_platform_params()
+        self.INIT_XYZS = self._sample_drone_init()
+
         obs, info = super().reset(seed=seed, options=options)
- 
-        # Recrear la plataforma (el super().reset() limpia el mundo)
+
         self.platform_id = None
+        self.top_disc_id = None
         self._create_platform()
         self._update_platform()
 
-
-        self._prev_p  = None
-        self._prev_v  = None
-        self._prev_th = None
-
-        # claude:
         rel_pos0 = self._getDroneStateVector(0)[0:3] - self.platform_pos
         self.prev_d = np.linalg.norm(rel_pos0)
 
         self._motion_step_count = 0
- 
+
         return self._computeObs(), info
 
     def step(self, action):
@@ -235,17 +250,19 @@ class MovingPlatformLandingAviary(VelocityAviary):
 
         action = np.array(action, dtype=np.float32).reshape(1, 4)
 
-        obs, reward, terminated, truncated, info = super().step(action)
+        super().step(action)
 
         self.episode_step_counter += 1
-        
-        self._update_stable_counter()
-        self._touching = self._is_touching_platform()
-        self.has_landed = self._landed_successfully()
-        self.has_crashed = self._crashed()
-        self.is_truncated = self.episode_step_counter >= self.max_episode_steps
 
-        return self._computeObs(),self._computeReward(), self._computeTerminated(), self._computeTruncated(), self._computeInfo()
+        self._contact = self._platform_contact()
+        self._touching = (self._contact == 'top')
+        self._update_stable_counter()
+        self.has_landed = (self.stable_counter >= 10)
+        self.has_crashed = self._crashed()
+        terminated = (self.has_landed or self.has_crashed)
+        self.is_truncated = (self.episode_step_counter >= self.max_episode_steps)
+
+        return self._computeObs(), self._computeReward(), terminated, self.is_truncated, self._computeInfo()
 
     def _computeObs(self):
         state = self._getDroneStateVector(0)
@@ -264,183 +281,92 @@ class MovingPlatformLandingAviary(VelocityAviary):
                 rel_vel,
                 rpy,
                 drone_ang_vel,
+                drone_vel
                 # self.platform_vel[0:2],
             ]
         )
 
         return obs.astype(np.float32)
     
-
-    def _computeReward_viejo1(self):
-        state = self._getDroneStateVector(0)
-
-        drone_pos = state[0:3]
-        rpy = state[7:10]
-        drone_vel = state[10:13]
-
-        rel_pos = drone_pos - self.platform_pos
-        rel_vel = drone_vel - self.platform_vel
-
-        p_x = np.linalg.norm(rel_pos)
-        v_x = np.linalg.norm(rel_vel)
-
-        w_p    = -1.0
-        w_v    = -0.5
-        # w_w    = -0.3   # w_theta
-        w_dur  = -0.1
-        w_suc  =  5.0
-        w_fail = -5.0
-
-        # Límites del escenario
-        v_lim     = 1.0   # velocidad máxima esperada (m/s)
-        a_lim     = 1.0   # aceleración máxima esperada (m/s²)
-        # theta_max = 0.8   # rad
-        delta_t   = 1.0 / self.CTRL_FREQ
-
-        r_p_max   = abs(w_p) * v_lim * delta_t
-        r_v_max   = abs(w_v) * a_lim * delta_t
-        # r_th_max  = abs(w_w) * v_lim * (delta_t / theta_max)   # Δθ/θ_max escalado
-        r_dur_max = abs(w_dur) * v_lim * delta_t
-
-        r_max = r_p_max + r_v_max + r_dur_max
-
-        delta_p = 0.0 if self._prev_p is None else (p_x - self._prev_p)
-        delta_v = 0.0 if self._prev_v is None else (v_x - self._prev_v)
-
-
-        self._prev_p = p_x
-        self._prev_v = v_x
-
-        r_p   = float(np.clip(w_p * delta_p, -r_p_max, r_p_max))
-        r_v   = float(np.clip(w_v * delta_v, -r_v_max, r_v_max))
-        r_dur = w_dur * v_lim * delta_t
-
-
-
-        if self.has_landed:
-            r_term = w_suc * r_max
-        elif self.has_crashed or self.is_truncated:
-            r_term = w_fail * r_max
-        else:
-            r_term = 0.0
-
-        return float(r_p + r_v + r_dur + r_term)
-
-    def _computeReward_viejo2(self):
-        state = self._getDroneStateVector(0)
-        drone_pos = state[0:3]
-        rpy       = state[7:10]
-        drone_vel = state[10:13]
-
-        rel_pos = drone_pos - self.platform_pos
-        rel_vel = drone_vel - self.platform_vel
-
-        d_total = np.linalg.norm(rel_pos)
-        d_xy = np.linalg.norm(rel_pos[0:2])
-        v_total = np.linalg.norm(rel_vel)
-        roll, pitch, _ = rpy
-
-        reward = 0.0
-
-        # Señal densa: distancia (siempre activa, escala razonable)
-        reward -= 0.5 * np.clip(d_total / 2.0, 0.0, 1.0)
-        reward -= 0.3 * np.clip(d_xy / 2.0, 0.0, 1.0)
-
-        # # Penalización por velocidad relativa alta cerca de la plataforma
-        # if d_total < 0.5:
-        #     reward -= 0.2 * np.clip(v_total / 2.0, 0.0, 1.0)
-
-        # # Penalización por inclinación
-        # reward -= 0.1 * np.clip((abs(roll) + abs(pitch)) / 0.8, 0.0, 1.0)
-
-        # Penalización por tiempo (apura al agente)
-        # reward -= 0.01
-
-        # Terminal
-        if self.has_landed:
-            reward += 25.0
-        elif self.has_crashed:
-            reward -= 5.0
-        elif self.is_truncated:
-            reward -= 2.0
-
-        return float(reward)
-
     def _computeReward(self):
         state = self._getDroneStateVector(0)
-        drone_pos = state[0:3]
-        rpy       = state[7:10]
-        drone_vel = state[10:13]
+        drone_pos   = state[0:3]
+        roll, pitch = state[7:9]
+        drone_vel   = state[10:13]
 
-        rel_pos = drone_pos - self.platform_pos
-        rel_vel = drone_vel - self.platform_vel
+        # rel_pos = drone_pos - self.platform_pos
+        # rel_vel = drone_vel - self.platform_vel
 
-        d_total = np.linalg.norm(rel_pos)
-        d_xy    = np.linalg.norm(rel_pos[0:2])
-        v_xy    = np.linalg.norm(rel_vel[0:2])
-        v_total = np.linalg.norm(rel_vel)
-        roll, pitch, _ = rpy
-        vz_rel  = rel_vel[2]   # +z = up, so descent is negative
+        # d_total = np.linalg.norm(rel_pos)
+        # d_xy    = np.linalg.norm(rel_pos[0:2])
+        # d_z = abs(drone_pos[2] - self.platform_height) # rel_pos[2] es hacia el centro del cilindro
+        # v_xy    = np.linalg.norm(rel_vel[0:2])
+        # v_total = np.linalg.norm(rel_vel)
 
         reward = 0.0
+        # progress = d_total - self.prev_d
+        # reward += 10000.0 * progress # también probé con números chicos
+        # self.prev_d = d_total
 
-        # --- Progreso (potential-based). Escala: ~spawn_radius (0.8 m). ---
-        # reward += 3.0 * (self.prev_d - d_total)
-        sigma = 0.5  # escala donde el gradiente se concentra (m)
-        phi      = np.exp(-d_total / sigma)
-        phi_prev = np.exp(-self.prev_d / sigma)
-        reward += 4.0 * (phi - phi_prev)   # premia cerrar distancia; gradiente máximo cerca del pad
-        self.prev_d = d_total
+        # reward -= 0.1 * v_xy # Si incluyo v_z, el dron no baja
+        # reward -= 0.05 * d_z # Termino para bajar
+        # reward -= 0.2 * d_xy # Más peso para incentivar aterrizajes centrados
+        # reward -= 0.4 * (roll**2 + pitch**2) # Inclinarse menos
 
-        # Término absoluto residual. Denominador ~ spawn_radius, no 2.0
-        # reward -= 0.1 * np.clip(d_xy / 0.8, 0.0, 1.0) # descomentar este
+        # reward -= 0.001 # Penalización por tiempo (apura al agente)
 
-        # --- Matching de velocidad relativa. Denominador al regimen real (~0.5 m/s) ---
-        reward -= 0.10 * np.clip(v_xy / 0.5, 0.0, 1.0)
+        # to_center_xy = self.platform_pos[0:2] - drone_pos[0:2]
+        # d_xy = np.linalg.norm(to_center_xy) + 1e-3
 
-        # --- Suavidad / esfuerzo ---
-        # reward -= 0.05 * np.clip((abs(roll) + abs(pitch)) / 0.8, 0.0, 1.0)
+        # ideal_dir = np.array([to_center_xy[0], to_center_xy[1], -d_z/d_xy])
+        # ideal_dir /= np.linalg.norm(ideal_dir) + 1e-3
 
-        # --- Gate de descenso: sincronizado antes de bajar ---
-        # if d_xy < 0.3:                                          # radio del pad, no 0.5
-        #     reward -= 0.4 * np.clip(v_xy / 0.5, 0.0, 1.0)       # exige sincronía horizontal
-        #     reward -= 0.2 * max(0.0, -vz_rel - 0.3)             # no bajar demasiado rápido
+        # alignment = np.dot(drone_vel, ideal_dir)
+        # reward += 0.05 * alignment
+        # reward -= 0.1 * d_total
+        # reward -= 0.02 * (roll**2 + pitch**2)
 
-        # --- Penalización por tiempo ---
-        reward -= 0.005
+        # reward = -0.1 * d_total
+        target = np.array([self.platform_pos[0], self.platform_pos[1], self.platform_height])
+        rel_to_top = drone_pos - target
+        d_total = np.linalg.norm(rel_to_top)
+        d_xy = np.linalg.norm(rel_to_top[0:2])
+
+        reward -= 0.1 * d_total
+        reward -= 0.001 * (roll**2 + pitch**2)
 
         # --- Terminal ---
         if self.has_landed:
-            # Bonus escalado por calidad. exp(-d_xy/0.3) -> sensible a la escala del pad
-            # reward += 25.0 + 10.0 * np.exp(-d_xy / 0.3) - 5.0 * v_total
-            reward += 50
+            reward += 25.0 - d_xy * 50.0 # recompensa mayor cuanto más centrado aterrice
         elif self.has_crashed:
-            reward -= 40.0
+            reward -= 10.0
         elif self.is_truncated:
             reward -= 2.0
 
         return float(reward)
 
-    def _is_touching_platform(self):
-        contacts = p.getContactPoints(
-            bodyA=self.DRONE_IDS[0],
-            bodyB=self.platform_id,
-            physicsClientId=self.CLIENT,
-        )
-        return len(contacts) > 0
-
-    def _is_touching_ground(self):
+    def _platform_contact(self):
         contacts = p.getContactPoints(
             bodyA=self.DRONE_IDS[0],
             physicsClientId=self.CLIENT,
         )
         if not contacts:
-            return False
+            return None
+
+        z_tolerance = 0.05
         for contact in contacts:
             if contact[2] != self.platform_id:
-                return True
-        return False
+                return 'crash'
+            if abs(contact[6][2] - self.platform_height) < z_tolerance:
+                return 'top'
 
+        return 'crash' # Toca la plataforma afuera del radio
+
+    def _is_touching_platform(self):
+        return self._contact == 'top'
+
+    def _is_touching_ground(self):
+        return self._contact == 'crash'
 
     def _update_stable_counter(self):
         state = self._getDroneStateVector(0)
@@ -459,12 +385,11 @@ class MovingPlatformLandingAviary(VelocityAviary):
 
         conditions = (
             self._is_touching_platform()
-            # and d_xy < 0.15
-            and vertical_speed < 0.35
-            and abs(roll) < 0.35
-            and abs(pitch) < 0.35
+            and d_xy < 0.2
+            and vertical_speed < 0.1
+            and abs(roll) < 0.15
+            and abs(pitch) < 0.15
         )
-        # pondria diferencia a la inclinacion de la plataforma
         
         if conditions:
             self.stable_counter += 1
@@ -475,32 +400,13 @@ class MovingPlatformLandingAviary(VelocityAviary):
         return self.stable_counter >= 10
 
     def _crashed(self):
+        if self._contact == 'crash':
+            return True
+        
         state = self._getDroneStateVector(0)
+        roll, pitch = state[7:9]
 
-        rpy = state[7:10]
-
-        roll, pitch, _ = rpy
-
-        too_tilted = abs(roll) > 0.8 or abs(pitch) > 0.8
-        hit_ground = self._is_touching_ground()
-
-        return too_tilted or hit_ground
-
-    # def _out_of_bounds(self):
-    #     state = self._getDroneStateVector(0)
-
-    #     x, y, z = state[0:3]
-
-    #     return abs(x) > 2.0 or abs(y) > 2.0 or z > 2.0
-
-    def _computeTerminated(self):
-        return bool(
-            self.has_landed or self.has_crashed
-            # or self._out_of_bounds()
-        )
-
-    def _computeTruncated(self):
-        return bool(self.is_truncated)
+        return bool(abs(roll) > 0.8 or abs(pitch) > 0.8)
 
     def _computeInfo(self):
         state = self._getDroneStateVector(0)
@@ -515,9 +421,8 @@ class MovingPlatformLandingAviary(VelocityAviary):
             "is_success": self.has_landed, 
             "crashed": self.has_crashed,
             "d_xy": float(np.linalg.norm(rel_pos[0:2])),
-            "dz": float(abs(rel_pos[2])),
+            "dz": float(abs(drone_pos[2] - self.platform_height)),
             "v_rel": float(np.linalg.norm(rel_vel)),
-            "level": self.level,
             "vary_speed": self.vary_speed,
             "turt_noise": self.turt_noise,
         }

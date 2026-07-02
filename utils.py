@@ -10,14 +10,11 @@ from stable_baselines3.common.utils import set_random_seed
 
 from platform1 import MovingPlatformLandingAviary
 
-
 # MODE_CHOICES = ("static", "linear", "turtlebot")
 LEVEL_CHOICES = tuple(range(0, 6))
 DEFAULT_CTRL_FREQ = 24
 DEFAULT_MAX_EPISODE_SECONDS = 20
-DEFAULT_PLATFORM_RADIUS = 0.2
 DEFAULT_SEED = 42
-
 
 def get_model_path(level: int, with_extension: bool = False) -> str:
     base = f"weights/ppo_landing_level_{level}"
@@ -76,11 +73,9 @@ def make_env(level: int, gui: bool, seed: int | None = None):
         level_params.pop("id") 
 
         env_kwargs = dict(
-            level=level,
             gui=gui,
             ctrl_freq=DEFAULT_CTRL_FREQ,
             max_episode_seconds=DEFAULT_MAX_EPISODE_SECONDS,
-            platform_radius=DEFAULT_PLATFORM_RADIUS,
             **defaults,
         )
         env_kwargs.update(level_params)
