@@ -1,56 +1,52 @@
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv, VecNormalize
 
-from utils import parse_args, get_model_path, get_vecnormalize_path, make_env, set_global_seeds
+from utils import parse_args, get_model_path, get_vecnormalize_path, get_latest_version, make_env, set_global_seeds
 import time
 
 
-DEFAULT_TOTAL_TIMESTEPS = 300000
-DEFAULT_N_ENVS = 4
+DEFAULT_TOTAL_TIMESTEPS = 1000000
+DEFAULT_N_ENVS = 8
 
 
-def make_vec_env(level: int, seed: int, n_envs: int):
-    env_fns = [make_env(level, gui=False, seed=seed + i) for i in range(n_envs)]
+def make_vec_env(seed: int, n_envs: int):
+    env_fns = [make_env(gui=False, seed=seed + i) for i in range(n_envs)]
     if n_envs == 1:
         return DummyVecEnv(env_fns)
 
     return SubprocVecEnv(env_fns, start_method="spawn")
 
 
-
 def train(
-    level: int,
+    load_version: int | None = None,
     total_timesteps: int = DEFAULT_TOTAL_TIMESTEPS,
     seed: int = 42,
-    continue_training: bool = False,
     n_envs: int = DEFAULT_N_ENVS,
 ):
-    env = make_vec_env(level, seed, n_envs)
+    env = make_vec_env(seed, n_envs)
 
-    if continue_training:
-        vecnormalize_path = get_vecnormalize_path(level)
+    if load_version is not None:
+        vecnormalize_path = get_vecnormalize_path(load_version)
+        model_path = get_model_path(load_version, with_extension=True)
+
         env = VecNormalize.load(vecnormalize_path, env)
-        model_path = get_model_path(level, with_extension=True)
-    elif level > 0:
-        prev_vecnormalize_path = get_vecnormalize_path(level - 1)
-        env = VecNormalize.load(prev_vecnormalize_path, env)
-        model_path = get_model_path(level - 1, with_extension=True)
+        env.training = True
+        env.norm_reward = True
+        model = PPO.load(model_path, env=env)
+
+        model.tensorboard_log = f"./logs/version_{load_version}/"
+        reset_num_timesteps = False
     else:
+        latest = get_latest_version()
+        version = 0 if latest is None else latest + 1
         env = VecNormalize(
             env,
             norm_obs=True,
             norm_reward=True,
             clip_obs=10.0,
         )
-
-    env.training = True
-    env.norm_reward = True
-
-    # load if resume training or doing curriculum
-    if continue_training or level > 0:
-        model = PPO.load(model_path, env=env)
-        model.tensorboard_log = f"./logs/landing_level_{level}/"
-    else:
+        env.training = True
+        env.norm_reward = True
         model = PPO(
             "MlpPolicy",
             env,
@@ -70,14 +66,13 @@ def train(
             ),
             seed=seed,
             verbose=1,
-            tensorboard_log=f"./logs/landing_level_{level}/",
+            tensorboard_log=f"./logs/version_{version}/",
         )
-    
-    reset_num_timesteps = not continue_training
-    model.learn(total_timesteps=total_timesteps, reset_num_timesteps=reset_num_timesteps)
+        model_path = get_model_path(version)
+        vecnormalize_path = get_vecnormalize_path(version)
+        reset_num_timesteps = True
 
-    model_path = get_model_path(level)
-    vecnormalize_path = get_vecnormalize_path(level)
+    model.learn(total_timesteps=total_timesteps, reset_num_timesteps=reset_num_timesteps)
 
     model.save(model_path)
     env.save(vecnormalize_path)
@@ -91,16 +86,15 @@ def main():
 
     new_args = [
         ("timesteps", int, DEFAULT_TOTAL_TIMESTEPS, "Total PPO timesteps to train."),
-        ("cont", bool, False, "Whether to continue training from the last checkpoint."),
         ("n_envs", int, DEFAULT_N_ENVS, "Number of parallel environments to use during training."),
     ]
     args = parse_args(new_args=new_args)
     set_global_seeds(args.seed)
 
-    model_path, vecnormalize_path = train(args.level, args.timesteps, args.seed, args.cont, args.n_envs)
+    model_path, vecnormalize_path = train(args.load, args.timesteps, args.seed, args.n_envs)
 
     print(f"Saved model to {model_path}.zip")
-    print(f"Saved normalization stats to {vecnormalize_path}")
+    print(f"Saved vecnorms to {vecnormalize_path}")
 
     timef = time.time() - time0
     print(f"Training took {timef:.2f} seconds.")

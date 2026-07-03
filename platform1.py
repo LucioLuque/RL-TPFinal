@@ -272,7 +272,9 @@ class MovingPlatformLandingAviary(VelocityAviary):
         drone_vel = state[10:13]
         drone_ang_vel = state[13:16]
 
-        rel_pos = drone_pos - self.platform_pos
+        # rel_pos = drone_pos - self.platform_pos
+        rel_pos = drone_pos - np.array([self.platform_pos[0], self.platform_pos[1], self.platform_height])
+
         rel_vel = drone_vel - self.platform_vel
 
         obs = np.concatenate(
@@ -327,10 +329,13 @@ class MovingPlatformLandingAviary(VelocityAviary):
         # reward -= 0.02 * (roll**2 + pitch**2)
 
         # reward = -0.1 * d_total
-        target = np.array([self.platform_pos[0], self.platform_pos[1], self.platform_height])
-        rel_to_top = drone_pos - target
-        d_total = np.linalg.norm(rel_to_top)
-        d_xy = np.linalg.norm(rel_to_top[0:2])
+
+        # target = np.array([self.platform_pos[0], self.platform_pos[1], self.platform_height])
+        # rel_to_top = drone_pos - target
+
+        rel_pos = drone_pos - np.array([self.platform_pos[0], self.platform_pos[1], self.platform_height])
+        d_total = np.linalg.norm(rel_pos)
+        d_xy = np.linalg.norm(rel_pos[0:2])
 
         reward -= 0.1 * d_total
         reward -= 0.001 * (roll**2 + pitch**2)

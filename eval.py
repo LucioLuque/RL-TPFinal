@@ -3,22 +3,26 @@ import time
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 
-from utils import DEFAULT_CTRL_FREQ, parse_args, get_model_path, get_vecnormalize_path, make_env, set_global_seeds
+from utils import DEFAULT_CTRL_FREQ, parse_args, get_model_path, get_vecnormalize_path, get_latest_version, make_env, set_global_seeds
+
+DEFAULT_EVAL_EPISODES = 5
 
 def main():
-    new_args = [ # Add argument option to use specific level weights and vecnorms to cross-evaluate on another level
-        ("episodes", int, 5, "Number of evaluation episodes."),
-        ("weights", int, None, "Level of the weights and vecnorms to use for evaluation (defaults to the evaluation level)."),
+    new_args = [
+        ("episodes", int, DEFAULT_EVAL_EPISODES, "Number of evaluation episodes."),
     ]
     args = parse_args(eval=True, new_args=new_args)
     set_global_seeds(args.seed)
 
-    level_load = args.weights if args.weights is not None else args.level
+    # --load lets you evaluate any saved version; defaults to the latest one.
+    version = args.load if args.load is not None else get_latest_version()
+    if version is None:
+        raise SystemExit("No saved weights found to evaluate. Train a model first.")
 
-    model_path = get_model_path(level_load, with_extension=True)
-    vecnormalize_path = get_vecnormalize_path(level_load)
+    model_path = get_model_path(version, with_extension=True)
+    vecnormalize_path = get_vecnormalize_path(version)
 
-    env = DummyVecEnv([make_env(args.level, gui=True, seed=args.seed)])
+    env = DummyVecEnv([make_env(gui=True, seed=args.seed)])
     env = VecNormalize.load(vecnormalize_path, env)
 
     env.training = False
