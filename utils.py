@@ -2,7 +2,6 @@ import argparse
 import glob
 import random
 import re
-
 import torch
 import numpy as np
 import yaml
@@ -10,8 +9,7 @@ import yaml
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.utils import set_random_seed
 
-
-from platform1 import MovingPlatformLandingAviary
+from env import MovingPlatformLandingAviary
 
 DEFAULT_CTRL_FREQ = 24
 DEFAULT_MAX_EPISODE_SECONDS = 20
@@ -23,10 +21,8 @@ def get_model_path(version: int, with_extension: bool = False) -> str:
         return f"{base}.zip"
     return base
 
-
 def get_vecnormalize_path(version: int) -> str:
     return f"vecnorms/vecnormalize_version_{version}.pkl"
-
 
 def get_latest_version() -> int | None:
     versions = []
@@ -44,29 +40,14 @@ def parse_args(eval: bool = False, new_args: list[tuple[str, type, any, str]] | 
         "Weight/vecnorm version number to load (defaults to latest saved version)." if eval
         else "Weight/vecnorm version number to continue training from (defaults to new training)."
     )
-    parser.add_argument(
-        "--load",
-        default=None,
-        help=load_help,
-        type=int,
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=DEFAULT_SEED,
-        help="Random seed.",
-    )
+    parser.add_argument("--load", default=None, help=load_help, type=int)
+    parser.add_argument("--seed", type=int, default=DEFAULT_SEED, help="Random seed.")
+    
     if new_args is not None:
         for arg in new_args:
-            parser.add_argument(
-                f"--{arg[0]}",
-                type=arg[1],
-                default=arg[2],
-                help=arg[3],
-        )
+            parser.add_argument(f"--{arg[0]}", type=arg[1], default=arg[2], help=arg[3])
 
     return parser.parse_args()
-
 
 def set_global_seeds(seed: int):
     random.seed(seed)
@@ -76,7 +57,6 @@ def set_global_seeds(seed: int):
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
-
 def make_env(gui: bool, seed: int | None = None):
     def _init():
         with open("levels.yaml", "r") as f:
@@ -84,18 +64,12 @@ def make_env(gui: bool, seed: int | None = None):
         defaults = config["defaults"]
         env_params = config["turtlebot_hard_fixed"]
 
-        env_kwargs = dict(
-            gui=gui,
-            ctrl_freq=DEFAULT_CTRL_FREQ,
-            max_episode_seconds=DEFAULT_MAX_EPISODE_SECONDS,
-            **defaults,
-        )
+        env_kwargs = dict(gui=gui, ctrl_freq=DEFAULT_CTRL_FREQ, max_episode_seconds=DEFAULT_MAX_EPISODE_SECONDS, **defaults)
         env_kwargs.update(env_params)
 
         env = MovingPlatformLandingAviary(**env_kwargs)
         env = Monitor(env)
         if seed is not None:
-            env.reset(seed=seed)
             env.action_space.seed(seed)
         return env
 

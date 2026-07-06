@@ -4,10 +4,8 @@ from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv, VecNorm
 from utils import parse_args, get_model_path, get_vecnormalize_path, get_latest_version, make_env, set_global_seeds
 import time
 
-
 DEFAULT_TOTAL_TIMESTEPS = 1000000
 DEFAULT_N_ENVS = 8
-
 
 def make_vec_env(seed: int, n_envs: int):
     env_fns = [make_env(gui=False, seed=seed + i) for i in range(n_envs)]
@@ -16,13 +14,7 @@ def make_vec_env(seed: int, n_envs: int):
 
     return SubprocVecEnv(env_fns, start_method="spawn")
 
-
-def train(
-    load_version: int | None = None,
-    total_timesteps: int = DEFAULT_TOTAL_TIMESTEPS,
-    seed: int = 42,
-    n_envs: int = DEFAULT_N_ENVS,
-):
+def train(load_version: int | None = None, total_timesteps: int = DEFAULT_TOTAL_TIMESTEPS, seed: int = 42, n_envs: int = DEFAULT_N_ENVS):
     env = make_vec_env(seed, n_envs)
 
     if load_version is not None:
@@ -39,12 +31,8 @@ def train(
     else:
         latest = get_latest_version()
         version = 0 if latest is None else latest + 1
-        env = VecNormalize(
-            env,
-            norm_obs=True,
-            norm_reward=True,
-            clip_obs=10.0,
-        )
+        env = VecNormalize(env, norm_obs=True, norm_reward=True, clip_obs=10.0,)
+
         env.training = True
         env.norm_reward = True
         model = PPO(
@@ -80,13 +68,11 @@ def train(
 
     return model_path, vecnormalize_path
 
-
 def main():
     time0 = time.time()
 
-    new_args = [
-        ("timesteps", int, DEFAULT_TOTAL_TIMESTEPS, "Total PPO timesteps to train."),
-        ("n_envs", int, DEFAULT_N_ENVS, "Number of parallel environments to use during training."),
+    new_args = [("timesteps", int, DEFAULT_TOTAL_TIMESTEPS, "Total PPO timesteps to train."),
+                ("n_envs", int, DEFAULT_N_ENVS, "Number of parallel environments to use."),
     ]
     args = parse_args(new_args=new_args)
     set_global_seeds(args.seed)

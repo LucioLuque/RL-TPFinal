@@ -8,17 +8,17 @@ from utils import DEFAULT_CTRL_FREQ, parse_args, get_model_path, get_vecnormaliz
 DEFAULT_EVAL_EPISODES = 5
 
 def main():
+    #python eval.py --load 4 --seed 42 --episodes 5
+
     new_args = [
         ("episodes", int, DEFAULT_EVAL_EPISODES, "Number of evaluation episodes."),
     ]
     args = parse_args(eval=True, new_args=new_args)
     set_global_seeds(args.seed)
 
-    # --load lets you evaluate any saved version; defaults to the latest one.
+    # --load
     version = args.load if args.load is not None else get_latest_version()
-    if version is None:
-        raise SystemExit("No saved weights found to evaluate. Train a model first.")
-
+    
     model_path = get_model_path(version, with_extension=True)
     vecnormalize_path = get_vecnormalize_path(version)
 
@@ -30,6 +30,7 @@ def main():
 
     model = PPO.load(model_path, env=env, device="cpu")
 
+    env.seed(args.seed)
     obs = env.reset()
     successful_landings = 0
 
@@ -50,7 +51,6 @@ def main():
 
     print(f"Éxitos: {successful_landings}/{args.episodes}")
     env.close()
-
 
 if __name__ == "__main__":
     main()
