@@ -267,26 +267,50 @@ class MovingPlatformLandingAviary(VelocityAviary):
     def _computeObs(self):
         state = self._getDroneStateVector(0)
 
+        # drone_pos = state[0:3]
+        # rpy = state[7:10]
+        # drone_vel = state[10:13]
+        # drone_ang_vel = state[13:16]
+
+        # # rel_pos = drone_pos - self.platform_pos
+        # rel_pos = drone_pos - np.array([self.platform_pos[0], self.platform_pos[1], self.platform_height])
+        # rel_vel = drone_vel - self.platform_vel
+
+
+        # obs = np.concatenate(
+        #     [
+        #         rel_pos,
+        #         rel_vel,
+        #         rpy,
+        #         drone_ang_vel,
+        #         drone_vel,
+        #         # self.platform_vel[0:2],
+        #     ]
+        # )
+
         drone_pos = state[0:3]
-        rpy = state[7:10]
+        quat = state[3:7]
         drone_vel = state[10:13]
         drone_ang_vel = state[13:16]
 
         # rel_pos = drone_pos - self.platform_pos
         rel_pos = drone_pos - np.array([self.platform_pos[0], self.platform_pos[1], self.platform_height])
-
         rel_vel = drone_vel - self.platform_vel
+
+        target_vel = self._get_target_velocity(rel_pos)
 
         obs = np.concatenate(
             [
                 rel_pos,
                 rel_vel,
-                rpy,
+                quat,
                 drone_ang_vel,
-                drone_vel
+                drone_vel,
+                target_vel,
                 # self.platform_vel[0:2],
             ]
         )
+
 
         return obs.astype(np.float32)
     
@@ -296,19 +320,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
         roll, pitch = state[7:9]
         drone_vel   = state[10:13]
 
-        # rel_pos = drone_pos - self.platform_pos
-        # rel_vel = drone_vel - self.platform_vel
-
-        # d_total = np.linalg.norm(rel_pos)
-        # d_xy    = np.linalg.norm(rel_pos[0:2])
-        # d_z = abs(drone_pos[2] - self.platform_height) # rel_pos[2] es hacia el centro del cilindro
-        # v_xy    = np.linalg.norm(rel_vel[0:2])
-        # v_total = np.linalg.norm(rel_vel)
-
         reward = 0.0
-        # progress = d_total - self.prev_d
-        # reward += 10000.0 * progress # también probé con números chicos
-        # self.prev_d = d_total
 
         # reward -= 0.1 * v_xy # Si incluyo v_z, el dron no baja
         # reward -= 0.05 * d_z # Termino para bajar
@@ -316,9 +328,6 @@ class MovingPlatformLandingAviary(VelocityAviary):
         # reward -= 0.4 * (roll**2 + pitch**2) # Inclinarse menos
 
         # reward -= 0.001 # Penalización por tiempo (apura al agente)
-
-        # to_center_xy = self.platform_pos[0:2] - drone_pos[0:2]
-        # d_xy = np.linalg.norm(to_center_xy) + 1e-3
 
         # ideal_dir = np.array([to_center_xy[0], to_center_xy[1], -d_z/d_xy])
         # ideal_dir /= np.linalg.norm(ideal_dir) + 1e-3
@@ -329,16 +338,36 @@ class MovingPlatformLandingAviary(VelocityAviary):
         # reward -= 0.02 * (roll**2 + pitch**2)
 
         # reward = -0.1 * d_total
+        platform_top = np.array([self.platform_pos[0], self.platform_pos[1], self.platform_height])
+    
+        rel_pos = drone_pos - platform_top
+        rel_vel = drone_vel - self.platform_vel
 
-        # target = np.array([self.platform_pos[0], self.platform_pos[1], self.platform_height])
-        # rel_to_top = drone_pos - target
-
-        rel_pos = drone_pos - np.array([self.platform_pos[0], self.platform_pos[1], self.platform_height])
         d_total = np.linalg.norm(rel_pos)
         d_xy = np.linalg.norm(rel_pos[0:2])
 
+        # Progreso inmediato hacia la plataforma: si la distancia baja, suma;
+        # si aumenta, resta. Se combina con la penalización absoluta.
+        # progress = self.prev_d - d_total
+        # reward += 10.0 * progress
+        # self.prev_d = d_total
+
         reward -= 0.1 * d_total
         reward -= 0.001 * (roll**2 + pitch**2)
+        rel_pos = drone_pos - platform_top
+        rel_vel = drone_vel - self.platform_vel
+
+        d_total = np.linalg.norm(rel_pos)
+
+        v_target = self._get_target_velocity(rel_pos)
+
+        sq_err = np.sum((rel_vel - v_target)**2)
+        reward += 0.1 * (np.exp(-0.5 * sq_err) - 1.0)
+
+        if self._is_touching_platform():    
+            reward += 0.1
+
+        reward -= 0.01
 
         # --- Terminal ---
         if self.has_landed:
@@ -349,6 +378,16 @@ class MovingPlatformLandingAviary(VelocityAviary):
             reward -= 2.0
 
         return float(reward)
+
+    def _get_target_velocity(self, rel_pos):
+        v_max = 1.0
+        v_target = -0.5 * rel_pos
+
+        v_target_norm = np.linalg.norm(v_target)
+        if v_target_norm > v_max:
+            v_target = v_target / v_target_norm * v_max
+
+        return v_target
 
     def _platform_contact(self):
         contacts = p.getContactPoints(
@@ -365,7 +404,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
             if abs(contact[6][2] - self.platform_height) < z_tolerance:
                 return 'top'
 
-        return 'crash' # Toca la plataforma afuera del radio
+        return 'crash' # Toca la plataforma afuera de altura aceptada   
 
     def _is_touching_platform(self):
         return self._contact == 'top'
@@ -392,8 +431,8 @@ class MovingPlatformLandingAviary(VelocityAviary):
             self._is_touching_platform()
             and d_xy < 0.2
             and vertical_speed < 0.1
-            and abs(roll) < 0.15
-            and abs(pitch) < 0.15
+            and abs(roll) < 0.1
+            and abs(pitch) < 0.1
         )
         
         if conditions:
@@ -411,7 +450,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
         state = self._getDroneStateVector(0)
         roll, pitch = state[7:9]
 
-        return bool(abs(roll) > 0.8 or abs(pitch) > 0.8)
+        return bool(abs(roll) > 0.7 or abs(pitch) > 0.7)
 
     def _computeInfo(self):
         state = self._getDroneStateVector(0)
