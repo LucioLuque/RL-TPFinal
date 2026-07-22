@@ -180,6 +180,29 @@ if __name__ == "__main__":
     #     # vlines={2373000: "Cambio de curriculum"},
     # )
 
+    # plot 2
+    plot_tensorboard_metrics(
+        versions={
+            1: r"",
+        },
+        tags=[
+            "rollout/success_rate",
+            "train/explained_variance",
+            "train/approx_kl",
+            
+            # "rollout/ep_rew_mean"
+
+        ],
+        # path_template="logs/landing_level_1/PPO_{v}",
+        path_template="logs/version_{v}/PPO_1",
+        save_dir="plots",
+        show=True,
+        max_steps=5000000,
+        # smooth = 0.,
+        figsize=(8, 6),
+        vlines={2166000: ""},
+    )
+
     # # plot 3
     # plot_tensorboard_metrics(
     #     versions={
@@ -247,29 +270,29 @@ if __name__ == "__main__":
     #     # vlines={2166000: ""},
     # )
 
-    # plot 6
-    plot_tensorboard_metrics(
-        versions={
-            1: r"V1",
-            # 2: r"V2",
-            # 3: r"V3",
-            8: r"$K_t = 0.1$",
-            13: r"Velocity tracking",
+    # # plot 6
+    # plot_tensorboard_metrics(
+    #     versions={
+    #         1: r"V1",
+    #         # 2: r"V2",
+    #         # 3: r"V3",
+    #         8: r"$K_t = 0.1$",
+    #         13: r"Velocity tracking",
 
-        },
-        tags=[
-            "rollout/success_rate",
-            # "train/explained_variance",
-            # "rollout/ep_rew_mean"
-            # "rollout/ep_len_mean"
+    #     },
+    #     tags=[
+    #         "rollout/success_rate",
+    #         # "train/explained_variance",
+    #         # "rollout/ep_rew_mean"
+    #         # "rollout/ep_len_mean"
 
-        ],
-        # path_template="logs/landing_level_1/PPO_{v}",
-        path_template="logs/version_{v}/PPO_1",
-        save_dir="plots",
-        show=True,
-        max_steps=4500000,
-        smooth = 0.9,
-        figsize=(8, 4),
-        # vlines={2166000: ""},
-    )
+    #     ],
+    #     # path_template="logs/landing_level_1/PPO_{v}",
+    #     path_template="logs/version_{v}/PPO_1",
+    #     save_dir="plots",
+    #     show=True,
+    #     max_steps=4500000,
+    #     smooth = 0.9,
+    #     figsize=(8, 4),
+    #     # vlines={2166000: ""},
+    # )
