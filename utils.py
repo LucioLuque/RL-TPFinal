@@ -24,6 +24,12 @@ def get_model_path(version: int, with_extension: bool = False) -> str:
 def get_vecnormalize_path(version: int) -> str:
     return f"vecnorms/vecnormalize_version_{version}.pkl"
 
+def get_best_model_dir(version: int) -> str:
+    return f"weights/best_version_{version}"
+
+def get_best_vecnormalize_path(version: int) -> str:
+    return f"vecnorms/vecnormalize_best_version_{version}.pkl"
+
 def get_latest_version() -> int | None:
     versions = []
     for path in glob.glob(get_model_path("*", with_extension=True)):

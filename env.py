@@ -31,17 +31,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self.spawn_xy_radius = spawn_xy_radius
         self.spawn_z_range = spawn_z_range
 
-        self.episode_step_counter = 0
         self.max_episode_steps = int(max_episode_seconds * ctrl_freq)
-
-        self.platform_id = None
-        self.platform_pos = np.zeros(3)
-        self.platform_vel = np.zeros(3)
-        self.platform_yaw = 0.0
-
-        self._linear_speed = 0.0
-        self._angular_speed = 0.0
-        self._motion_step_count = 0
 
         # Limites
         self.turtle_v_max = 0.3 # m/s máximo
@@ -49,20 +39,9 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self.turtle_v_noise = 0.03 # ruido en velocidad lineal
         self.turtle_w_noise = 0.2 # ruido en velocidad angular
 
-        self.linear_beta_params = (4, 2)  
+        self.linear_beta_params = (4, 2)
         self.angular_beta_params = (2, 4)
         self.spawn_xy_beta_params = (4, 2)
-
-        self.stable_counter = 0
-
-        # flags de estado
-        self._touching = False
-        self._contact = None
-        self.has_landed = False
-        self.has_crashed = False
-        self.is_truncated = False
-
-        self.prev_d = 0.0
 
         self._rng = np.random.default_rng()
 
@@ -80,20 +59,18 @@ class MovingPlatformLandingAviary(VelocityAviary):
             obstacles=False,
         )
 
-        obs_size = self._computeObs().shape[0]
-        self.observation_space = spaces.Box(
-            low=np.full(obs_size, -np.inf, dtype=np.float32),
-            high=np.full(obs_size, np.inf, dtype=np.float32),
-            dtype=np.float32,
-        )
-
         self.action_space = spaces.Box(
             low=np.array([-1, -1, -1, 0], dtype=np.float32),
             high=np.array([1, 1, 1, 1], dtype=np.float32),
             dtype=np.float32,
         )
 
-        self._create_platform()
+        obs, _ = self.reset()
+        self.observation_space = spaces.Box(
+            low=np.full(obs.shape[0], -np.inf, dtype=np.float32),
+            high=np.full(obs.shape[0], np.inf, dtype=np.float32),
+            dtype=np.float32,
+        )
 
     def _create_platform(self):
         radius = self.platform_radius
@@ -222,8 +199,10 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self.has_landed = False
         self.has_crashed = False
         self.is_truncated = False
+        self.prev_action = np.zeros(4, dtype=np.float32)
 
-        self._rng = np.random.default_rng(seed)
+        if seed is not None:
+            self._rng = np.random.default_rng(seed)
 
         self._sample_platform_params()
         self.INIT_XYZS = self._sample_drone_init()
@@ -246,6 +225,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self._update_platform()
 
         action = np.array(action, dtype=np.float32).reshape(1, 4)
+        self._current_action = action[0].copy()
 
         super().step(action)
 
@@ -259,14 +239,21 @@ class MovingPlatformLandingAviary(VelocityAviary):
         terminated = (self.has_landed or self.has_crashed)
         self.is_truncated = (self.episode_step_counter >= self.max_episode_steps)
 
-        return self._computeObs(), self._computeReward(), terminated, self.is_truncated, self._computeInfo()
+        reward = self._computeReward()
+
+        self.prev_action = self._current_action.copy()
+        self.prev_d = self._current_d
+
+        obs = self._computeObs()
+        info = self._computeInfo()
+
+        return obs, reward, terminated, self.is_truncated, info
 
     def _computeObs(self):
         state = self._getDroneStateVector(0)
 
         #ultimo experimento velocity tracking
         drone_pos = state[0:3]
-        quat = state[3:7]
         rpy = state[7:10]
         drone_vel = state[10:13]
         drone_ang_vel = state[13:16]
@@ -276,17 +263,6 @@ class MovingPlatformLandingAviary(VelocityAviary):
 
         target_vel = self._get_target_velocity(rel_pos)
 
-        # obs = np.concatenate(
-        #     [
-        #         rel_pos,
-        #         rel_vel,
-        #         quat,
-        #         drone_ang_vel,
-        #         drone_vel,
-        #         target_vel,
-        #     ]
-        # )
-
         obs = np.concatenate(
             [
                 rel_pos,
@@ -294,9 +270,9 @@ class MovingPlatformLandingAviary(VelocityAviary):
                 rpy,
                 drone_ang_vel,
                 drone_vel,
+                self.prev_action,
             ]
         )
-
 
         return obs.astype(np.float32)
     
@@ -311,23 +287,26 @@ class MovingPlatformLandingAviary(VelocityAviary):
         rel_pos = drone_pos - platform_top
         rel_vel = drone_vel - self.platform_vel
 
-        d_total = np.linalg.norm(rel_pos)
+        self._current_d = np.linalg.norm(rel_pos)
         d_xy = np.linalg.norm(rel_pos[0:2])
 
-        v_target = self._get_target_velocity(rel_pos)
-
-        #ultimo experimento con velocity tracking
+        # cosas viejas
+        # v_target = self._get_target_velocity(rel_pos)
+        # sq_err = np.sum((rel_vel - v_target)**2)
+        # reward += 0.1 * (np.exp(-0.5 * sq_err) - 1.0)
+        # reward -= 0.001 * (roll**2 + pitch**2) # estaba mal esta idea
 
         reward = 0.0
 
-        reward -= 0.1 * d_total
-        reward -= 0.001 * (roll**2 + pitch**2)
+        reward -= 0.1 * self._current_d
         reward -= 0.01
 
-        sq_err = np.sum((rel_vel - v_target)**2)
-        reward += 0.1 * (np.exp(-0.5 * sq_err) - 1.0)
+        # if self.episode_step_counter > 1:
+        #     reward -= 0.1 * (self.prev_d - self._current_d)
+        #     da = np.sum((self._current_action - self.prev_action) ** 2)
+        #     reward -= 0.02 * da  # alpha_action, punto de partida a tunear
 
-        if self._is_touching_platform():    
+        if self._is_touching_platform():
             reward += 0.1
 
         #terminales
@@ -335,8 +314,6 @@ class MovingPlatformLandingAviary(VelocityAviary):
             reward += 25.0 - d_xy * 50.0
         elif self.has_crashed:
             reward -= 10.0
-        elif self.is_truncated:
-            reward -= 2.0
 
         return float(reward)
 

@@ -18,7 +18,9 @@ def main():
 
     # --load
     version = args.load if args.load is not None else get_latest_version()
-    
+    if version is None:
+        raise SystemExit("No saved weights found to evaluate. Train a model first.")
+
     model_path = get_model_path(version, with_extension=True)
     vecnormalize_path = get_vecnormalize_path(version)
 
