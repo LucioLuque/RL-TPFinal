@@ -6,14 +6,18 @@ from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv, VecNormalize, sync_envs_normalization
 
+from run_registry import RunRecord, previous_best
 from utils import (
     parse_args,
     get_model_path,
     get_vecnormalize_path,
     get_best_model_dir,
     get_best_vecnormalize_path,
-    get_latest_version,
+    get_env_kwargs,
+    get_log_dir,
+    get_next_run_id,
     make_env,
+    run_tag,
     set_global_seeds,
 )
 import time
@@ -97,6 +101,9 @@ class BestModelCallback(BaseCallback):
         self.deterministic = deterministic
         self.best_success_rate = -np.inf
         self.best_mean_reward = -np.inf
+        self.best_mean_ep_length = None
+        self.best_at_timesteps = None
+        self.evals: list[dict] = []
         self._is_success_buffer: list = []
 
     def _init_callback(self) -> None:
@@ -127,7 +134,14 @@ class BestModelCallback(BaseCallback):
             callback=self._log_success_callback,
         )
         mean_reward = float(np.mean(episode_rewards))
+        mean_ep_length = float(np.mean(episode_lengths))
         success_rate = float(np.mean(self._is_success_buffer)) if self._is_success_buffer else 0.0
+        self.evals.append({
+            "timesteps": self.num_timesteps,
+            "success_rate": success_rate,
+            "mean_reward": mean_reward,
+            "mean_ep_length": mean_ep_length,
+        })
 
         if self.verbose >= 1:
             print(
@@ -137,7 +151,7 @@ class BestModelCallback(BaseCallback):
 
         self.logger.record("eval/success_rate", success_rate)
         self.logger.record("eval/mean_reward", mean_reward)
-        self.logger.record("eval/mean_ep_length", float(np.mean(episode_lengths)))
+        self.logger.record("eval/mean_ep_length", mean_ep_length)
         self.logger.dump(self.num_timesteps)
 
         if (success_rate, mean_reward) > (self.best_success_rate, self.best_mean_reward):
@@ -146,13 +160,33 @@ class BestModelCallback(BaseCallback):
             self.model.save(os.path.join(self.best_model_save_path, "best_model"))
             self.best_success_rate = success_rate
             self.best_mean_reward = mean_reward
+            self.best_mean_ep_length = mean_ep_length
+            self.best_at_timesteps = self.num_timesteps
             if self.callback_on_new_best is not None:
                 self.callback_on_new_best.on_step()
 
         return True
 
+    def restore_best(self, results: dict) -> None:
+        """Arranca desde el mejor de una sesion anterior, para no pisar su checkpoint con uno peor."""
+        self.best_success_rate = results["best_success_rate"]
+        self.best_mean_reward = results["best_mean_reward"]
+        self.best_mean_ep_length = results["best_mean_ep_length"]
+        self.best_at_timesteps = results["best_at_timesteps"]
 
-def make_eval_callback(version: int, seed: int, n_envs: int):
+    def summary(self) -> dict:
+        found = self.best_at_timesteps is not None
+        return {
+            "best_success_rate": self.best_success_rate if found else None,
+            "best_mean_reward": self.best_mean_reward if found else None,
+            "best_mean_ep_length": self.best_mean_ep_length,
+            "best_at_timesteps": self.best_at_timesteps,
+            "n_eval_episodes": self.n_eval_episodes,
+            "evals": self.evals,
+        }
+
+
+def make_eval_callback(version, seed: int, n_envs: int):
     eval_env = make_eval_env(seed, DEFAULT_EVAL_EPISODES)
 
     save_vecnormalize = SaveVecNormalizeCallback(get_best_vecnormalize_path(version))
@@ -167,16 +201,17 @@ def make_eval_callback(version: int, seed: int, n_envs: int):
     )
 
 def train(
-    load_version: int | None = None,
+    load_version: str | None = None,
     total_timesteps: int = DEFAULT_TOTAL_TIMESTEPS,
     seed: int = 42,
     n_envs: int = DEFAULT_N_ENVS,
     save_best_model: bool = True,
+    run_args: dict | None = None,
 ):
     env = make_vec_env(seed, n_envs)
 
     if load_version is not None:
-        version = load_version
+        version = run_tag(load_version)
         vecnormalize_path = get_vecnormalize_path(load_version)
         model_path = get_model_path(load_version, with_extension=True)
 
@@ -185,11 +220,10 @@ def train(
         env.norm_reward = True
         model = PPO.load(model_path, env=env)
 
-        model.tensorboard_log = f"./logs/version_{load_version}/"
+        model.tensorboard_log = get_log_dir(version)
         reset_num_timesteps = False
     else:
-        latest = get_latest_version()
-        version = 0 if latest is None else latest + 1
+        version = get_next_run_id()
         env = VecNormalize(env, norm_obs=True, norm_reward=True, clip_obs=10.0,)
 
         env.training = True
@@ -213,15 +247,28 @@ def train(
             ),
             seed=seed,
             verbose=1,
-            tensorboard_log=f"./logs/version_{version}/",
+            tensorboard_log=get_log_dir(version),
         )
         model_path = get_model_path(version)
         vecnormalize_path = get_vecnormalize_path(version)
         reset_num_timesteps = True
 
+    print(f"Run: {version}")
     eval_callback = make_eval_callback(version, seed, n_envs) if save_best_model else None
+    if eval_callback is not None and load_version is not None:
+        best = previous_best(version)
+        if best is not None and os.path.exists(os.path.join(get_best_model_dir(version), "best_model.zip")):
+            eval_callback.restore_best(best)
+            print(f"Best previo: success_rate={100 * best['best_success_rate']:.1f}%, mean_reward={best['best_mean_reward']:.2f}")
+        else:
+            print("WARNING: no hay registro del best previo de esta corrida; el primer eval va a pisar best_model.")
+    record = RunRecord(version, run_args or {}, model, get_env_kwargs(gui=False), env.observation_space.shape[0])
 
-    model.learn(total_timesteps=total_timesteps, reset_num_timesteps=reset_num_timesteps, callback=eval_callback)
+    try:
+        model.learn(total_timesteps=total_timesteps, reset_num_timesteps=reset_num_timesteps, callback=eval_callback)
+    except BaseException as e:
+        record.finish("interrupted" if isinstance(e, KeyboardInterrupt) else "failed", model, eval_callback)
+        raise
 
     if eval_callback is not None:
         eval_callback.eval_env.close()
@@ -229,6 +276,7 @@ def train(
     model.save(model_path)
     env.save(vecnormalize_path)
     env.close()
+    record.finish("finished", model, eval_callback)
 
     return model_path, vecnormalize_path
 
@@ -243,7 +291,7 @@ def main():
     args = parse_args(new_args=new_args)
     set_global_seeds(args.seed)
 
-    model_path, vecnormalize_path = train(args.load, args.timesteps, args.seed, args.n_envs, SAVE_BEST_MODEL)
+    model_path, vecnormalize_path = train(args.load, args.timesteps, args.seed, args.n_envs, SAVE_BEST_MODEL, vars(args))
 
     print(f"Saved model to {model_path}.zip")
     print(f"Saved vecnorms to {vecnormalize_path}")

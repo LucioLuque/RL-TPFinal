@@ -5,6 +5,11 @@ from typing import Dict, List, Tuple
 import matplotlib.pyplot as plt
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 
+from utils import run_tag
+
+# {tag} es el nombre de la corrida en runs/ (15 -> version_15, v16-lucio -> v16-lucio); {v} es la clave tal cual.
+DEFAULT_PATH_TEMPLATE = "runs/{tag}/tb/PPO_1"
+
 # Mapeo de tags
 TAG_LABELS: Dict[str, str] = {
     "rollout/ep_len_mean": "Duración media del episodio",
@@ -26,8 +31,8 @@ TAG_LABELS: Dict[str, str] = {
 def _label_for(tag: str) -> str:
     return TAG_LABELS.get(tag, tag)
 
-def _load_scalars(version: int, path_template: str = "logs/version_{v}/PPO_1") -> Dict[str, List[Tuple[int, float]]]:
-    log_dir = path_template.format(v=version)
+def _load_scalars(version: int, path_template: str = DEFAULT_PATH_TEMPLATE) -> Dict[str, List[Tuple[int, float]]]:
+    log_dir = path_template.format(v=version, tag=run_tag(version))
     event_files = sorted(glob.glob(os.path.join(log_dir, "events.out.tfevents.*")))
     if not event_files:
         raise FileNotFoundError(f"No se encontraron event files en '{log_dir}'.")
@@ -42,7 +47,7 @@ def _load_scalars(version: int, path_template: str = "logs/version_{v}/PPO_1") -
         data[tag] = [(e.step, e.value) for e in events]
     return data
 
-def list_available_tags(version: int, path_template: str = "logs/version_{v}/PPO_1") -> List[str]:
+def list_available_tags(version: int, path_template: str = DEFAULT_PATH_TEMPLATE) -> List[str]:
     data = _load_scalars(version, path_template)
     return sorted(data.keys())
 
@@ -78,7 +83,7 @@ def _smooth_values(values: List[float], smooth: float | None) -> List[float]:
 
     return smoothed
 
-def plot_tensorboard_metrics(versions: Dict[int, str], tags: List[str], path_template: str = "logs/version_{v}/PPO_1", figsize: Tuple[int, int] | None = None, save_dir: str | None = None, show: bool = True, vlines=None, max_steps: int | None = None, smooth: float | None = None):
+def plot_tensorboard_metrics(versions: Dict[int, str], tags: List[str], path_template: str = DEFAULT_PATH_TEMPLATE, figsize: Tuple[int, int] | None = None, save_dir: str | None = None, show: bool = True, vlines=None, max_steps: int | None = None, smooth: float | None = None):
     all_data = {v: _load_scalars(v, path_template) for v in versions}
     versions_suffix = _versions_suffix(versions)
     folder = "landing_level_1" if "landing_level_1" in path_template else "version_logs"
@@ -157,7 +162,7 @@ if __name__ == "__main__":
     #         # "train/approx_kl",
     #     ],
     #     path_template="logs/landing_level_1/PPO_{v}",
-    #     save_dir="plots",
+    #     save_dir="media/plots",
     #     show=True,
     #     figsize=(8, 4),
     #     # vlines={2373000: "Cambio de curriculum"},
@@ -174,7 +179,7 @@ if __name__ == "__main__":
     #         "train/approx_kl",
     #     ],
     #     path_template="logs/landing_level_1/PPO_{v}",
-    #     save_dir="plots",
+    #     save_dir="media/plots",
     #     show=True,
     #     figsize=(8, 4),
     #     # vlines={2373000: "Cambio de curriculum"},
@@ -194,8 +199,8 @@ if __name__ == "__main__":
 
         ],
         # path_template="logs/landing_level_1/PPO_{v}",
-        path_template="logs/version_{v}/PPO_1",
-        save_dir="plots",
+        path_template=DEFAULT_PATH_TEMPLATE,
+        save_dir="media/plots",
         show=True,
         max_steps=5000000,
         # smooth = 0.,
@@ -216,8 +221,8 @@ if __name__ == "__main__":
 
     #     ],
     #     # path_template="logs/landing_level_1/PPO_{v}",
-    #     path_template="logs/version_{v}/PPO_1",
-    #     save_dir="plots",
+    #     path_template=DEFAULT_PATH_TEMPLATE,
+    #     save_dir="media/plots",
     #     show=True,
     #     max_steps=6000000,
     #     smooth = 0.9,
@@ -239,8 +244,8 @@ if __name__ == "__main__":
 
     #     ],
     #     # path_template="logs/landing_level_1/PPO_{v}",
-    #     path_template="logs/version_{v}/PPO_1",
-    #     save_dir="plots",
+    #     path_template=DEFAULT_PATH_TEMPLATE,
+    #     save_dir="media/plots",
     #     show=True,
     #     max_steps=6000000,
     #     smooth = 0.9,
@@ -261,8 +266,8 @@ if __name__ == "__main__":
 
     #     ],
     #     # path_template="logs/landing_level_1/PPO_{v}",
-    #     path_template="logs/version_{v}/PPO_1",
-    #     save_dir="plots",
+    #     path_template=DEFAULT_PATH_TEMPLATE,
+    #     save_dir="media/plots",
     #     show=True,
     #     max_steps=4500000,
     #     smooth = 0.4,
@@ -288,8 +293,8 @@ if __name__ == "__main__":
 
     #     ],
     #     # path_template="logs/landing_level_1/PPO_{v}",
-    #     path_template="logs/version_{v}/PPO_1",
-    #     save_dir="plots",
+    #     path_template=DEFAULT_PATH_TEMPLATE,
+    #     save_dir="media/plots",
     #     show=True,
     #     max_steps=4500000,
     #     smooth = 0.9,
