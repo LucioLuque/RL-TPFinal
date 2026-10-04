@@ -103,7 +103,11 @@ def parse_args(eval: bool = False, new_args: list[tuple[str, type, any, str]] | 
     
     if new_args is not None:
         for arg in new_args:
-            parser.add_argument(f"--{arg[0]}", type=arg[1], default=arg[2], help=arg[3])
+            if arg[1] is bool:
+                # type=bool no sirve en argparse ("--x False" da True): los bool son flags sin valor.
+                parser.add_argument(f"--{arg[0]}", action="store_true", help=arg[3])
+            else:
+                parser.add_argument(f"--{arg[0]}", type=arg[1], default=arg[2], help=arg[3])
 
     return parser.parse_args()
 
