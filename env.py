@@ -353,6 +353,12 @@ class MovingPlatformLandingAviary(VelocityAviary):
     #     return v_target
 
     def _platform_contact(self):
+        """'top' si todos los contactos son de la base del dron contra el tope de la plataforma, 'crash'
+        si hay cualquier otro contacto, None si no toca nada.
+
+        Antes se miraba solo la altura del punto (+-5 cm del tope), y un golpe contra el costado cerca del
+        borde contaba como 'top'. La colision del CF2X es un cilindro (r=6 cm, alto 2.5 cm), sin patas.
+        """
         contacts = p.getContactPoints(
             bodyA=self.DRONE_IDS[0],
             physicsClientId=self.CLIENT,
@@ -360,14 +366,21 @@ class MovingPlatformLandingAviary(VelocityAviary):
         if not contacts:
             return None
 
-        z_tolerance = 0.05
+        drone_pos, drone_quat = p.getBasePositionAndOrientation(self.DRONE_IDS[0], physicsClientId=self.CLIENT)
+        drone_rot = np.array(p.getMatrixFromQuaternion(drone_quat)).reshape(3, 3)
+
         for contact in contacts:
             if contact[2] != self.platform_id:
+                return 'crash'  # piso u otro cuerpo
+            # contact[7]: normal sobre la plataforma, apuntando al dron. En el tope es +z; en el costado, horizontal.
+            on_top = contact[7][2] > 0.9
+            # contact[5]: punto sobre el dron. En su marco, la cara de abajo del cilindro esta en z = -0.0125.
+            z_in_drone = (drone_rot.T @ (np.array(contact[5]) - np.array(drone_pos)))[2]
+            with_bottom = z_in_drone < -0.01
+            if not (on_top and with_bottom):
                 return 'crash'
-            if abs(contact[6][2] - self.platform_height) < z_tolerance:
-                return 'top'
 
-        return 'crash' 
+        return 'top'
 
     def _is_touching_platform(self):
         return self._contact == 'top'

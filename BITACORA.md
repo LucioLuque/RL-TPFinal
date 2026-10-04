@@ -48,3 +48,17 @@ La recompensa queda **sin normalizar** por ahora (antes `VecNormalize` la divid�
 
 Con acciones al azar, la posición se recorta seguido (11 % en x) porque el agente se aleja; el
 número que importa es el de una política entrenada.
+
+## 2026-10-04 · lucio · Contacto con la plataforma: base del dron contra el tope
+
+Antes, un contacto contaba como "tocar el tope" si el punto estaba a ±5 cm de la altura del tope. Un
+golpe contra el costado de la plataforma, cerca del borde, entraba en ese margen y cobraba el +0.1 por
+tocar (comprobado en simulación: punto a 0.331 m → `top`).
+
+Ahora `top` exige que la superficie tocada de la plataforma mire hacia arriba (normal z > 0.9) y que el
+punto esté en la cara de abajo del dron. Cualquier otro contacto es choque.
+
+Se evaluó contar el contacto por las 4 patas, pero el modelo CF2X no tiene patas (la colisión es un
+cilindro de 12 cm × 2.5 cm) y PyBullet da 1 o 2 puntos de contacto, no 4. Hacerlo requeriría un URDF
+propio con patas: se descartó por ahora. Este criterio no distingue apoyado plano de inclinado sobre el
+borde de la base; eso lo cubre la condición de aterrizaje (roll y pitch < 0.1).

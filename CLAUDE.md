@@ -69,7 +69,10 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
 - **Nivel**: siempre `turtlebot_hard_fixed` (`utils.LEVEL`, en `levels.yaml`). Los niveles de curriculum
   viejos ya no se usan.
 - **Éxito**: 10 steps seguidos tocando el tope de la plataforma, con `d_xy < 0.2`, `|vz_rel| < 0.1` y `|roll|, |pitch| < 0.1`.
-- **Choque**: contacto con algo que no sea el tope, o `|roll|` o `|pitch|` mayor a 0.7.
+- **Contacto** (`_platform_contact`): `top` solo si todos los puntos son de la base del dron contra el tope
+  (normal hacia arriba); cualquier otro contacto es choque. El CF2X no tiene patas: su colisión es un
+  cilindro de 12 cm × 2.5 cm.
+- **Choque**: contacto que no sea base contra tope, o `|roll|` o `|pitch|` mayor a 0.7.
 - **Truncado**: a los 20 s (24 Hz, 480 steps).
 - **Reward**: ver `_computeReward`. Hay términos comentados de pruebas anteriores. Ojo: el commit
   `f94b2d3` dice que agrega una penalización por cambios de acción, pero está comentada.
