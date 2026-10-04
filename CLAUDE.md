@@ -2,7 +2,8 @@
 
 TP final de RL (UdeSA), hecho entre dos: Lucio y Teo. Un dron Crazyflie (CF2X) aprende a aterrizar sobre
 una plataforma con forma de turtlebot, que se mueve. Se usa PPO de stable-baselines3 sobre gym-pybullet-drones.
-Las versiones de las dependencias están en `requirements.txt`; el entorno se maneja con conda.
+Dependencias directas en `requirements.txt` (cómo crear el entorno conda `drone-landing` está arriba de ese
+archivo). gym-pybullet-drones (2.2.0) se instala desde GitHub, fijado a un commit, porque no está en PyPI.
 
 ## Comandos
 
