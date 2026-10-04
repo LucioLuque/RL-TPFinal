@@ -8,7 +8,8 @@ corridas no hay resultados registrados.
 
 | | antes (`f94b2d3`) | v16-lucio |
 |---|---|---|
-| Best éxito | sin registro | 0% (8 episodios) |
+| Éxito best (100 ep.) | sin registro | 4% (2–10) |
+| Best éxito (8 ep.) | sin registro | 0% |
 | Best reward | sin registro | −9.16 |
 | Largo ep. (best) | sin registro | 103 pasos |
 | Best en timestep | sin registro | 200 000 |
@@ -37,7 +38,10 @@ funcionan de punta a punta.
 de episodio ~102 → ~103 pasos (de 480). El crítico aprende bien sin escalar la recompensa
 (`explained_variance` 0.77 y `value_loss` 0.2 al final). La política todavía explora mucho (`std` 1.1).
 
-Evaluación aparte del best (20 episodios deterministas, seeds 1000–1019):
+Evaluación con `tools/evaluate.py` (100 episodios, seeds 42–141): 4 % de éxito (IC 95 %: 2–10 %); 80 choques
+contra el piso, 12 contra la plataforma y 4 por inclinación.
+
+Evaluación anterior, hecha a mano (20 episodios deterministas, seeds 1000–1019):
 - 19 choques y 1 aterrizaje (5%).
 - Los choques son **contra el piso**: altura final ~1.4 cm (el dron apoyado en el suelo), a una distancia
   horizontal mediana de 0.71 m de la plataforma, después de una mediana de 41 pasos (1.7 s). El dron
