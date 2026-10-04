@@ -11,6 +11,7 @@ archivo). gym-pybullet-drones (2.2.0) se instala desde GitHub, fijado a un commi
 python train.py                                  # corrida nueva -> v<N>-<autor>
 python train.py --load v16-lucio --timesteps 500000   # seguir entrenando una corrida
 python eval.py --load v16-lucio --episodes 5     # con GUI; sin --load usa la última
+python -m tools.evaluate --load v17-lucio --best # 100 episodios sin GUI -> runs/<id>/eval_best.json
 python -m tools.generate_gif --load v16-lucio    # gif de un episodio en media/gifs/
 python -m tools.plot_trajectory --load v16-lucio
 python -m tools.plots                            # curvas de TensorBoard (editar el __main__)

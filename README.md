@@ -56,6 +56,7 @@ RL-TPFinal/
 
 | Archivo | Qué hace |
 |---|---|
+| `evaluate.py` | Evalúa una corrida en muchos episodios sin ventana y guarda `eval_best.json` / `eval_final.json` |
 | `generate_gif.py` | Corre un episodio y lo guarda como gif |
 | `plot_trajectory.py` | Corre un episodio y grafica la trayectoria del dron y de la plataforma |
 | `plots.py` | Grafica curvas de TensorBoard de una o varias corridas (se configura editando su `__main__`) |
@@ -75,6 +76,7 @@ número no se repita.
 | `diff.patch` | Cambios sin commitear al momento de entrenar (solo si había) |
 | `env.py`, `levels.yaml` | Copias exactas de los que se usaron |
 | `tb/` | Logs de TensorBoard |
+| `eval_best.json` | Evaluación de 100 episodios del best (la escribe `tools/evaluate.py`) |
 | `NOTES.md` | Qué cambió respecto de la corrida anterior y qué dio (lo escribe `/registrar-corrida`) |
 
 Si seguís entrenando una corrida con `--load`, los archivos de la sesión nueva llevan sufijo `_s2`, `_s3`, etc.
@@ -108,6 +110,26 @@ Para entrenamientos largos, que siguen aunque cierres la terminal:
 nohup python train.py --timesteps 5000000 > train.log 2>&1 &
 tail -f train.log                                 # ver cómo va (Ctrl+C sale del tail, no corta el entrenamiento)
 ```
+
+### Evaluar en muchos episodios (el número para comparar corridas)
+
+```bash
+python -m tools.evaluate --load v17-lucio --best              # best, 100 episodios
+python -m tools.evaluate --load v17-lucio --episodes 300      # modelo final, 300 episodios
+```
+
+| Opción | Default | Qué hace |
+|---|---|---|
+| `--load` | la última | Corrida a evaluar |
+| `--best` | (apagado) | Evalúa `best/best_model.zip` en vez de `model.zip` |
+| `--episodes` | 100 | Cantidad de episodios |
+| `--seed` | 42 | Semilla del primer episodio (usa `seed`, `seed+1`, ...). Dejala igual para comparar corridas |
+
+Sin ventana, tarda menos de un minuto para 100 episodios. Imprime la tasa de éxito con su intervalo de
+confianza del 95 %, cómo terminan los episodios (éxito, choque contra el piso, contra la plataforma, por
+inclinación, o se acaba el tiempo) y cuánto tarda en aterrizar, y lo guarda en `runs/<id>/eval_best.json`
+(o `eval_final.json`). Las evaluaciones durante el entrenamiento son de solo 8 episodios y saltan mucho:
+para comparar corridas, usar esta.
 
 ### Ver una política volar
 
@@ -183,8 +205,9 @@ Regenera `EXPERIMENTS.md`. Si git marca un conflicto en ese archivo, alcanza con
    un commit limpio.
 3. `python train.py ...`
 4. Ver cómo quedó: `eval.py`, TensorBoard.
-5. Registrar la corrida con `/registrar-corrida` en Claude Code (escribe `runs/<id>/NOTES.md` y regenera
+5. Evaluar el best: `python -m tools.evaluate --load <id> --best` (si no, lo corre la skill del paso 6).
+6. Registrar la corrida con `/registrar-corrida` en Claude Code (escribe `runs/<id>/NOTES.md` y regenera
    `EXPERIMENTS.md`).
-6. Commitear `runs/<id>/` y `EXPERIMENTS.md`.
+7. Commitear `runs/<id>/` y `EXPERIMENTS.md`.
 
 Las decisiones que no son de una sola corrida van en `BITACORA.md`.
