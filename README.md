@@ -36,6 +36,7 @@ RL-TPFinal/
 ├── utils.py            Rutas de cada corrida, ids, argumentos de línea de comandos, creación del entorno
 ├── run_registry.py     Escribe runs/<id>/run.json con la config y los resultados de cada corrida
 ├── levels.yaml         Parámetros del entorno (velocidades de la plataforma, dónde aparece el dron)
+├── rewards.yaml        Variantes de recompensa con nombre (se eligen con --reward)
 ├── requirements.txt    Dependencias, con versiones fijas
 │
 ├── runs/               Una carpeta por corrida (ver abajo)
@@ -74,7 +75,7 @@ número no se repita.
 | `best/best_model.zip` | Mejor modelo según las evaluaciones periódicas (tasa de éxito y, si empatan, reward) |
 | `run.json` | Argumentos, hiperparámetros, entorno, commit de git, resultados y todas las evaluaciones |
 | `diff.patch` | Cambios sin commitear al momento de entrenar (solo si había) |
-| `env.py`, `levels.yaml` | Copias exactas de los que se usaron |
+| `env.py`, `levels.yaml`, `rewards.yaml` | Copias exactas de los que se usaron |
 | `tb/` | Logs de TensorBoard |
 | `eval_best.json` | Evaluación de 100 episodios del best (la escribe `tools/evaluate.py`) |
 | `NOTES.md` | Qué cambió respecto de la corrida anterior y qué dio (lo escribe `/registrar-corrida`) |
@@ -99,16 +100,26 @@ python train.py --load v16-lucio --timesteps 1000000   # seguir entrenando v16-l
 | `--timesteps` | 1 000 000 | Pasos de entrenamiento (de esta sesión, si se usa `--load`) |
 | `--n_envs` | 8 | Entornos en paralelo. Conviene no pasar la cantidad de núcleos de la CPU |
 | `--seed` | 42 | Semilla. Con la misma semilla y el mismo código, la corrida debería repetirse (salvo diferencias numéricas entre máquinas) |
+| `--reward` | `base` | Variante de recompensa de `rewards.yaml` (`base`, `A1`, `A2`, `B`...). Con `--load`, por defecto la de la corrida |
 | `--load` | (ninguno) | Sigue entrenando una corrida existente en vez de crear una nueva |
 
 Cada 100 000 pasos evalúa la política en 8 episodios y guarda el mejor modelo en `best/`. A ~900 pasos
 por segundo con 8 entornos, 1M de pasos tarda unos 20 minutos.
+
+Para probar una recompensa nueva, agregá una variante con nombre en `rewards.yaml` y entrená con
+`--reward <nombre>`, sin tocar `env.py`.
 
 Para entrenamientos largos, que siguen aunque cierres la terminal:
 
 ```bash
 nohup python train.py --timesteps 5000000 > train.log 2>&1 &
 tail -f train.log                                 # ver cómo va (Ctrl+C sale del tail, no corta el entrenamiento)
+```
+
+Varias corridas seguidas (por ejemplo, una por variante de recompensa):
+
+```bash
+nohup sh -c 'for r in A1 A2 B; do python train.py --timesteps 1500000 --reward $r; done' > exp.log 2>&1 &
 ```
 
 ### Evaluar en muchos episodios (el número para comparar corridas)

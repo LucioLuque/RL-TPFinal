@@ -32,6 +32,11 @@ class MovingPlatformLandingAviary(VelocityAviary):
         # dron 
         spawn_xy_radius: float = 2,  # radio máximo en XY (m)
         spawn_z_range: tuple = (0.5, 1.5), # altura inicial (m)
+
+        # Recompensa (variantes con nombre en rewards.yaml)
+        reward_distance_coef: float = 0.1,  # castigo por paso proporcional a la distancia al tope
+        reward_progress_coef: float = 0.0,  # premio por acercarse: k * (d_anterior - d)
+        crash_penalty: float = 10.0,        # castigo al chocar
     ):
         self.platform_radius = 0.25
         self.platform_height = 0.35
@@ -41,6 +46,9 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self.turt_noise = turt_noise
         self.spawn_xy_radius = spawn_xy_radius
         self.spawn_z_range = spawn_z_range
+        self.reward_distance_coef = reward_distance_coef
+        self.reward_progress_coef = reward_progress_coef
+        self.crash_penalty = crash_penalty
 
         self.max_episode_steps = int(max_episode_seconds * ctrl_freq)
 
@@ -322,11 +330,14 @@ class MovingPlatformLandingAviary(VelocityAviary):
 
         reward = 0.0
 
-        reward -= 0.1 * self._current_d
+        # Castigo por distancia: se acumula mientras dure el episodio, asi que terminar rapido (chocando)
+        # lo corta. Progreso: sumado en el episodio da k * (d_inicial - d_final), sin importar la duracion.
+        reward -= self.reward_distance_coef * self._current_d
         reward -= 0.01
+        if self.reward_progress_coef and self.episode_step_counter > 1:
+            reward += self.reward_progress_coef * (self.prev_d - self._current_d)
 
         # if self.episode_step_counter > 1:
-        #     reward += 0.1 * (self.prev_d - self._current_d)
         #     da = np.sum((self._current_action - self.prev_action) ** 2)
         #     reward -= 0.02 * da  # alpha_action, punto de partida a tunear
 
@@ -337,7 +348,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
         if self.has_landed:
             reward += 25.0 - d_xy * 50.0
         elif self.has_crashed:
-            reward -= 10.0
+            reward -= self.crash_penalty
 
         return float(reward)
 

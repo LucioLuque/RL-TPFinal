@@ -84,6 +84,16 @@ def previous_best(run_id) -> dict | None:
     return None
 
 
+def previous_reward(run_id) -> str | None:
+    """Variante de recompensa con la que se entreno la ultima sesion de una corrida, o None."""
+    path = os.path.join(get_run_dir(run_id), "run.json")
+    if not os.path.exists(path):
+        return None
+    with open(path) as f:
+        sessions = json.load(f)["sessions"]
+    return sessions[-1].get("args", {}).get("reward")
+
+
 class RunRecord:
     def __init__(self, run_id, args: dict, model, env_kwargs: dict, obs_dim: int, env_constants: dict):
         self.dir = get_run_dir(run_id)
@@ -105,7 +115,7 @@ class RunRecord:
             files["diff"] = f"diff{suffix}.patch"
             with open(os.path.join(self.dir, files["diff"]), "w") as f:
                 f.write(diff)
-        for src in ("env.py", "levels.yaml"):
+        for src in ("env.py", "levels.yaml", "rewards.yaml"):
             name, ext = os.path.splitext(src)
             files[name] = f"{name}{suffix}{ext}"
             shutil.copyfile(src, os.path.join(self.dir, files[name]))

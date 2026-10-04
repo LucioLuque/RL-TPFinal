@@ -75,7 +75,9 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
   cilindro de 12 cm × 2.5 cm.
 - **Choque**: contacto que no sea base contra tope, o `|roll|` o `|pitch|` mayor a 0.7.
 - **Truncado**: a los 20 s (24 Hz, 480 steps).
-- **Reward**: ver `_computeReward`. Hay términos comentados de pruebas anteriores. Ojo: el commit
+- **Reward**: ver `_computeReward`. Los coeficientes (distancia, progreso, castigo por choque) son
+  parámetros del entorno; las variantes con nombre están en `rewards.yaml` y se eligen con
+  `train.py --reward <nombre>`. Para probar una recompensa nueva, agregar una variante ahí. Hay términos comentados de pruebas anteriores. Ojo: el commit
   `f94b2d3` dice que agrega una penalización por cambios de acción, pero está comentada.
 
 ## Convenciones

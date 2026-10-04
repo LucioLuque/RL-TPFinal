@@ -62,3 +62,21 @@ Se evaluó contar el contacto por las 4 patas, pero el modelo CF2X no tiene pata
 cilindro de 12 cm × 2.5 cm) y PyBullet da 1 o 2 puntos de contacto, no 4. Hacerlo requeriría un URDF
 propio con patas: se descartó por ahora. Este criterio no distingue apoyado plano de inclinado sobre el
 borde de la base; eso lo cubre la condición de aterrizaje (roll y pitch < 0.1).
+
+## 2026-10-04 · lucio · Experimento: sacar el incentivo a chocar para aprender más rápido
+
+En v16/v17 el dron se tiraba al piso al principio (hasta ~0.4M pasos). Con la recompensa `base`, cada paso
+cuesta `−0.1·d − 0.01`, y eso se acumula mientras dure el episodio: volar los 480 pasos a ~0.8 m cuesta
+≈ −38, y chocar cuesta −10. Mientras no sabe aterrizar, le conviene cortar el episodio chocando.
+
+Variantes en `rewards.yaml`, a comparar contra v17 (seed 42, 1.5M pasos cada una):
+- **A1:** progreso `k·(d_anterior − d)` **en vez de** distancia. Sumado en el episodio da `k·(d_inicial −
+  d_final)` sin importar la duración, así que chocar ya no conviene. k = 10 da el mismo incentivo de acercarse
+  que `0.1·d` acumulado con γ = 0.99 (0.1 / 0.01).
+- **A2:** progreso **además** de distancia: más señal de acercarse, pero el costo acumulado sigue.
+- **B:** choque a −50, más caro que volar todo el episodio.
+
+Métricas: pasos hasta superar 50 % en `rollout/success_rate`, evaluación de 100 episodios del best y cómo
+fallan. Con una sola seed, solo una diferencia grande es señal; si alguna promete, repetirla con más seeds.
+
+Se probó `torch.set_num_threads(1)` para acelerar: no cambió nada (732 contra 750 pasos/s). No se dejó.

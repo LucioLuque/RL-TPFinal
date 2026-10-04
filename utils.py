@@ -18,6 +18,7 @@ DEFAULT_CTRL_FREQ = 24
 DEFAULT_MAX_EPISODE_SECONDS = 20
 DEFAULT_SEED = 42
 LEVEL = "turtlebot_hard_fixed"
+DEFAULT_REWARD = "base"  # variante de rewards.yaml
 RUNS_DIR = "runs"
 RUN_TAG_RE = re.compile(r"^(?:version_|v)(\d+)(?:-[a-z0-9]+)?$")
 
@@ -119,19 +120,24 @@ def set_global_seeds(seed: int):
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
-def get_env_kwargs(gui: bool) -> dict:
+def get_env_kwargs(gui: bool, reward: str = DEFAULT_REWARD) -> dict:
     with open("levels.yaml", "r") as f:
         config = yaml.safe_load(f)
     defaults = config["defaults"]
     env_params = config[LEVEL]
+    with open("rewards.yaml", "r") as f:
+        rewards = yaml.safe_load(f)
+    if reward not in rewards:
+        raise SystemExit(f"No existe la variante de recompensa '{reward}'. Opciones: {', '.join(rewards)}")
 
     env_kwargs = dict(gui=gui, ctrl_freq=DEFAULT_CTRL_FREQ, max_episode_seconds=DEFAULT_MAX_EPISODE_SECONDS, **defaults)
     env_kwargs.update(env_params)
+    env_kwargs.update(rewards[reward])
     return env_kwargs
 
-def make_env(gui: bool, seed: int | None = None):
+def make_env(gui: bool, seed: int | None = None, reward: str = DEFAULT_REWARD):
     def _init():
-        env = MovingPlatformLandingAviary(**get_env_kwargs(gui))
+        env = MovingPlatformLandingAviary(**get_env_kwargs(gui, reward))
         env = Monitor(env)
         if seed is not None:
             env.action_space.seed(seed)

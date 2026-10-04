@@ -6,11 +6,12 @@ from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv
 
-from run_registry import RunRecord, previous_best
+from run_registry import RunRecord, previous_best, previous_reward
 from utils import (
     parse_args,
     get_model_path,
     get_best_model_dir,
+    DEFAULT_REWARD,
     get_env_kwargs,
     get_log_dir,
     get_next_run_id,
@@ -25,18 +26,18 @@ DEFAULT_N_ENVS = 8
 DEFAULT_EVAL_FREQ = 100000  # en timesteps totales, independiente de n_envs
 DEFAULT_EVAL_EPISODES = 8
 
-def make_vec_env(seed: int, n_envs: int):
-    env_fns = [make_env(gui=False, seed=seed + i) for i in range(n_envs)]
+def make_vec_env(seed: int, n_envs: int, reward: str):
+    env_fns = [make_env(gui=False, seed=seed + i, reward=reward) for i in range(n_envs)]
     if n_envs == 1:
         return DummyVecEnv(env_fns)
 
     return SubprocVecEnv(env_fns, start_method="spawn")
 
 
-def make_eval_env(seed: int, n_eval_episodes: int):
+def make_eval_env(seed: int, n_eval_episodes: int, reward: str):
     # Un env por episodio de eval, en paralelo, para que evaluate_policy corra
     # las n_eval_episodes al mismo tiempo en vez de en serie.
-    env_fns = [make_env(gui=False, seed=seed + 10_000 + i) for i in range(n_eval_episodes)]
+    env_fns = [make_env(gui=False, seed=seed + 10_000 + i, reward=reward) for i in range(n_eval_episodes)]
     if n_eval_episodes == 1:
         eval_env = DummyVecEnv(env_fns)
     else:
@@ -155,8 +156,8 @@ class BestModelCallback(BaseCallback):
         }
 
 
-def make_eval_callback(version, seed: int, n_envs: int):
-    eval_env = make_eval_env(seed, DEFAULT_EVAL_EPISODES)
+def make_eval_callback(version, seed: int, n_envs: int, reward: str):
+    eval_env = make_eval_env(seed, DEFAULT_EVAL_EPISODES, reward)
 
     return BestModelCallback(
         eval_env,
@@ -173,10 +174,16 @@ def train(
     n_envs: int = DEFAULT_N_ENVS,
     save_best_model: bool = True,
     run_args: dict | None = None,
+    reward: str | None = None,
 ):
     # Sin VecNormalize: el entorno ya devuelve la observacion normalizada con escalas fijas
     # (env._computeObs) y la recompensa va sin normalizar, porque su escala es conocida (TODO.md, punto 1).
-    env = make_vec_env(seed, n_envs)
+    if reward is None:
+        # Al seguir una corrida, por defecto se usa la misma recompensa con la que se entreno.
+        recorded = previous_reward(load_version) if load_version is not None else None
+        reward = recorded or DEFAULT_REWARD
+    print(f"Recompensa: {reward}")
+    env = make_vec_env(seed, n_envs, reward)
 
     if load_version is not None:
         version = run_tag(load_version)
@@ -213,7 +220,7 @@ def train(
         reset_num_timesteps = True
 
     print(f"Run: {version}")
-    eval_callback = make_eval_callback(version, seed, n_envs) if save_best_model else None
+    eval_callback = make_eval_callback(version, seed, n_envs, reward) if save_best_model else None
     if eval_callback is not None and load_version is not None:
         best = previous_best(version)
         if best is not None and os.path.exists(os.path.join(get_best_model_dir(version), "best_model.zip")):
@@ -227,7 +234,8 @@ def train(
         "obs_scale": env.get_attr("_obs_scale")[0].tolist(),
     }
     record = RunRecord(
-        version, run_args or {}, model, get_env_kwargs(gui=False), env.observation_space.shape[0], env_constants
+        version, {**(run_args or {}), "reward": reward}, model, get_env_kwargs(gui=False, reward=reward),
+        env.observation_space.shape[0], env_constants,
     )
 
     try:
@@ -252,11 +260,11 @@ def main():
 
     new_args = [("timesteps", int, DEFAULT_TOTAL_TIMESTEPS, "Total PPO timesteps to train."),
                 ("n_envs", int, DEFAULT_N_ENVS, "Number of parallel environments to use."),
+                ("reward", str, None, "Reward variant from rewards.yaml (default: base, or the one of --load)."),
     ]
     args = parse_args(new_args=new_args)
     set_global_seeds(args.seed)
-
-    model_path = train(args.load, args.timesteps, args.seed, args.n_envs, SAVE_BEST_MODEL, vars(args))
+    model_path = train(args.load, args.timesteps, args.seed, args.n_envs, SAVE_BEST_MODEL, vars(args), args.reward)
 
     print(f"Saved model to {model_path}")
 
