@@ -30,3 +30,21 @@ comparables directamente y hay que reentrenar.
 **Hay que validarlo en el robot real:** el firmware del Crazyflie, en modo velocidad, no tiene tope de
 velocidad (limita la inclinación a 20°). El límite de 0.6 m/s lo tiene que aplicar el código que manda
 los comandos, con la misma fórmula que la simulación. Ver `TODO_SIM2REAL.md`, punto 4.
+
+## 2026-10-04 · lucio · Normalización fija en vez de VecNormalize
+
+Lo sugirió el profe: `VecNormalize` no conviene cuando la distribución es conocida; si se sabe el rango,
+normalizar con eso. Ahora `env.py` divide cada valor de la observación por una escala fija y recorta a
+[-1, 1]. Las escalas salen de límites del entorno (aparición, choque, límites de velocidad, con 25 % de
+margen), salvo la de la velocidad angular, que es provisoria y sale de datos de v10. Detalle y motivo de
+cada valor en `TODO.md`, punto 1.
+
+Ventajas: la misma cuenta sirve para el robot real (sin `.pkl` de estadísticas de simulación), la
+normalización no cambia mientras la política aprende, y el código es más simple.
+
+La recompensa queda **sin normalizar** por ahora (antes `VecNormalize` la dividía por ~4). Si
+`train/value_loss` sale muy alta o `train/explained_variance` no sube, probar un factor fijo
+(por ejemplo, 0.1) en `make_env`, después del `Monitor`.
+
+Con acciones al azar, la posición se recorta seguido (11 % en x) porque el agente se aleja; el
+número que importa es el de una política entrenada.

@@ -85,7 +85,7 @@ def previous_best(run_id) -> dict | None:
 
 
 class RunRecord:
-    def __init__(self, run_id, args: dict, model, env_kwargs: dict, obs_dim: int):
+    def __init__(self, run_id, args: dict, model, env_kwargs: dict, obs_dim: int, env_constants: dict):
         self.dir = get_run_dir(run_id)
         self.path = os.path.join(self.dir, "run.json")
         os.makedirs(self.dir, exist_ok=True)
@@ -122,6 +122,7 @@ class RunRecord:
             "level": LEVEL,
             "env_kwargs": env_kwargs,
             "obs_dim": obs_dim,
+            "env_constants": env_constants,
             "git": git,
             "files": files,
             "results": None,

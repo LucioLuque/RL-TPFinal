@@ -26,7 +26,7 @@ mejor normalizar con eso. Además:
 |---|---|---|---|---|
 | Posición relativa xy | 2 | 1.5 m | El dron aparece a ≤ 0.8 m de la plataforma (`spawn_xy_radius`); con margen para que se aleje. Más lejos de 1.5 m ya está perdido, así que recortar ahí no pierde información útil (se mantiene el signo). | 0.44, 0.40 |
 | Posición relativa z | 1 | 1.5 m | Aparece a una altura de 0.5–1.5 m (`spawn_z_range`), y el tope de la plataforma está a 0.35 m. | 0.27 |
-| Velocidad relativa | 3 | 1.0 m/s | Dron (≤ 0.6, `DRONE_SPEED_LIMIT`) + plataforma (≤ 0.3) = 0.9, redondeado con margen. | 0.15, 0.15, 0.09 |
+| Velocidad relativa | 3 | 1.125 m/s | Peor caso, en sentidos opuestos: dron (≤ 0.6, `DRONE_SPEED_LIMIT`) + plataforma (≤ 0.3) = 0.9, × 1.25 de margen (`VEL_MARGIN`). | 0.15, 0.15, 0.09 |
 | Roll, pitch | 2 | 0.7 rad | A más de 0.7 rad el episodio termina como choque (`_crashed`), así que nunca se pasa. | 0.08, 0.08 |
 | Yaw | 1 | π | Está en [-π, π]. Ver la nota de abajo. | 0.48 |
 | Velocidad angular | 3 | 5 rad/s | **No tiene un límite conocido.** Es el único valor elegido mirando datos: σ ≈ 1.2, así que 5 rad/s cubre más de 4σ. | 1.27, 1.26, 1.05 |
@@ -53,14 +53,16 @@ una constante fija.
   velocidad). Si no, no se sabe qué cambio causó la diferencia.
 
 **Qué hay que tocar:**
-- [ ] `env.py`: escalas como constantes derivadas de los límites, normalizar en `_computeObs` y
+- [x] `env.py`: escalas como constantes derivadas de los límites, normalizar en `_computeObs` y
   `observation_space` en [-1, 1].
-- [ ] `train.py`: sacar `VecNormalize`, `SaveVecNormalizeCallback` y `sync_envs_normalization`.
-- [ ] `eval.py` y `tools/`: cargar solo el modelo.
-- [ ] `utils.py` y `run_registry.py`: sacar las rutas de `vecnormalize.pkl`; guardar las escalas en
+- [x] `train.py`: sacar `VecNormalize`, `SaveVecNormalizeCallback` y `sync_envs_normalization`.
+- [x] `eval.py` y `tools/`: cargar solo el modelo.
+- [x] `utils.py` y `run_registry.py`: sacar las rutas de `vecnormalize.pkl`; guardar las escalas en
   `run.json`.
-- [ ] `CLAUDE.md`: actualizar lo de la observación y los archivos de cada corrida.
-- [ ] Anotar el cambio en `BITACORA.md` y registrar la corrida con `/registrar-corrida`.
+- [x] `CLAUDE.md`: actualizar lo de la observación y los archivos de cada corrida.
+- [x] Anotar el cambio en `BITACORA.md`.
+- [ ] Registrar la corrida con `/registrar-corrida` y medir la fracción recortada de cada valor.
+- [ ] Ajustar `OBS_ANG_VEL_SCALE` (provisoria, sale de v10) con el percentil 99.9 de la corrida.
 
 ## 2. Corrida de prueba y primer commit del registro
 

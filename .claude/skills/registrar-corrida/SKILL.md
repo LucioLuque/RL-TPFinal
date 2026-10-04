@@ -28,7 +28,9 @@ El código con el que se entrenó cada corrida es su `git.commit` + su `diff.pat
 
 - **Reward y observación**: `diff runs/<anterior>/env.py runs/<actual>/env.py` (copias exactas).
   Mirar `_computeReward`, `_computeObs` y las condiciones de aterrizaje/choque. Ver `obs_dim`.
-- **Entorno/nivel**: `level` y `env_kwargs` en ambos `run.json`, y `diff` de los `levels.yaml`.
+- **Entorno/nivel**: `level`, `env_kwargs` y `env_constants` (límite de velocidad del dron y escalas de
+  normalización de la observación) en ambos `run.json`, y `diff` de los `levels.yaml`. Las corridas
+  anteriores a la normalización fija no tienen `env_constants`: usaban `VecNormalize`.
 - **Hiperparámetros y args**: `hyperparams` y `args` de ambos `run.json`.
 - **Resto del código** (`train.py`, `utils.py`, etc.): `git diff <commit_anterior> <commit_actual>`
   sobre esos archivos, teniendo en cuenta los `diff.patch` de cada una. Ignorar `runs/`, `logs/` y `media/`.

@@ -10,6 +10,12 @@ from gym_pybullet_drones.utils.enums import DroneModel, Physics
 # no podia alcanzarla. Tiene que ser el mismo limite que se use en el Crazyflie real (ver TODO_SIM2REAL.md).
 DRONE_SPEED_LIMIT = 0.6
 
+# Escalas para normalizar la observacion a [-1, 1] (ver TODO.md, punto 1).
+OBS_POS_SCALE = 1.5       # m: el dron aparece a <= 0.8 m en xy y <= 1.5 m de altura; Medir en optitrack real
+OBS_ANGLE_SCALE = 0.7     # rad: roll/pitch mayor a esto ya es choque (_crashed)
+OBS_ANG_VEL_SCALE = 5.0   # rad/s: sin limite conocido, elegido mirando datos (sigma ~1.2 en v10) Se puede elgir algo mejor que esto?
+VEL_MARGIN = 1.25         # margen sobre los limites de velocidad (sobrepaso del controlador, caidas)
+
 class MovingPlatformLandingAviary(VelocityAviary):
     def __init__(
         self,
@@ -44,6 +50,17 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self.turtle_v_noise = 0.03 # ruido en velocidad lineal
         self.turtle_w_noise = 0.2 # ruido en velocidad angular
 
+        # Escala de cada componente de la observacion (mismo orden que _computeObs). Las de velocidad se
+        # derivan de los limites para que se ajusten solas si estos cambian.
+        self._obs_scale = np.concatenate([
+            np.full(3, OBS_POS_SCALE),                                         # pos relativa
+            np.full(3, (DRONE_SPEED_LIMIT + self.turtle_v_max) * VEL_MARGIN),  # vel relativa: peor caso, en sentidos opuestos
+            [OBS_ANGLE_SCALE, OBS_ANGLE_SCALE, np.pi],                         # roll, pitch, yaw
+            np.full(3, OBS_ANG_VEL_SCALE),                                     # vel angular
+            np.full(3, DRONE_SPEED_LIMIT * VEL_MARGIN),                        # vel del dron
+            np.ones(4),                                                        # accion previa: ya en [-1, 1] y [0, 1]
+        ]).astype(np.float32)
+
         self.linear_beta_params = (4, 2)
         self.angular_beta_params = (2, 4)
         self.spawn_xy_beta_params = (4, 2)
@@ -72,11 +89,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
         )
 
         obs, _ = self.reset()
-        self.observation_space = spaces.Box(
-            low=np.full(obs.shape[0], -np.inf, dtype=np.float32),
-            high=np.full(obs.shape[0], np.inf, dtype=np.float32),
-            dtype=np.float32,
-        )
+        self.observation_space = spaces.Box(low=-1.0, high=1.0, shape=obs.shape, dtype=np.float32)
 
     def _create_platform(self):
         radius = self.platform_radius
@@ -256,6 +269,14 @@ class MovingPlatformLandingAviary(VelocityAviary):
         return obs, reward, terminated, self.is_truncated, info
 
     def _computeObs(self):
+        """Observacion normalizada a [-1, 1] con escalas fijas (self._obs_scale).
+
+        En el robot real hay que aplicar exactamente esta misma cuenta sobre los valores de OptiTrack.
+        """
+        return np.clip(self._computeRawObs() / self._obs_scale, -1.0, 1.0).astype(np.float32)
+
+    def _computeRawObs(self):
+        """Observacion en unidades fisicas (m, m/s, rad, rad/s), sin normalizar."""
         state = self._getDroneStateVector(0)
 
         drone_pos = state[0:3]
@@ -282,7 +303,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
     def _computeReward(self):
         state = self._getDroneStateVector(0)
         drone_pos   = state[0:3]
-        roll, pitch = state[7:9]
+        # roll, pitch = state[7:9]
         drone_vel   = state[10:13]
 
         platform_top = np.array([self.platform_pos[0], self.platform_pos[1], self.platform_height])

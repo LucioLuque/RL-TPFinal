@@ -39,14 +39,8 @@ def get_model_path(run_id, with_extension: bool = False) -> str:
         return f"{base}.zip"
     return base
 
-def get_vecnormalize_path(run_id) -> str:
-    return os.path.join(get_run_dir(run_id), "vecnormalize.pkl")
-
 def get_best_model_dir(run_id) -> str:
     return os.path.join(get_run_dir(run_id), "best")
-
-def get_best_vecnormalize_path(run_id) -> str:
-    return os.path.join(get_best_model_dir(run_id), "vecnormalize.pkl")
 
 def get_log_dir(run_id) -> str:
     return os.path.join(get_run_dir(run_id), "tb")
