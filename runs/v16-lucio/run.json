@@ -1,0 +1,124 @@
+{
+  "run_id": "v16-lucio",
+  "sessions": [
+    {
+      "session": 1,
+      "author": "lucio",
+      "status": "finished",
+      "started_at": "2026-10-04T12:02:13",
+      "start_timesteps": 0,
+      "args": {
+        "load": null,
+        "seed": 42,
+        "timesteps": 200000,
+        "n_envs": 8
+      },
+      "hyperparams": {
+        "algo": "PPO",
+        "learning_rate": 0.0003,
+        "n_steps": 512,
+        "batch_size": 256,
+        "n_epochs": 5,
+        "gamma": 0.99,
+        "gae_lambda": 0.95,
+        "ent_coef": 0.01,
+        "vf_coef": 0.5,
+        "clip_range": 0.2,
+        "max_grad_norm": 0.5,
+        "policy_kwargs": {
+          "net_arch": {
+            "pi": [
+              128,
+              128
+            ],
+            "vf": [
+              128,
+              128
+            ]
+          }
+        },
+        "n_envs": 8
+      },
+      "level": "turtlebot_hard_fixed",
+      "env_kwargs": {
+        "gui": false,
+        "ctrl_freq": 24,
+        "max_episode_seconds": 20,
+        "angular_speed_range": [
+          0.0,
+          3.0
+        ],
+        "spawn_xy_radius": 0.8,
+        "spawn_z_range": [
+          0.5,
+          1.5
+        ],
+        "vary_speed": true,
+        "turt_noise": true,
+        "linear_speed_range": [
+          0.05,
+          0.3
+        ]
+      },
+      "obs_dim": 19,
+      "env_constants": {
+        "speed_limit": 0.6,
+        "obs_scale": [
+          1.5,
+          1.5,
+          1.5,
+          1.125,
+          1.125,
+          1.125,
+          0.699999988079071,
+          0.699999988079071,
+          3.1415927410125732,
+          5.0,
+          5.0,
+          5.0,
+          0.75,
+          0.75,
+          0.75,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "git": {
+        "commit": "fd03b9cd6b18e7ee0609dd1100325385f61ec113",
+        "branch": "normalizacion-fija",
+        "dirty": false,
+        "untracked": []
+      },
+      "files": {
+        "env": "env.py",
+        "levels": "levels.yaml"
+      },
+      "results": {
+        "final_timesteps": 200704,
+        "best_success_rate": 0.0,
+        "best_mean_reward": -9.164866875,
+        "best_mean_ep_length": 103.25,
+        "best_at_timesteps": 200000,
+        "n_eval_episodes": 8,
+        "evals": [
+          {
+            "timesteps": 100000,
+            "success_rate": 0.0,
+            "mean_reward": -18.8635655,
+            "mean_ep_length": 101.875
+          },
+          {
+            "timesteps": 200000,
+            "success_rate": 0.0,
+            "mean_reward": -9.164866875,
+            "mean_ep_length": 103.25
+          }
+        ]
+      },
+      "finished_at": "2026-10-04T12:05:57",
+      "duration_s": 224.5
+    }
+  ]
+}
