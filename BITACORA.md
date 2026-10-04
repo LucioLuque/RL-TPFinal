@@ -80,3 +80,19 @@ Métricas: pasos hasta superar 50 % en `rollout/success_rate`, evaluación de 10
 fallan. Con una sola seed, solo una diferencia grande es señal; si alguna promete, repetirla con más seeds.
 
 Se probó `torch.set_num_threads(1)` para acelerar: no cambió nada (732 contra 750 pasos/s). No se dejó.
+
+## 2026-10-04 · lucio · Error: el PID del dron no se reiniciaba entre episodios
+
+gym-pybullet-drones no llama a `DSLPIDControl.reset()` en el `reset()` del entorno, así que cada episodio
+arrancaba con el error integral y el último ángulo del episodio anterior. El resultado de un episodio
+dependía de cuál había corrido antes (se vio porque la seed 52 chocaba en la evaluación y aterrizaba sola).
+
+Se arregló en `env.py` (`reset()` reinicia el PID) y se verificó que la misma seed da lo mismo sola o en
+secuencia. Las evaluaciones de 100 episodios se repitieron: casi iguales (v17: 85 % → 88 %; v19: 28 % → 26 %).
+**Todas las corridas hasta v20 se entrenaron con el error**: las próximas no son exactamente comparables,
+así que conviene entrenar una `base` nueva como referencia.
+
+Con el error arreglado, los fallos de v17 son claros: 11 de 12 son choques contra el borde. Medio segundo
+antes, el dron está afuera de la plataforma (0.28–0.43 m del centro; radio 0.25) y bajo (10–18 cm sobre el
+tope), bajando en diagonal. Hipótesis: `−0.1·d` se achica igual bajando que acercándose en horizontal, así
+que bajar en diagonal le conviene. Próxima prueba: pesar más la distancia horizontal que la vertical.

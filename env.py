@@ -235,6 +235,10 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self.INIT_XYZS = self._sample_drone_init()
 
         obs, info = super().reset(seed=seed, options=options)
+        # gym-pybullet-drones no reinicia el PID de VelocityAviary entre episodios: sin esto, cada episodio
+        # arranca con el error integral y el ultimo angulo del anterior, y el resultado depende del orden.
+        for ctrl in self.ctrl:
+            ctrl.reset()
 
         self.platform_id = None
         self.top_disc_id = None
