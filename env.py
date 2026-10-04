@@ -35,6 +35,8 @@ class MovingPlatformLandingAviary(VelocityAviary):
 
         # Recompensa (variantes con nombre en rewards.yaml)
         reward_distance_coef: float = 0.1,  # castigo por paso proporcional a la distancia al tope
+        reward_dxy_coef: float = 0.0,       # castigo por paso proporcional a la distancia horizontal
+        reward_dz_coef: float = 0.0,        # castigo por paso proporcional a la altura sobre el tope (|dz|)
         reward_progress_coef: float = 0.0,  # premio por acercarse: k * (d_anterior - d)
         crash_penalty: float = 10.0,        # castigo al chocar
     ):
@@ -47,6 +49,8 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self.spawn_xy_radius = spawn_xy_radius
         self.spawn_z_range = spawn_z_range
         self.reward_distance_coef = reward_distance_coef
+        self.reward_dxy_coef = reward_dxy_coef
+        self.reward_dz_coef = reward_dz_coef
         self.reward_progress_coef = reward_progress_coef
         self.crash_penalty = crash_penalty
 
@@ -337,6 +341,8 @@ class MovingPlatformLandingAviary(VelocityAviary):
         # Castigo por distancia: se acumula mientras dure el episodio, asi que terminar rapido (chocando)
         # lo corta. Progreso: sumado en el episodio da k * (d_inicial - d_final), sin importar la duracion.
         reward -= self.reward_distance_coef * self._current_d
+        # Separar horizontal y vertical permite que alinearse arriba de la plataforma valga mas que bajar.
+        reward -= self.reward_dxy_coef * d_xy + self.reward_dz_coef * abs(rel_pos[2])
         reward -= 0.01
         if self.reward_progress_coef and self.episode_step_counter > 1:
             reward += self.reward_progress_coef * (self.prev_d - self._current_d)

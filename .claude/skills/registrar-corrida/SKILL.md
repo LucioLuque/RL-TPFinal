@@ -27,7 +27,8 @@ este registro agrega la interpretación.
 El código con el que se entrenó cada corrida es su `git.commit` + su `diff.patch`. Comparar:
 
 - **Variante de recompensa**: `args.reward` en `run.json` (nombre en `rewards.yaml`) y sus coeficientes en
-  `env_kwargs` (`reward_distance_coef`, `reward_progress_coef`, `crash_penalty`). Si cambió, es el cambio
+  `env_kwargs` (`reward_distance_coef`, `reward_dxy_coef`, `reward_dz_coef`, `reward_progress_coef`,
+  `crash_penalty`; los que falten valen lo mismo que en `base`). Si cambió, es el cambio
   principal de la corrida. Las corridas sin `args.reward` usaban la recompensa `base`.
 - **Reward y observación**: `diff runs/<anterior>/env.py runs/<actual>/env.py` (copias exactas).
   Mirar `_computeReward`, `_computeObs` y las condiciones de aterrizaje/choque. Ver `obs_dim`.
