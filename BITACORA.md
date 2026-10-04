@@ -81,6 +81,27 @@ fallan. Con una sola seed, solo una diferencia grande es señal; si alguna prome
 
 Se probó `torch.set_num_threads(1)` para acelerar: no cambió nada (732 contra 750 pasos/s). No se dejó.
 
+## 2026-10-04 · lucio · Resultado: sacar el incentivo a chocar empeoró todo; nos quedamos con `base`
+
+Las tres variantes (seed 42, 1.5M pasos) fueron mucho peores que `base` (v17: 68 % de éxito a 1.5M en el
+entrenamiento; 88 % del best en 100 episodios):
+
+| Variante | Éxito a 1.5M | Qué hace |
+|---|---|---|
+| A1 (v18): progreso en vez de distancia | 0 % | Flota encima de la plataforma y no se anima a bajar |
+| A2 (v19): progreso además de distancia | 0 % | Aprende algo a 0.2M (26 % en 100 ep.) y lo pierde |
+| B (v20): choque −50 | 0 % | Se queda lejos de la plataforma |
+
+Conclusiones:
+- El "chocar rápido" del principio no era el problema: probablemente **ayuda a explorar**. Episodios cortos
+  son muchos intentos por millón de pasos, y algunos terminan aterrizando. Sin esa salida (A1, B), el agente
+  deja de intentar.
+- El progreso con k = 10 no ayudó, aunque en teoría no debería empeorar. A1 es, en teoría, `base` más un
+  término de progreso exacto (misma política óptima), y aun así no aprendió: el término cambia cómo aprende,
+  no qué es lo óptimo. Además, como la plataforma se mueve, `d` cambia aunque el dron no haga nada, y con
+  k = 10 ese ruido es hasta un tercio de la señal.
+- Pendiente (`TODO.md`, punto 3): A2 con k chico (0.5, 1, 3) y la suavidad de la acción.
+
 ## 2026-10-04 · lucio · Error: el PID del dron no se reiniciaba entre episodios
 
 gym-pybullet-drones no llama a `DSLPIDControl.reset()` en el `reset()` del entorno, así que cada episodio

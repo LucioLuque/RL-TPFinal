@@ -38,8 +38,8 @@ funcionan de punta a punta.
 de episodio ~102 → ~103 pasos (de 480). El crítico aprende bien sin escalar la recompensa
 (`explained_variance` 0.77 y `value_loss` 0.2 al final). La política todavía explora mucho (`std` 1.1).
 
-Evaluación con `tools/evaluate.py` (100 episodios, seeds 42–141): 4 % de éxito (IC 95 %: 2–10 %); 80 choques
-contra el piso, 12 contra la plataforma y 4 por inclinación.
+Evaluación con `tools/evaluate.py` (100 episodios, seeds 42–141): 4 % de éxito (IC 95 %: 2–10 %); 81 choques
+contra el piso, 9 contra la plataforma, 4 por inclinación y 2 por tiempo.
 
 Evaluación anterior, hecha a mano (20 episodios deterministas, seeds 1000–1019):
 - 19 choques y 1 aterrizaje (5%).

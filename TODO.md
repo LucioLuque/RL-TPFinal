@@ -72,35 +72,27 @@ una constante fija.
 
 ## 3. Comparar términos de la recompensa
 
-Ver qué efecto tiene cada uno de los dos términos que hoy están comentados en `_computeReward`.
-Conviene hacerlo después del punto 1, para que las cuatro corridas tengan la misma observación.
+Las variantes se definen con nombre en `rewards.yaml` y se entrenan con `train.py --reward <nombre>`.
 
-| Variante | Términos |
-|---|---|
-| A (base) | Recompensa actual |
-| B | A + progreso: `0.1 * (prev_d - current_d)` |
-| C | A + suavidad de la acción: `-0.02 * sum((acción - acción_previa)²)` |
-| D | A + progreso + suavidad |
+**Ya probado (2026-10-04, seed 42, 1.5M pasos; ver `runs/v18`–`v20` y `BITACORA.md`):**
 
-**Escala del término de progreso:** como mucho, el dron se acerca ~0.04 m por paso (0.9 m/s a 24 Hz),
-así que el término aporta ≤ 0.004 por paso. Sumado en todo el episodio, da `0.1 × (distancia inicial −
-distancia final)`, o sea ≤ ~0.15. Comparado con `-0.1 * d` por paso y los +25/−10 del final, con 0.1
-probablemente no tenga efecto. Considerar un coeficiente más alto (por ejemplo, 1 o 5), o probar más
-de uno.
+| Variante | Qué cambia respecto de `base` | Éxito a 1.5M (v17/`base`: 68 %) |
+|---|---|---|
+| A1 (v18) | progreso `10·(d_anterior − d)` **en vez de** `−0.1·d` | 0 % (flota encima, no baja) |
+| A2 (v19) | progreso `10·(d_anterior − d)` **además de** `−0.1·d` | 0 % (aprendió algo a 0.2M y lo perdió) |
+| B (v20) | choque −50 en vez de −10 | 0 % (se queda lejos) |
 
-**Cómo hacerlo:**
-- Que los coeficientes sean parámetros del entorno (`reward_progress_coef` y `reward_action_coef`, en
-  0 por defecto), configurables desde `levels.yaml`, en vez de descomentar código. Así cada variante
-  queda registrada en `run.json` (`env_kwargs`) y se cambia sin tocar `env.py`.
-- Mismos timesteps y misma seed en las cuatro corridas. Con 8 episodios de evaluación, la tasa de
-  éxito va de a 12.5 %: para comparar al final, evaluar el best de cada una con más episodios
-  (por ejemplo, 50), o correr cada variante con 2–3 seeds.
-- Además del éxito, medir cuánto cambia la acción entre pasos (`mean sum(Δacción²)`) y el largo de los
-  episodios, también en A. Si no, no se puede ver si C y D suavizan las acciones.
+Con k = 10, el progreso domina la recompensa por paso (hasta ±0.37, contra ~0.08 del resto) y mete ruido,
+porque la plataforma se mueve y cambia `d` aunque el dron no haga nada.
 
-- [ ] Coeficientes como parámetros del entorno, con el signo de progreso corregido.
-- [ ] Entrenar A, B, C y D y registrarlas con `/registrar-corrida`.
-- [ ] Anotar la conclusión en `BITACORA.md`.
+**Pendiente:**
+- [ ] **A2 con factores más chicos:** progreso sumado a `base` con k = 0.5, 1 y 3 (agregar `A2_k05`, `A2_k1`,
+  `A2_k3` a `rewards.yaml`). Con k chico, la señal de acercarse ayuda sin dominar ni meter tanto ruido.
+- [ ] **Suavidad de la acción:** `base` + `−c·sum((acción − acción_previa)²)`. Hay que agregar
+  `reward_action_coef` como parámetro del entorno (hoy está comentado en `_computeReward`). Probar c = 0.02.
+  Medir también cuánto cambia la acción entre pasos, en `base` y en esta variante.
+- Mismos timesteps (1.5M) y seed (42) que v18–v20, para comparar contra la curva de v17. Si alguna
+  promete, repetirla con más seeds.
 
 ## 4. ❓ Marco de referencia de la observación y la acción: ¿hace falta probar el de la plataforma?
 
