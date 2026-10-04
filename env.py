@@ -5,6 +5,11 @@ from gymnasium import spaces
 from gym_pybullet_drones.envs.VelocityAviary import VelocityAviary
 from gym_pybullet_drones.utils.enums import DroneModel, Physics
 
+# Velocidad maxima que se le pide al dron (m/s): accion = SPEED_LIMIT * s * direccion.
+# VelocityAviary trae 0.25 m/s (3% de 30 km/h), menos que la plataforma (hasta 0.3 m/s), y el dron
+# no podia alcanzarla. Tiene que ser el mismo limite que se use en el Crazyflie real (ver TODO_SIM2REAL.md).
+DRONE_SPEED_LIMIT = 0.6
+
 class MovingPlatformLandingAviary(VelocityAviary):
     def __init__(
         self,
@@ -58,6 +63,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
             record=False,
             obstacles=False,
         )
+        self.SPEED_LIMIT = DRONE_SPEED_LIMIT
 
         self.action_space = spaces.Box(
             low=np.array([-1, -1, -1, 0], dtype=np.float32),
@@ -252,7 +258,6 @@ class MovingPlatformLandingAviary(VelocityAviary):
     def _computeObs(self):
         state = self._getDroneStateVector(0)
 
-        #ultimo experimento velocity tracking
         drone_pos = state[0:3]
         rpy = state[7:10]
         drone_vel = state[10:13]
@@ -260,8 +265,6 @@ class MovingPlatformLandingAviary(VelocityAviary):
 
         rel_pos = drone_pos - np.array([self.platform_pos[0], self.platform_pos[1], self.platform_height])
         rel_vel = drone_vel - self.platform_vel
-
-        target_vel = self._get_target_velocity(rel_pos)
 
         obs = np.concatenate(
             [
@@ -302,7 +305,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
         reward -= 0.01
 
         # if self.episode_step_counter > 1:
-        #     reward -= 0.1 * (self.prev_d - self._current_d)
+        #     reward += 0.1 * (self.prev_d - self._current_d)
         #     da = np.sum((self._current_action - self.prev_action) ** 2)
         #     reward -= 0.02 * da  # alpha_action, punto de partida a tunear
 
@@ -317,15 +320,16 @@ class MovingPlatformLandingAviary(VelocityAviary):
 
         return float(reward)
 
-    def _get_target_velocity(self, rel_pos):
-        v_max = 1.0
-        v_target = -0.5 * rel_pos
+    # Antes se usaba para velocity tracking, se puede borrar
+    # def _get_target_velocity(self, rel_pos):
+    #     v_max = 1.0
+    #     v_target = -0.5 * rel_pos
 
-        v_target_norm = np.linalg.norm(v_target)
-        if v_target_norm > v_max:
-            v_target = v_target / v_target_norm * v_max
+    #     v_target_norm = np.linalg.norm(v_target)
+    #     if v_target_norm > v_max:
+    #         v_target = v_target / v_target_norm * v_max
 
-        return v_target
+    #     return v_target
 
     def _platform_contact(self):
         contacts = p.getContactPoints(

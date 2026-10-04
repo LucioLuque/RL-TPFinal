@@ -14,6 +14,7 @@ from utils import (
     get_model_path,
     get_vecnormalize_path,
     get_latest_version,
+    run_tag,
     make_env,
     set_global_seeds,
 )
@@ -23,7 +24,7 @@ DEFAULT_GIF_FPS = 12
 DEFAULT_CAPTURE_EVERY = 2
 DEFAULT_IMAGE_WIDTH = 640
 DEFAULT_IMAGE_HEIGHT = 480
-DEFAULT_OUT_DIR = "outputs"
+DEFAULT_OUT_DIR = "media/gifs"
 
 
 def unwrap_env(env):
@@ -144,7 +145,7 @@ def main():
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    gif_path = out_dir / f"policy_version_{version}_episode.gif"
+    gif_path = out_dir / f"policy_{run_tag(version)}_episode.gif"
 
     print("── view one policy episode ──")
     print(f"version: {version}")
