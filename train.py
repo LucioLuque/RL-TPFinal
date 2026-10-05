@@ -4,15 +4,14 @@ import numpy as np
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.evaluation import evaluate_policy
-from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv, VecNormalize, sync_envs_normalization
+from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv
 
-from run_registry import RunRecord, previous_best
+from run_registry import RunRecord, previous_best, previous_reward
 from utils import (
     parse_args,
     get_model_path,
-    get_vecnormalize_path,
     get_best_model_dir,
-    get_best_vecnormalize_path,
+    DEFAULT_REWARD,
     get_env_kwargs,
     get_log_dir,
     get_next_run_id,
@@ -27,43 +26,23 @@ DEFAULT_N_ENVS = 8
 DEFAULT_EVAL_FREQ = 100000  # en timesteps totales, independiente de n_envs
 DEFAULT_EVAL_EPISODES = 8
 
-def make_vec_env(seed: int, n_envs: int):
-    env_fns = [make_env(gui=False, seed=seed + i) for i in range(n_envs)]
+def make_vec_env(seed: int, n_envs: int, reward: str):
+    env_fns = [make_env(gui=False, seed=seed + i, reward=reward) for i in range(n_envs)]
     if n_envs == 1:
         return DummyVecEnv(env_fns)
 
     return SubprocVecEnv(env_fns, start_method="spawn")
 
 
-class SaveVecNormalizeCallback(BaseCallback):
-    """Guarda las estadisticas de VecNormalize cada vez que EvalCallback encuentra un modelo mejor.
-
-    EvalCallback por si solo solo guarda los pesos de la politica (best_model.zip); sin esto, el
-    mejor checkpoint quedaria sin su normalizacion de observaciones asociada y no se podria evaluar
-    ni continuar entrenando correctamente.
-    """
-
-    def __init__(self, save_path: str, verbose: int = 0):
-        super().__init__(verbose)
-        self.save_path = save_path
-
-    def _on_step(self) -> bool:
-        vec_normalize_env = self.model.get_vec_normalize_env()
-        if vec_normalize_env is not None:
-            vec_normalize_env.save(self.save_path)
-        return True
-
-
-def make_eval_env(seed: int, n_eval_episodes: int):
+def make_eval_env(seed: int, n_eval_episodes: int, reward: str):
     # Un env por episodio de eval, en paralelo, para que evaluate_policy corra
     # las n_eval_episodes al mismo tiempo en vez de en serie.
-    env_fns = [make_env(gui=False, seed=seed + 10_000 + i) for i in range(n_eval_episodes)]
+    env_fns = [make_env(gui=False, seed=seed + 10_000 + i, reward=reward) for i in range(n_eval_episodes)]
     if n_eval_episodes == 1:
         eval_env = DummyVecEnv(env_fns)
     else:
         eval_env = SubprocVecEnv(env_fns, start_method="spawn")
 
-    eval_env = VecNormalize(eval_env, norm_obs=True, norm_reward=False, clip_obs=10.0, training=False)
     # Sin esto, evaluate_policy resetea sin seed en cada evaluacion y los episodios
     # de eval no son reproducibles entre corridas con la misma seed global.
     eval_env.seed(seed + 10_000)
@@ -86,7 +65,6 @@ class BestModelCallback(BaseCallback):
         self,
         eval_env,
         best_model_save_path: str,
-        callback_on_new_best: BaseCallback | None = None,
         n_eval_episodes: int = DEFAULT_EVAL_EPISODES,
         eval_freq: int = 10000,
         deterministic: bool = True,
@@ -95,7 +73,6 @@ class BestModelCallback(BaseCallback):
         super().__init__(verbose)
         self.eval_env = eval_env
         self.best_model_save_path = best_model_save_path
-        self.callback_on_new_best = callback_on_new_best
         self.n_eval_episodes = n_eval_episodes
         self.eval_freq = eval_freq
         self.deterministic = deterministic
@@ -108,8 +85,6 @@ class BestModelCallback(BaseCallback):
 
     def _init_callback(self) -> None:
         os.makedirs(self.best_model_save_path, exist_ok=True)
-        if self.callback_on_new_best is not None:
-            self.callback_on_new_best.init_callback(self.model)
 
     def _log_success_callback(self, locals_: dict, globals_: dict) -> None:
         if locals_["done"]:
@@ -120,9 +95,6 @@ class BestModelCallback(BaseCallback):
     def _on_step(self) -> bool:
         if self.eval_freq <= 0 or self.n_calls % self.eval_freq != 0:
             return True
-
-        if self.model.get_vec_normalize_env() is not None:
-            sync_envs_normalization(self.training_env, self.eval_env)
 
         self._is_success_buffer = []
         episode_rewards, episode_lengths = evaluate_policy(
@@ -162,8 +134,6 @@ class BestModelCallback(BaseCallback):
             self.best_mean_reward = mean_reward
             self.best_mean_ep_length = mean_ep_length
             self.best_at_timesteps = self.num_timesteps
-            if self.callback_on_new_best is not None:
-                self.callback_on_new_best.on_step()
 
         return True
 
@@ -186,15 +156,12 @@ class BestModelCallback(BaseCallback):
         }
 
 
-def make_eval_callback(version, seed: int, n_envs: int):
-    eval_env = make_eval_env(seed, DEFAULT_EVAL_EPISODES)
-
-    save_vecnormalize = SaveVecNormalizeCallback(get_best_vecnormalize_path(version))
+def make_eval_callback(version, seed: int, n_envs: int, reward: str):
+    eval_env = make_eval_env(seed, DEFAULT_EVAL_EPISODES, reward)
 
     return BestModelCallback(
         eval_env,
         best_model_save_path=get_best_model_dir(version),
-        callback_on_new_best=save_vecnormalize,
         n_eval_episodes=DEFAULT_EVAL_EPISODES,
         eval_freq=max(DEFAULT_EVAL_FREQ // n_envs, 1),
         deterministic=True,
@@ -207,27 +174,27 @@ def train(
     n_envs: int = DEFAULT_N_ENVS,
     save_best_model: bool = True,
     run_args: dict | None = None,
+    reward: str | None = None,
 ):
-    env = make_vec_env(seed, n_envs)
+    # Sin VecNormalize: el entorno ya devuelve la observacion normalizada con escalas fijas
+    # (env._computeObs) y la recompensa va sin normalizar, porque su escala es conocida (TODO.md, punto 1).
+    if reward is None:
+        # Al seguir una corrida, por defecto se usa la misma recompensa con la que se entreno.
+        recorded = previous_reward(load_version) if load_version is not None else None
+        reward = recorded or DEFAULT_REWARD
+    print(f"Recompensa: {reward}")
+    env = make_vec_env(seed, n_envs, reward)
 
     if load_version is not None:
         version = run_tag(load_version)
-        vecnormalize_path = get_vecnormalize_path(load_version)
         model_path = get_model_path(load_version, with_extension=True)
 
-        env = VecNormalize.load(vecnormalize_path, env)
-        env.training = True
-        env.norm_reward = True
         model = PPO.load(model_path, env=env)
 
         model.tensorboard_log = get_log_dir(version)
         reset_num_timesteps = False
     else:
         version = get_next_run_id()
-        env = VecNormalize(env, norm_obs=True, norm_reward=True, clip_obs=10.0,)
-
-        env.training = True
-        env.norm_reward = True
         model = PPO(
             "MlpPolicy",
             env,
@@ -249,12 +216,11 @@ def train(
             verbose=1,
             tensorboard_log=get_log_dir(version),
         )
-        model_path = get_model_path(version)
-        vecnormalize_path = get_vecnormalize_path(version)
+        model_path = get_model_path(version, with_extension=True)
         reset_num_timesteps = True
 
     print(f"Run: {version}")
-    eval_callback = make_eval_callback(version, seed, n_envs) if save_best_model else None
+    eval_callback = make_eval_callback(version, seed, n_envs, reward) if save_best_model else None
     if eval_callback is not None and load_version is not None:
         best = previous_best(version)
         if best is not None and os.path.exists(os.path.join(get_best_model_dir(version), "best_model.zip")):
@@ -262,7 +228,15 @@ def train(
             print(f"Best previo: success_rate={100 * best['best_success_rate']:.1f}%, mean_reward={best['best_mean_reward']:.2f}")
         else:
             print("WARNING: no hay registro del best previo de esta corrida; el primer eval va a pisar best_model.")
-    record = RunRecord(version, run_args or {}, model, get_env_kwargs(gui=False), env.observation_space.shape[0])
+    # Constantes del entorno que no estan en env_kwargs pero cambian lo que ve o hace el agente.
+    env_constants = {
+        "speed_limit": float(env.get_attr("SPEED_LIMIT")[0]),
+        "obs_scale": env.get_attr("_obs_scale")[0].tolist(),
+    }
+    record = RunRecord(
+        version, {**(run_args or {}), "reward": reward}, model, get_env_kwargs(gui=False, reward=reward),
+        env.observation_space.shape[0], env_constants,
+    )
 
     try:
         model.learn(total_timesteps=total_timesteps, reset_num_timesteps=reset_num_timesteps, callback=eval_callback)
@@ -274,11 +248,10 @@ def train(
         eval_callback.eval_env.close()
 
     model.save(model_path)
-    env.save(vecnormalize_path)
     env.close()
     record.finish("finished", model, eval_callback)
 
-    return model_path, vecnormalize_path
+    return model_path
 
 def main():
     time0 = time.time()
@@ -287,14 +260,13 @@ def main():
 
     new_args = [("timesteps", int, DEFAULT_TOTAL_TIMESTEPS, "Total PPO timesteps to train."),
                 ("n_envs", int, DEFAULT_N_ENVS, "Number of parallel environments to use."),
+                ("reward", str, None, "Reward variant from rewards.yaml (default: base, or the one of --load)."),
     ]
     args = parse_args(new_args=new_args)
     set_global_seeds(args.seed)
+    model_path = train(args.load, args.timesteps, args.seed, args.n_envs, SAVE_BEST_MODEL, vars(args), args.reward)
 
-    model_path, vecnormalize_path = train(args.load, args.timesteps, args.seed, args.n_envs, SAVE_BEST_MODEL, vars(args))
-
-    print(f"Saved model to {model_path}.zip")
-    print(f"Saved vecnorms to {vecnormalize_path}")
+    print(f"Saved model to {model_path}")
 
     timef = time.time() - time0
     print(f"Training took {timef:.2f} seconds.")

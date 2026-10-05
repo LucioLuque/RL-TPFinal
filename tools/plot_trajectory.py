@@ -5,14 +5,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from stable_baselines3 import PPO
-from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
+from stable_baselines3.common.vec_env import DummyVecEnv
 
-from utils import DEFAULT_CTRL_FREQ, parse_args, get_model_path, get_vecnormalize_path, get_latest_version, make_env, set_global_seeds
+from utils import DEFAULT_CTRL_FREQ, parse_args, get_model_path, get_latest_version, make_env, set_global_seeds
 
 DEFAULT_SAVE_PATH = "media/plots/trajectory.png"
 
 def unwrap_env(vec_env):
-    return vec_env.venv.envs[0].unwrapped
+    return vec_env.envs[0].unwrapped
 
 def main():
     new_args = [
@@ -26,12 +26,8 @@ def main():
         raise SystemExit("No saved weights found to evaluate.")
 
     model_path = get_model_path(version, with_extension=True)
-    vecnormalize_path = get_vecnormalize_path(version)
 
     env = DummyVecEnv([make_env(gui=True, seed=args.seed)])
-    env = VecNormalize.load(vecnormalize_path, env)
-    env.training = False
-    env.norm_reward = False
 
     env.seed(args.seed)
     obs = env.reset()

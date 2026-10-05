@@ -26,9 +26,15 @@ este registro agrega la interpretación.
 
 El código con el que se entrenó cada corrida es su `git.commit` + su `diff.patch`. Comparar:
 
+- **Variante de recompensa**: `args.reward` en `run.json` (nombre en `rewards.yaml`) y sus coeficientes en
+  `env_kwargs` (`reward_distance_coef`, `reward_dxy_coef`, `reward_dz_coef`, `reward_progress_coef`,
+  `crash_penalty`; los que falten valen lo mismo que en `base`). Si cambió, es el cambio
+  principal de la corrida. Las corridas sin `args.reward` usaban la recompensa `base`.
 - **Reward y observación**: `diff runs/<anterior>/env.py runs/<actual>/env.py` (copias exactas).
   Mirar `_computeReward`, `_computeObs` y las condiciones de aterrizaje/choque. Ver `obs_dim`.
-- **Entorno/nivel**: `level` y `env_kwargs` en ambos `run.json`, y `diff` de los `levels.yaml`.
+- **Entorno/nivel**: `level`, `env_kwargs` y `env_constants` (límite de velocidad del dron y escalas de
+  normalización de la observación) en ambos `run.json`, y `diff` de los `levels.yaml`. Las corridas
+  anteriores a la normalización fija no tienen `env_constants`: usaban `VecNormalize`.
 - **Hiperparámetros y args**: `hyperparams` y `args` de ambos `run.json`.
 - **Resto del código** (`train.py`, `utils.py`, etc.): `git diff <commit_anterior> <commit_actual>`
   sobre esos archivos, teniendo en cuenta los `diff.patch` de cada una. Ignorar `runs/`, `logs/` y `media/`.
@@ -50,6 +56,19 @@ De `results` en `run.json`:
 Tener en cuenta que la tasa de éxito sale de `n_eval_episodes` episodios (8 por defecto), así que
 va de a 12.5%. Una diferencia de un episodio no es señal: decirlo así y no sacar conclusiones fuertes.
 
+**Evaluación de 100 episodios (el número que vale para comparar).** Si la corrida no tiene
+`runs/<run_id>/eval_best.json`, correr desde la raíz del repo, con el entorno `drone-landing`:
+
+```bash
+conda run -n drone-landing python -m tools.evaluate --load <run_id> --best --episodes 100
+```
+
+Usa siempre las mismas semillas, así que todas las corridas se evalúan sobre los mismos episodios. De
+`eval_best.json` usar: `success_rate` y `success_ci95` (intervalo del 95 %), `outcomes` (cómo terminan:
+`exito`, `choque_piso`, `choque_plataforma`, `choque_inclinacion`, `tiempo`), `landing_time_s` y
+`obs_clipped_fraction` (si algún valor se recorta en más del 1 % de los pasos, sugerir subir su escala).
+Si los intervalos de dos corridas se superponen mucho, no afirmar que una es mejor que la otra.
+
 ## 4. Escribir `runs/<run_id>/NOTES.md`
 
 En español, corto y concreto. Con este formato (la línea `Cambio:` la usa `tools/experiments_index.py` para el índice, así que va en una sola línea, de no más de ~80 caracteres):
@@ -61,7 +80,8 @@ Cambio: <el cambio principal en una línea>
 
 | | <anterior> | <actual> |
 |---|---|---|
-| Best éxito | 40% | 62% |
+| Éxito best (100 ep.) | 78% (69–85) | 85% (77–91) |
+| Best éxito (8 ep.) | 40% | 62% |
 | Best reward | ... | ... |
 | Largo ep. (best) | ... | ... |
 | Best en timestep | ... | ... |

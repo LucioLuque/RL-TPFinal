@@ -6,13 +6,11 @@ import numpy as np
 import pybullet as p
 
 from stable_baselines3 import PPO
-from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 
 from utils import (
     DEFAULT_CTRL_FREQ,
     parse_args,
     get_model_path,
-    get_vecnormalize_path,
     get_latest_version,
     run_tag,
     make_env,
@@ -108,17 +106,6 @@ def capture_frame(
     return rgb
 
 
-def normalize_obs(vecnormalize_env, obs):
-    """
-    Normaliza una observación individual usando las estadísticas de VecNormalize.
-
-    El modelo fue entrenado con VecNormalize, entonces para hacer predict
-    correctamente necesitamos pasarle la observación normalizada.
-    """
-    obs_batch = np.array([obs], dtype=np.float32)
-    return vecnormalize_env.normalize_obs(obs_batch)
-
-
 def main():
     # Ejemplos:
     # python view_platform.py
@@ -140,7 +127,6 @@ def main():
     version = args.load if args.load is not None else get_latest_version()
 
     model_path = get_model_path(version, with_extension=True)
-    vecnormalize_path = get_vecnormalize_path(version)
 
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -150,25 +136,13 @@ def main():
     print("── view one policy episode ──")
     print(f"version: {version}")
     print(f"model_path: {model_path}")
-    print(f"vecnormalize_path: {vecnormalize_path}")
     print(f"ctrl_freq: {DEFAULT_CTRL_FREQ}")
     print(f"gif_path: {gif_path}")
 
     # ------------------------------------------------------------------
-    # 1. Cargamos VecNormalize y PPO como en eval.py.
-    #    Este env se usa para tener estadísticas de normalización.
+    # 1. Cargamos PPO. El entorno ya devuelve la observacion normalizada.
     # ------------------------------------------------------------------
-    norm_env = DummyVecEnv([make_env(gui=False, seed=args.seed)])
-    norm_env = VecNormalize.load(vecnormalize_path, norm_env)
-
-    norm_env.training = False
-    norm_env.norm_reward = False
-
-    model = PPO.load(
-        model_path,
-        env=norm_env,
-        device="cpu",
-    )
+    model = PPO.load(model_path, device="cpu")
 
     # ------------------------------------------------------------------
     # 2. Creamos un entorno real con GUI.
@@ -178,8 +152,6 @@ def main():
     obs, info = env.reset(seed=args.seed)
 
     raw_env = unwrap_env(env)
-
-    obs_norm = normalize_obs(norm_env, obs)
 
     gif_frames = []
 
@@ -198,7 +170,7 @@ def main():
             )
             gif_frames.append(frame)
 
-        action, _ = model.predict(obs_norm, deterministic=True)
+        action, _ = model.predict(obs, deterministic=True)
 
         action_for_env = action[0] if action.ndim == 2 else action
 
@@ -234,8 +206,6 @@ def main():
             print("Info:", info)
             break
 
-        obs_norm = normalize_obs(norm_env, obs)
-
         if not args.no_sleep:
             time.sleep(1 / DEFAULT_CTRL_FREQ)
 
@@ -260,7 +230,6 @@ def main():
     print(f"truncated: {truncated}")
 
     env.close()
-    norm_env.close()
 
 
 if __name__ == "__main__":

@@ -2,7 +2,8 @@
 
 TP final de RL (UdeSA), hecho entre dos: Lucio y Teo. Un dron Crazyflie (CF2X) aprende a aterrizar sobre
 una plataforma con forma de turtlebot, que se mueve. Se usa PPO de stable-baselines3 sobre gym-pybullet-drones.
-Las versiones de las dependencias están en `requirements.txt`; el entorno se maneja con conda.
+Dependencias directas en `requirements.txt` (cómo crear el entorno conda `drone-landing` está arriba de ese
+archivo). gym-pybullet-drones (2.2.0) se instala desde GitHub, fijado a un commit, porque no está en PyPI.
 
 ## Comandos
 
@@ -10,6 +11,7 @@ Las versiones de las dependencias están en `requirements.txt`; el entorno se ma
 python train.py                                  # corrida nueva -> v<N>-<autor>
 python train.py --load v16-lucio --timesteps 500000   # seguir entrenando una corrida
 python eval.py --load v16-lucio --episodes 5     # con GUI; sin --load usa la última
+python -m tools.evaluate --load v17-lucio --best # 100 episodios sin GUI -> runs/<id>/eval_best.json
 python -m tools.generate_gif --load v16-lucio    # gif de un episodio en media/gifs/
 python -m tools.plot_trajectory --load v16-lucio
 python -m tools.plots                            # curvas de TensorBoard (editar el __main__)
@@ -35,8 +37,8 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
 - **Id**: `v<N>-<autor>`. N es global entre los dos autores (el mayor existente + 1). El autor es la
   primera palabra de `git config user.name`. Hacer `git pull` antes de entrenar.
 - **`runs/<id>/`** tiene todo lo de una corrida, y lo escribe `train.py` solo:
-  - `model.zip` + `vecnormalize.pkl`: el modelo final;
-  - `best/best_model.zip` + `best/vecnormalize.pkl`: el mejor por tasa de éxito y, si empatan, por reward;
+  - `model.zip`: el modelo final;
+  - `best/best_model.zip`: el mejor por tasa de éxito y, si empatan, por reward;
   - `run.json`: args, hiperparámetros, entorno, git, resultados y evals;
   - `diff.patch`: lo no commiteado; copias de `env.py` y `levels.yaml`;
   - `tb/`: TensorBoard (se commitea, para que los dos puedan graficar cualquier corrida con `tools/plots.py`).
@@ -48,27 +50,34 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
   repetir algo que ya se probó.
 - **`BITACORA.md`**: ideas, decisiones y observaciones que no son de una sola corrida, con fecha y autor.
   Leerla junto con `EXPERIMENTS.md` antes de proponer cambios. Agregar entradas solo cuando lo pidan.
-- **`TODO.md`**: pendientes generales, en orden (el primero es reemplazar `VecNormalize` por una
-  normalización fija). Marcar las tareas a medida que se hacen.
+- **`TODO.md`**: pendientes generales, en orden. Marcar las tareas a medida que se hacen.
 - **`TODO_SIM2REAL.md`**: pendientes para pasar la política al turtlebot real (giro de la plataforma,
   efecto suelo, observación de OptiTrack, frecuencias de la cadena real, aceleración del turtlebot y
   domain randomization). La meta final es el robot real: tenerlo en cuenta al proponer cambios al entorno.
 - `EXPERIMENTS.md` es generado: no editarlo a mano. Si tiene un conflicto de merge, regenerarlo.
 - Las corridas `version_1` a `version_15` y `landing_level_1/2` son anteriores al registro: en `runs/`
-  solo tienen `model.zip` y `vecnormalize.pkl`.
+  solo tienen `model.zip` y `vecnormalize.pkl`. No se pueden cargar con el código actual (otra
+  observación y `VecNormalize`).
 
 ## Entorno (`env.py`, `MovingPlatformLandingAviary`)
 
 - **Acción** (VelocityAviary): `[dx, dy, dz] ∈ [-1, 1]` es la dirección y `s ∈ [0, 1]` la fracción de la velocidad máxima
   (`DRONE_SPEED_LIMIT = 0.6` m/s en `env.py`; tiene que coincidir con el límite del Crazyflie real).
 - **Observación** (19 dimensiones): pos relativa al tope de la plataforma (3), vel relativa (3), rpy (3),
-  vel angular (3), vel del dron (3) y acción previa (4). Se normaliza con `VecNormalize`.
+  vel angular (3), vel del dron (3) y acción previa (4). Se normaliza a [-1, 1] con escalas fijas
+  (`_obs_scale`, constantes `OBS_*` en `env.py`); `_computeRawObs` da los valores físicos. No se usa
+  `VecNormalize`, y la recompensa va sin normalizar.
 - **Nivel**: siempre `turtlebot_hard_fixed` (`utils.LEVEL`, en `levels.yaml`). Los niveles de curriculum
   viejos ya no se usan.
 - **Éxito**: 10 steps seguidos tocando el tope de la plataforma, con `d_xy < 0.2`, `|vz_rel| < 0.1` y `|roll|, |pitch| < 0.1`.
-- **Choque**: contacto con algo que no sea el tope, o `|roll|` o `|pitch|` mayor a 0.7.
+- **Contacto** (`_platform_contact`): `top` solo si todos los puntos son de la base del dron contra el tope
+  (normal hacia arriba); cualquier otro contacto es choque. El CF2X no tiene patas: su colisión es un
+  cilindro de 12 cm × 2.5 cm.
+- **Choque**: contacto que no sea base contra tope, o `|roll|` o `|pitch|` mayor a 0.7.
 - **Truncado**: a los 20 s (24 Hz, 480 steps).
-- **Reward**: ver `_computeReward`. Hay términos comentados de pruebas anteriores. Ojo: el commit
+- **Reward**: ver `_computeReward`. Los coeficientes (distancia, progreso, castigo por choque) son
+  parámetros del entorno; las variantes con nombre están en `rewards.yaml` y se eligen con
+  `train.py --reward <nombre>`. Para probar una recompensa nueva, agregar una variante ahí. Hay términos comentados de pruebas anteriores. Ojo: el commit
   `f94b2d3` dice que agrega una penalización por cambios de acción, pero está comentada.
 
 ## Convenciones
@@ -76,4 +85,4 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
 - Comentarios y mensajes en español.
 - La selección del mejor modelo es por tasa de éxito, no por reward (ver el docstring de `BestModelCallback`).
 - Con 8 episodios de evaluación, la tasa de éxito va de a 12.5%: no sacar conclusiones de un episodio de diferencia.
-- Todo `runs/` se commitea (modelos, vecnorms y TensorBoard), porque es chico y el otro los necesita para evaluar. Los gifs se commitean solo si van al informe.
+- Todo `runs/` se commitea (modelos y TensorBoard), porque es chico y el otro los necesita para evaluar. Los gifs se commitean solo si van al informe.

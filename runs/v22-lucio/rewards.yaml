@@ -1,0 +1,36 @@
+# Variantes de recompensa. Se elige con: python train.py --reward <nombre> (default: base).
+# Los valores quedan en run.json (env_kwargs). Por que existe cada una: BITACORA.md, 2026-10-04.
+#
+#   reward_distance_coef: castigo por paso = coef * distancia al tope. Se acumula con el tiempo.
+#   reward_dxy_coef, reward_dz_coef: lo mismo, pero separando distancia horizontal y altura sobre el tope.
+#   reward_progress_coef: premio por paso = k * (d_anterior - d). En el episodio suma k * (d_inicial - d_final).
+#                         k = 10 da el mismo incentivo de acercarse que 0.1 * d acumulado con gamma 0.99 (0.1 / 0.01).
+#   crash_penalty: castigo al chocar.
+
+base:   # la de v16/v17
+  reward_distance_coef: 0.1
+  reward_progress_coef: 0.0
+  crash_penalty: 10.0
+
+A1:     # progreso EN VEZ de distancia: sin costo que se acumule, chocar no conviene
+  reward_distance_coef: 0.0
+  reward_progress_coef: 10.0
+  crash_penalty: 10.0
+
+A2:     # progreso ADEMAS de distancia: mas senal de acercarse, pero el costo acumulado sigue
+  reward_distance_coef: 0.1
+  reward_progress_coef: 10.0
+  crash_penalty: 10.0
+
+B:      # chocar mas caro que volar todo el episodio (~ -38 con 0.1 * d a ~0.8 m)
+  reward_distance_coef: 0.1
+  reward_progress_coef: 0.0
+  crash_penalty: 50.0
+
+XY:     # como base, pero alinearse en horizontal vale 3 veces mas que bajar (v17 chocaba el borde bajando en
+        # diagonal). Coeficientes elegidos para que el castigo total por paso quede parecido al de base.
+  reward_distance_coef: 0.0
+  reward_dxy_coef: 0.1
+  reward_dz_coef: 0.033
+  reward_progress_coef: 0.0
+  crash_penalty: 10.0

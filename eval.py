@@ -1,9 +1,9 @@
 import time
 
 from stable_baselines3 import PPO
-from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
+from stable_baselines3.common.vec_env import DummyVecEnv
 
-from utils import DEFAULT_CTRL_FREQ, parse_args, get_model_path, get_vecnormalize_path, get_latest_version, make_env, set_global_seeds
+from utils import DEFAULT_CTRL_FREQ, parse_args, get_model_path, get_latest_version, make_env, set_global_seeds
 
 DEFAULT_EVAL_EPISODES = 5
 
@@ -22,13 +22,8 @@ def main():
         raise SystemExit("No saved weights found to evaluate. Train a model first.")
 
     model_path = get_model_path(version, with_extension=True)
-    vecnormalize_path = get_vecnormalize_path(version)
 
     env = DummyVecEnv([make_env(gui=True, seed=args.seed)])
-    env = VecNormalize.load(vecnormalize_path, env)
-
-    env.training = False
-    env.norm_reward = False
 
     model = PPO.load(model_path, env=env, device="cpu")
 
