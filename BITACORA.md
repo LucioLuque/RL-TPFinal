@@ -117,3 +117,19 @@ Con el error arreglado, los fallos de v17 son claros: 11 de 12 son choques contr
 antes, el dron está afuera de la plataforma (0.28–0.43 m del centro; radio 0.25) y bajo (10–18 cm sobre el
 tope), bajando en diagonal. Hipótesis: `−0.1·d` se achica igual bajando que acercándose en horizontal, así
 que bajar en diagonal le conviene. Próxima prueba: pesar más la distancia horizontal que la vertical.
+
+## 2026-10-04 · lucio · Base con el PID arreglado (v21) y variante XY (v22)
+
+Las dos con seed 42 y 1.5M pasos, con el PID arreglado.
+
+- **v21 (`base`):** la curva de éxito es casi igual a la de v17 (72 % contra 68 % a 1.5M), así que el
+  error del PID no cambiaba el aprendizaje. Best (0.9M): 65 % en 100 episodios. Los 31 choques contra la
+  plataforma tienen el mismo patrón que en v17 (bajar en diagonal desde afuera): es el modo de fallo de
+  `base`. Queda como referencia para las variantes de 1.5M pasos.
+- **v22 (`XY`: `−0.1·d_xy − 0.033·|dz|`):** el dron aprendió a alinearse arriba de la plataforma y los
+  choques contra el borde bajaron (10 contra 31), pero no baja: 48 de 100 episodios terminan por tiempo,
+  flotando a ~20 cm sobre el centro. Aprende mucho más lento (4 % de éxito en el entrenamiento a 1.5M
+  contra 72 %; best 35 % en 100 episodios) y tarda más en aterrizar (10.5 s contra 2.4 s).
+
+Se repite lo de A1 (v18): cuando la recompensa deja de empujar a terminar el episodio, el agente prefiere
+flotar. Sigue pendiente cómo atacar los choques contra el borde.

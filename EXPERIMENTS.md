@@ -10,3 +10,5 @@ esta en `runs/<run_id>/NOTES.md` (escrito con `/registrar-corrida`) y `runs/<run
 | [v18-lucio](runs/v18-lucio/) | lucio | 2026-10-04 | finished | 1,503,232 | 0% (0–4) | 0% | 3.58 | recompensa A1: progreso (k=10) en vez de castigo por distancia |
 | [v19-lucio](runs/v19-lucio/) | lucio | 2026-10-04 | finished | 1,503,232 | 26% (18–35) | 38% | -10.78 | recompensa A2: progreso (k=10) además del castigo por distancia |
 | [v20-lucio](runs/v20-lucio/) | lucio | 2026-10-04 | finished | 1,503,232 | 0% (0–4) | 0% | -31.92 | recompensa B: castigo por choque −50 (antes −10) |
+| [v21-lucio](runs/v21-lucio/) | lucio | 2026-10-04 | finished | 1,503,232 | 65% (55–74) | 88% | 14.72 | base de referencia con el PID arreglado (1.5M pasos) |
+| [v22-lucio](runs/v22-lucio/) | lucio | 2026-10-04 | finished | 1,503,232 | 35% (26–45) | 38% | -4.45 | recompensa XY: distancia horizontal pesada 3 veces más que la altura |
