@@ -305,38 +305,65 @@ Seed 1:
 - **`bajada_k03` sola con la seed 1 sí aprende (81 %)**, pero tarde (cruza 50 % a 1.23M): es dependiente de la
   seed, como `base` (con la 42 quedó flotando). Otra vez, el castigo a la acción es lo que la vuelve robusta.
 
-(se completa a medida que terminan)
+### Tanda 9: más seeds de `suave_bajada`, y `suave_c002` con menos ruido de exploración
 
-## Conclusiones (provisorias, se actualizan con cada tanda)
+| Run | Recompensa | Seed | Éxito entr. 0.5M / 1M / 1.5M | Cruza 50 % | Best a | Éxito best (100 ep.) | Choque plat. / piso / tiempo | Aterriza (s) | Δacción | Δv pedida (m/s) | Éxito final (100 ep.) | Δacción final | Δv pedida final |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| v54-lucio | `suave_bajada` | 42 | 0% / 65% / 92% | 0.68M | 1.5M | 89% (81–94) | 9 / 0 / 1 | 2.29 | 0.14 | 0.100 | 92% | 0.13 | 0.100 |
+| v56-lucio | `suave_bajada` | 1 | 0% / 62% / 84% | 0.69M | 1.5M | 84% (76–90) | 13 / 1 / 1 | 2.44 | 0.13 | 0.093 | 88% | 0.13 | 0.091 |
+| v63-lucio | `suave_bajada` | 2 | 0% / 62% / 86% | 0.70M | 1.5M | 91% (84–95) | 5 / 0 / 2 | 2.5 | 0.29 | 0.149 | 93% | 0.30 | 0.152 |
+| v64-lucio | `suave_bajada` | 3 | 0% / 60% / 88% | 0.70M | 1.4M | 88% (80–93) | 9 / 0 / 0 | 2.46 | 0.41 | 0.179 | 95% | 0.50 | 0.204 |
+| v57-lucio | `suave_c002 + log_std_init -0.5` | 42 | 29% / 78% / 93% | 0.54M | 0.9M | 75% (66–82) | 22 / 1 / 2 | 2.33 | 0.05 | 0.066 | 93% | 0.09 | 0.088 |
+| v58-lucio | `suave_c002 + log_std_init -0.5` | 1 | 9% / 68% / 86% | 0.70M | 1.3M | 81% (72–88) | 17 / 2 / 0 | 2.25 | 0.08 | 0.085 | 85% | 0.07 | 0.079 |
+
+![base vs suave_bajada](media/plots/base_vs_suave_bajada.png)
+
+- **`suave_bajada` con 4 seeds: 92 / 88 / 93 / 95 % → 92 % de media, 4 de 4.** Todas cruzan el 50 % a ~0.7M y
+  siguen subiendo a 1.5M (ver gráfico: las 4 curvas de `suave_bajada` terminan arriba de las de `base`).
+  Choques contra la plataforma (best): 5–13 de 100, contra 20–31 de `base`.
+- **`suave_c002` + desvío inicial 0.61: 93 % y 85 % (89 % de media, 2 seeds), y es la más suave de todas
+  (Δacción 0.07–0.09).** Las dos mejoras (castigo a la acción y menos ruido inicial) se suman. Sigue chocando el
+  borde (17–22 de 100 en el best): sin el término de bajada, el modo de fallo sigue ahí.
+- Se cortó la cola acá (la máquina se quedaba sin memoria con 3 corridas en paralelo). Lo que faltaba está en
+  "Pendiente", abajo.
+
+
+## Conclusiones
 
 Resumen por recompensa, modelo final a 1.5M pasos, 100 episodios ("aprendió" = final ≥ 30 %):
 
-| Recompensa | Seeds | Aprendieron | Éxito final medio | Δacción final | Comentario |
-|---|---|---|---|---|---|
-| `base` | 4 | 3/4 | 54 % (73 % las que aprendieron) | 0.63 | con la seed 1 queda flotando |
-| `base` + desvío inicial 0.61 | 3 | 3/3 | 79 % | 0.38 | solo cambia la exploración |
-| `A2_k3` (progreso k=3) | 4 | 4/4 | 66 % | 1.07 | robusta pero lenta en algunas seeds, brusca |
-| `A2_k1`, `PBRS_k10` | 1 c/u | 1/1 | 74 %, 72 % | 0.98, 1.47 | una seed; PBRS aprende muy tarde |
-| `suave_c002` | 4 | 4/4 | 74 % | 0.20 | aprende antes que todas, muy suave |
-| `bajada_k03` | 2 | 1/2 | 54 % | 0.55 | sola, depende de la seed |
-| **`suave_bajada`** | 2 | **2/2** | **90 %** | **0.13** | **la mejor en éxito y en suavidad** |
-| `A2_k3_drone`, `borde_k1` | 1 c/u | 0/1 | 2 %, 0 % | | se rompen (hackeo / flotar) |
+| Recompensa | Seeds | Aprendieron | Éxito final medio | Éxito por seed | Δacción final | Comentario |
+|---|---|---|---|---|---|---|
+| `base` | 4 | 3/4 | 54 % | 0 / 76 / 70 / 72 % | 0.63 | con la seed 1 queda flotando |
+| `base` + desvío inicial 0.61 | 3 | 3/3 | 79 % | 79 / 76 / 81 % | 0.38 | solo cambia la exploración |
+| `A2_k3` (progreso k=3) | 4 | 4/4 | 66 % | 64 / 80 / 55 / 64 % | 1.07 | robusta pero lenta en algunas seeds, brusca |
+| `A2_k1`, `PBRS_k10` | 1 c/u | 1/1 | 74 %, 72 % | | 0.98, 1.47 | una seed; PBRS aprende muy tarde |
+| `suave_c002` | 4 | 4/4 | 74 % | 76 / 75 / 71 / 72 % | 0.20 | aprende antes que todas |
+| `suave_c002` + desvío 0.61 | 2 | 2/2 | 89 % | 85 / 93 % | **0.08** | la más suave |
+| `bajada_k03` | 2 | 1/2 | 54 % | 81 / 26 % | 0.55 | sola, depende de la seed |
+| **`suave_bajada`** | **4** | **4/4** | **92 %** | **88 / 93 / 95 / 92 %** | 0.27 | **la mejor en éxito; la que menos choca el borde** |
+| `A2_k3_drone`, `borde_k1` | 1 c/u | 0/1 | 2 %, 0 % | | | se rompen (hackeo / flotar) |
+
+(seeds en el orden 1 / 2 / 3 / 42)
 
 1. **No, la recompensa más simple no es la mejor.** `suave_bajada` (`base` + `0.02·Σ(Δa)²` + castigo por bajar
-   estando afuera) llega a ~90 % a 1.5M pasos con dos seeds, contra 73 % de `base` cuando aprende (y `base` no
-   siempre aprende). Ataca el modo de fallo de `base` (choques contra el borde: 5–13 de 100 contra 20–31).
+   estando afuera y cerca del tope) llega a **92 % de media con 4 seeds a 1.5M pasos**, contra 54 % de `base`
+   (73 % cuando aprende). Para comparar: v17 (`base`) llegó a 88 % recién a 3.7M pasos. Ataca el modo de fallo
+   de `base`: choques contra el borde 5–13 de 100 contra 20–31.
 2. **Lo que parecía "base es lo mejor" era un artefacto de usar una sola seed.** `base` con la seed 1 no aprende
    nada (queda flotando, igual que A1, B y XY). Las variantes viejas se descartaron con una sola seed: no está
    probado que sean malas. **Toda comparación de recompensas necesita ≥ 3 seeds**, y mirar el modelo final con
-   100 episodios: el best elegido con 8 episodios de evaluación es muy ruidoso.
+   100 episodios: el best elegido con 8 episodios es muy ruidoso (v21: best 65 %, final 72 %; v57: best 75 %,
+   final 93 %).
 3. **El progreso sí ayuda, pero con k chico, y no mejora el techo.** Con k = 1–3 aprende siempre, a veces antes;
    con k = 10 domina la recompensa. Teoría útil: `k·(d_ant − d)` es PBRS menos `(1−γ)·k·d`, así que A2 con k=10
    era `base` con el doble de castigo por distancia. El "ruido" de la plataforma en el progreso no hay que
    sacarlo: es lo que lo hace telescópico; sin él, el agente aprende a perseguir la plataforma sin bajar (v27).
 4. **Castigar el cambio de acción hace la política ~3 veces más suave y además la hace aprender mejor**, porque
-   baja el ruido de exploración. El control (v50–v52: `base` con desvío inicial 0.61, sin tocar la recompensa)
-   lo confirma: aprende en todas las seeds. **La exploración (desvío de la gaussiana ~1 sobre acciones en
-   [−1, 1]) era un problema más grande que los pesos de la recompensa.**
+   baja el ruido de exploración. El control (`base` con desvío inicial 0.61, sin tocar la recompensa) lo
+   confirma: aprende en todas las seeds. **La exploración (desvío de la gaussiana ~1 sobre acciones en [−1, 1])
+   era un problema más grande que los pesos de la recompensa.** Las dos cosas se suman (`suave_c002` + desvío
+   0.61: 89 %, Δacción 0.08).
 5. **Todas las políticas son casi bang-bang y bajan a velocidad máxima** (`dz` saturado ~97 % de los pasos). Eso
    explica los choques contra el borde. Castigar *estar* bajo y afuera (`borde_k1`) hace que no baje nunca;
    castigar *bajar* estando afuera funciona, pero solo junto con el castigo a la acción.
@@ -344,9 +371,35 @@ Resumen por recompensa, modelo final a 1.5M pasos, 100 episodios ("aprendió" = 
    aterrizar (XY, B, A1, `borde_k1`, `bajada_k03` sola) lo puede dejar flotando. Lo que lo evita es explorar con
    menos ruido (castigo a la acción o desvío inicial más chico).
 
-**Recomendación:** usar `suave_bajada` como nueva recompensa de referencia (pendiente de confirmar con las seeds
-2 y 3), y considerar bajar `log_std_init` a −0.5 (se está probando la combinación). Para el informe, las
-comparaciones de recompensa tienen que ser con varias seeds.
+**Recomendación:** usar `suave_bajada` como nueva recompensa de referencia. Lo más prometedor para probar
+después es `suave_bajada` + `--log_std_init -0.5` (las dos mejoras que se sumaron en `suave_c002`, más el término
+de bajada) y entrenarla más de 1.5M, porque las curvas siguen subiendo. Para el informe, las comparaciones de
+recompensa tienen que ser con varias seeds.
 
-**Ideas que quedan (no probadas):** acción como velocidad directa (`v = 0.6·a`) o con `tanh` para que los valores
-intermedios sean naturales; entrenar más de 1.5M las mejores; `ent_coef = 0`.
+**Para sim2real:** la suavidad importa en el Crazyflie real. `suave_bajada` cambia la velocidad pedida 0.14 m/s
+por paso contra 0.23 de `base`, y `suave_c002` + desvío 0.61, 0.08 m/s.
+
+## Pendiente (la cola que quedó sin correr)
+
+En orden de prioridad. Comando: `python train.py --run_id <id> --reward <recompensa> --seed <s> --timesteps <t> [args]`,
+y después `python -m tools.evaluate --load <id> --best` y `python -m tools.evaluate --load <id>` (final).
+
+1. `suave_c002` seed 2 con `--log_std_init -0.5` (era v59; se cortó para liberar memoria).
+2. `base` con `--log_std_init -1.0` (desvío 0.37), seeds 42, 1, 2: ¿más bajo todavía es mejor?
+3. **`suave_bajada` con `--log_std_init -0.5`, seeds 42 y 1** (la combinación más prometedora).
+4. `suave_bajada` seed 42 con 3M pasos (¿hasta dónde llega?).
+5. Menos prioritario: seeds 1 y 2 de `PBRS_k10` y `A2_k1`; seed 4 de `base`, `A2_k3` y `suave_c002`;
+   `combo_k3_c002`; `suave_c005` y `suave_c01` (curva éxito contra suavidad); `PBRS_k3`; `borde_k02`.
+6. No es de la recompensa: probar la acción como velocidad directa (`v = 0.6·a`) o con `tanh`, para que la
+   política no sea bang-bang.
+
+Con 2 corridas en paralelo (con 3 la máquina se queda sin RAM: cada una usa ~3.5 GB), cada tanda tarda ~50 min.
+
+## Notas
+
+- Todas las corridas de este reporte están en `runs/v23-lucio` … `runs/v64-lucio` (con `eval_best.json` y
+  `eval_final.json`). No tienen `NOTES.md` (no se corrió `/registrar-corrida` en cada una): este reporte cumple
+  ese rol. `EXPERIMENTS.md` se regeneró.
+- Herramientas nuevas: `tools/compare_runs.py` (tablas y gráficos; `--by-reward` junta seeds) y
+  `tools/action_saturation.py`.
+- `train.py`: `--run_id`, `--ent_coef`, `--log_std_init`. Con los valores por defecto entrena igual que antes.
