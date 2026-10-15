@@ -175,6 +175,7 @@ def train(
     save_best_model: bool = True,
     run_args: dict | None = None,
     reward: str | None = None,
+    run_id: str | None = None,
 ):
     # Sin VecNormalize: el entorno ya devuelve la observacion normalizada con escalas fijas
     # (env._computeObs) y la recompensa va sin normalizar, porque su escala es conocida (TODO.md, punto 1).
@@ -194,7 +195,8 @@ def train(
         model.tensorboard_log = get_log_dir(version)
         reset_num_timesteps = False
     else:
-        version = get_next_run_id()
+        # --run_id fija el nombre: hace falta al lanzar varias corridas a la vez (si no, pueden sacar el mismo numero).
+        version = run_id or get_next_run_id()
         model = PPO(
             "MlpPolicy",
             env,
@@ -261,10 +263,11 @@ def main():
     new_args = [("timesteps", int, DEFAULT_TOTAL_TIMESTEPS, "Total PPO timesteps to train."),
                 ("n_envs", int, DEFAULT_N_ENVS, "Number of parallel environments to use."),
                 ("reward", str, None, "Reward variant from rewards.yaml (default: base, or the one of --load)."),
+                ("run_id", str, None, "Name of the new run (default: next v<N>-<author>). Use it to launch runs in parallel."),
     ]
     args = parse_args(new_args=new_args)
     set_global_seeds(args.seed)
-    model_path = train(args.load, args.timesteps, args.seed, args.n_envs, SAVE_BEST_MODEL, vars(args), args.reward)
+    model_path = train(args.load, args.timesteps, args.seed, args.n_envs, SAVE_BEST_MODEL, vars(args), args.reward, args.run_id)
 
     print(f"Saved model to {model_path}")
 
