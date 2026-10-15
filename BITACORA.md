@@ -133,3 +133,64 @@ Las dos con seed 42 y 1.5M pasos, con el PID arreglado.
 
 Se repite lo de A1 (v18): cuando la recompensa deja de empujar a terminar el episodio, el agente prefiere
 flotar. Sigue pendiente cómo atacar los choques contra el borde.
+
+## 2026-10-15 · lucio · El progreso k·(d_ant − d) no es shaping por potencial
+
+El shaping por potencial (Ng et al. 1999) con `Φ = −k·d` es `γ·Φ(s') − Φ(s) = k·(d_ant − d) + (1−γ)·k·d`. O sea,
+el progreso que usaban A1 y A2 es **PBRS − (1−γ)·k·d**; con k = 10 y γ = 0.99, **PBRS − 0.1·d**. Consecuencias:
+A2 (v19) era `base` con el **doble** de castigo por distancia más PBRS, no "base más una ayuda"; y A1 (v18) tiene casi
+la misma política óptima que `base` (difiere solo en el paso terminal), así que no aprendió por cómo aprende, no por
+qué es óptimo. El PBRS bien hecho está en `env.py` (`reward_pbrs_coef`).
+
+Otro detalle: el "ruido" que mete el movimiento de la plataforma en el progreso no hay que sacarlo. Midiendo el
+progreso solo con lo que se movió el dron (v27, `A2_k3_drone`) deja de ser telescópico, y el agente aprende a
+perseguir la plataforma a distancia fija cobrando progreso sin acercarse (+16 por episodio contra 0). Con k chico
+(1–3), el progreso normal funciona: aprende en todas las seeds, a veces antes que `base`, pero no sube el techo.
+Detalle en `docs/pruebas-recompensas-2026-10-15.md`.
+
+## 2026-10-15 · lucio · Comparar recompensas con una sola seed engaña
+
+`base` con la seed 1 (v29) no aprende nada: queda flotando, igual que A1, B y XY. Con las seeds 2, 3 y 42 sí aprende
+(70–76 %). Todas las comparaciones anteriores eran con la seed 42, que para `base` resultó ser buena; los fracasos
+de v18, v20 y v22 no prueban que esas recompensas sean malas.
+
+Además, el best que guarda `train.py` se elige con 8 episodios y es muy ruidoso: v21 tiene best 65 % y final 72 %;
+v57, best 75 % y final 93 %.
+
+**Desde ahora:** comparar recompensas con ≥ 3 seeds, y con el **modelo final** evaluado en 100 episodios
+(`python -m tools.evaluate --load <id>` → `eval_final.json`), además del best. `tools/compare_runs.py --by-reward`
+junta las seeds de cada recompensa. `EXPERIMENTS.md` ahora muestra el éxito final.
+
+## 2026-10-15 · lucio · El ruido de exploración pesa más que los pesos de la recompensa
+
+La política arranca con desvío 1 (`log_std_init = 0`) sobre acciones en [−1, 1]: la mitad de las acciones
+muestreadas cae afuera del rango y se recorta. Con tanto ruido, casi todos los intentos de bajar terminan en choque,
+y cualquier término que encarezca bajar (XY, B, A1, `borde_k1`) lleva al agente a flotar.
+
+- El castigo `0.02·Σ(Δa)²` (`suave_c002`) baja ese ruido (`train/std` 0.89 contra 1.10 a 0.25M) y aprende en
+  4 de 4 seeds (74 %), antes que `base`, cambiando la acción ~3 veces menos.
+- Control sin tocar la recompensa: `base` con `--log_std_init -0.5` (desvío 0.61) aprende en 3 de 3 seeds (79 %).
+- Las dos cosas se suman: `suave_c002` + desvío 0.61, 93 % y 85 % (v57, v58).
+
+Pendiente: `suave_bajada` + `--log_std_init -0.5` (`cola_pendiente.txt`). Si confirma, cambiar el default de
+`log_std_init` en `train.py`.
+
+## 2026-10-15 · lucio · Las políticas bajan siempre a máxima velocidad; nueva recompensa por defecto `suave_bajada`
+
+Medido con `tools/action_saturation.py`: en todas las políticas, `dz` está saturado en ~97 % de los pasos y `s = 1`
+casi siempre; la media de la gaussiana de `dz` está entre 2 y 4. La política es casi bang-bang: se tira en picada
+y corrige en horizontal, y por eso, si llega bajo y afuera, choca el borde (el modo de fallo de v17 y v21).
+
+Castigar **estar** bajo y afuera (`borde_k1`, v28) hace que no baje nunca. Castigar **bajar** estando afuera y a
+menos de 30 cm del tope (`reward_descent_coef`) funciona, pero solo junto con el castigo a la acción:
+
+- `bajada_k03` sola: 26 % y 81 % (una seed flota).
+- **`suave_bajada`** (`base` + `0.02·Σ(Δa)²` + `0.3·(d_xy − 0.25)₊·(bajada)₊/0.1`): **92 / 88 / 93 / 95 % con
+  4 seeds** a 1.5M (v54, v56, v63, v64), contra 54 % de `base`. Choca el borde 5–13 veces de cada 100 (base:
+  20–31) y es más suave.
+
+**Decisión:** `suave_bajada` pasa a ser `DEFAULT_REWARD` (`utils.py`). Las corridas con `--load` siguen usando su
+propia recompensa (`utils.run_reward`; `base` si son viejas).
+
+Idea no probada: que la acción sea la velocidad directa (`v = 0.6·a`) o pasarla por `tanh`, para que los valores
+intermedios sean naturales.
