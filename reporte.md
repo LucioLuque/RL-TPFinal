@@ -271,6 +271,28 @@ afuera del rango y se recorta. Control: `base` con `--log_std_init -0.5` (desví
   aterrizar.
 - Siguiente: `suave_c002` + desvío 0.61 (¿se suman?) y `base` con desvío 0.37 (`log_std_init -1.0`), 3 seeds cada una.
 
+### Tanda 8: castigar bajar estando afuera (`bajada_k03`), sola y con `suave_c002`
+
+Término nuevo (`reward_descent_coef`): `−c·(d_xy − 0.25)₊·(velocidad de bajada)₊/0.1` por paso, solo cuando está a
+menos de 30 cm del tope. Castiga **bajar** estando afuera, no **estar** afuera (eso hacía `borde_k1`). Con
+c = 0.3, sobre episodios de v40: los que chocan el borde pierden 4–14 puntos más y los que aterrizan, ~0.
+
+| Run | Recompensa | Seed | Éxito entr. 0.5M / 1M / 1.5M | Cruza 50 % | Best a | Éxito best (100 ep.) | Choque plat. / piso / tiempo | Aterriza (s) | Δacción | Δv pedida (m/s) | Éxito final (100 ep.) | Δacción final | Δv pedida final |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| v53-lucio | `bajada_k03` | 42 | 0% / 0% / 0% | nunca | 1.5M | 30% (22–40) | 15 / 0 / 48 | 12.21 | 1.16 | 0.288 | 26% | 1.17 | 0.284 |
+| v54-lucio | `suave_bajada` | 42 | 0% / 65% / 92% | 0.68M | 1.5M | 89% (81–94) | 9 / 0 / 1 | 2.29 | 0.14 | 0.100 | **92%** | 0.13 | 0.100 |
+
+- **`suave_bajada` (v54): 92 % de éxito final, el mejor resultado del proyecto a 1.5M pasos** (v17, `base`, llegó a
+  88 % recién a 3.7M). Los choques contra la plataforma bajan a 5 de 100 en el modelo final (contra 20–31 en
+  `base`), aterriza igual de rápido (mediana 2.33 s) y es la más suave de todas (Δacción 0.13). `dz` saturado en
+  89 % de los pasos (contra ~97 %): aprendió a frenar la bajada a veces.
+- **`bajada_k03` sola (v53) cae en la trampa de flotar:** 55 de 100 episodios por tiempo en el final, y cuando
+  aterriza tarda 10 s. Con exploración ruidosa, bajar cerca de la plataforma sale caro y el agente deja de bajar.
+- **El castigo a la acción es lo que hace funcionar el castigo por bajar:** con menos ruido de exploración, el
+  agente igual descubre el aterrizaje, y el castigo por bajar ya no lo asusta, sino que le enseña a no bajar
+  afuera. Es la primera variante que ataca el modo de fallo de `base` sin romper el aprendizaje.
+- **Una sola seed.** Corren las seeds 1, 2 y 3 de `suave_bajada`, y `suave_bajada` con desvío bajo.
+
 (se completa a medida que terminan)
 
 ## Conclusiones
