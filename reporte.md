@@ -123,6 +123,31 @@ Lectura:
   aterrizar con éxito es raro al principio, la recompensa de aterrizar no alcanza para compensar el castigo
   seguro de intentarlo. Se encola `borde_k02` (5 veces más suave) para ver si hay un punto intermedio.
 
+### Tanda 4: otras seeds — `base` no es robusta
+
+| Run | Recompensa | Seed | Éxito entr. 0.5M / 1M / 1.5M | Cruza 50 % | Best a | Éxito best (100 ep.) | Choque plat. / piso / tiempo | Aterriza (s) | Δacción | Δv pedida (m/s) | Éxito final (100 ep.) | Δacción final | Δv pedida final |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| v21-lucio | `base` | 42 | 5% / 52% / 73% | 0.86M | 0.9M | 65% (55–74) | 31 / 3 / 1 | 2.42 | 0.51 | 0.216 | 72% | 0.79 | 0.259 |
+| v29-lucio | `base` | 1 | 0% / 0% / 0% | nunca | 0.2M | 10% (6–17) | 25 / 64 / 1 | 3.15 | 0.14 | 0.101 | 0% | 1.45 | 0.334 |
+| v30-lucio | `base` | 2 | 8% / 52% / 75% | 0.87M | 1.2M | 74% (65–82) | 22 / 3 / 1 | 2.29 | 0.35 | 0.163 | 76% | 0.39 | 0.183 |
+| v23-lucio | `A2_k3` | 42 | 15% / 63% / 76% | 0.62M | 1.4M | 75% (66–82) | 25 / 0 / 0 | 2.33 | 0.86 | 0.272 | 64% | 0.83 | 0.267 |
+| v33-lucio | `A2_k3` | 1 | 0% / 0% / 62% | 1.40M | 1.4M | 64% (54–73) | 31 / 0 / 3 | 3.52 | 1.36 | 0.292 | 64% | 1.51 | 0.352 |
+
+![seeds](media/plots/seeds_base_vs_A2k3.png)
+
+- **`base` con la seed 1 (v29) no aprende:** 0 % en el entrenamiento a 1.5M y el modelo final queda flotando (76 de
+  100 episodios por tiempo). **Es la misma trampa en la que cayeron A1, B, XY y `borde_k1`, pero con la recompensa
+  `base`.** O sea que esos fracasos, cada uno con una sola seed (42), no prueban que esas recompensas sean malas:
+  `base` también puede caer. Hasta ahora todas las comparaciones del proyecto eran con la seed 42, que para
+  `base` resultó ser una seed "buena".
+- **`A2_k3` con la seed 1 (v33) sí sale de la trampa**, tarde (cruza 50 % a 1.4M), y termina en 64 %. Con dos
+  seeds, `A2_k3` aprendió en las dos; `base`, en dos de tres.
+- La suavidad también varía mucho con la seed (`base`: Δacción final 0.79 con la seed 42 y 0.39 con la 2). La
+  comparación de suavidad hay que hacerla con varias seeds.
+- **Cambio de plan:** la cola ahora prioriza más seeds (3 y 4) de `base`, `A2_k3` y `suave_c002`, y seeds 1 y 2
+  de `PBRS_k10` y `A2_k1`, antes que variantes nuevas. La métrica principal pasa a ser **en cuántas seeds aprende**
+  y el éxito medio entre seeds.
+
 (se completa a medida que terminan)
 
 ## Conclusiones
