@@ -184,6 +184,29 @@ Por recompensa (seeds juntas; "aprendió" = el modelo final aterriza en ≥ 30 %
 - **`A2_k3`** aprendió en las 3 seeds (más robusta que `base`) pero no es mejor en éxito (69 % medio) y es la
   menos suave de las tres.
 
+### Tanda 6: seed 3
+
+| Run | Recompensa | Seed | Éxito entr. 0.5M / 1M / 1.5M | Cruza 50 % | Best a | Éxito best (100 ep.) | Choque plat. / piso / tiempo | Aterriza (s) | Δacción | Δv pedida (m/s) | Éxito final (100 ep.) | Δacción final | Δv pedida final |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| v40-lucio | `base` | 3 | 7% / 68% / 75% | 0.72M | 1.5M | 74% (65–82) | 22 / 3 / 0 | 2.35 | 0.70 | 0.243 | 70% | 0.71 | 0.240 |
+| v41-lucio | `A2_k3` | 3 | 0% / 0% / 8% | nunca | 0.3M | 32% (24–42) | 39 / 0 / 28 | 2.23 | 0.10 | 0.078 | 55% | 1.17 | 0.265 |
+| v42-lucio | `suave_c002` | 3 | 32% / 60% / 73% | 0.55M | 1.5M | 74% (65–82) | 22 / 3 / 1 | 2.44 | 0.17 | 0.098 | 71% | 0.15 | 0.093 |
+
+Acumulado con 4 seeds (1, 2, 3, 42):
+
+| Recompensa | Seeds | Aprendieron | Éxito final por seed | Éxito final medio | Medio de las que aprendieron | Δacción final | Δv pedida final (m/s) |
+|---|---|---|---|---|---|---|---|
+| `base` | 4 | 3/4 | 0% (s1), 76% (s2), 70% (s3), 72% (s42) | 54% | 73% | 0.63 | 0.227 |
+| `A2_k3` | 4 | 4/4 | 64% (s1), 80% (s2), 55% (s3), 64% (s42) | 66% | 66% | 1.07 | 0.284 |
+| `suave_c002` | 4 | **4/4** | 76% (s1), 75% (s2), 71% (s3), 72% (s42) | **74%** | 74% | **0.20** | **0.112** |
+
+- `suave_c002` sigue igual: 4 de 4, todas entre 71 y 76 %, y es la que antes cruza el 50 % en todas las seeds
+  (0.55–0.66M).
+- `A2_k3` con la seed 3 es otra "seed lenta": en el entrenamiento (política estocástica) llega a 8 %, pero la
+  política determinista final ya aterriza en 55 %. Robusta (aprende siempre), pero lenta en algunas seeds y brusca.
+- Cuando `base` aprende, llega a lo mismo que `suave_c002` (73 % contra 74 %). **La diferencia en éxito está en la
+  robustez (en cuántas seeds aprende) y en la velocidad, no en el techo a 1.5M.**
+
 (se completa a medida que terminan)
 
 ## Conclusiones
