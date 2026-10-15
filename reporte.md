@@ -238,6 +238,39 @@ valores intermedios: las componentes de la acción quedan pegadas a ±1. Medido 
   valores intermedios sean naturales. Para la recompensa: castigar **bajar** mientras está afuera, en vez de
   castigar **estar** bajo y afuera (`borde_k1`, que llevó a no bajar nunca). Se prueba como `bajada_k1`.
 
+### Tanda 7: control — `base` con menos ruido de exploración (sin tocar la recompensa)
+
+Hipótesis de la tanda 5: `suave_c002` ayuda porque baja el ruido de exploración (`train/std` 0.89 contra 1.10 de
+`base` a 0.25M). Un desvío de ~1 sobre acciones en [−1, 1] es mucho: la mitad de las acciones muestreadas cae
+afuera del rango y se recorta. Control: `base` con `--log_std_init -0.5` (desvío inicial 0.61 en vez de 1).
+`train.py` ahora acepta `--log_std_init` y `--ent_coef`.
+
+| Run | Recompensa | Seed | Éxito entr. 0.5M / 1M / 1.5M | Cruza 50 % | Best a | Éxito best (100 ep.) | Choque plat. / piso / tiempo | Aterriza (s) | Δacción | Δv pedida (m/s) | Éxito final (100 ep.) | Δacción final | Δv pedida final |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| v50-lucio | `base + log_std_init -0.5` | 1 | 5% / 40% / 74% | 0.97M | 1.3M | 70% (60–78) | 25 / 1 / 3 | 2.38 | 0.20 | 0.139 | 79% | 0.46 | 0.216 |
+| v51-lucio | `base + log_std_init -0.5` | 2 | 3% / 1% / 71% | 1.22M | 1.2M | 72% (62–80) | 26 / 0 / 0 | 2.79 | 0.36 | 0.166 | 76% | 0.36 | 0.179 |
+| v52-lucio | `base + log_std_init -0.5` | 42 | 12% / 61% / 86% | 0.78M | 0.9M | 73% (64–81) | 23 / 1 / 2 | 2.58 | 0.23 | 0.160 | 81% | 0.33 | 0.186 |
+
+| Recompensa | Seeds | Aprendieron | Éxito final por seed | Éxito final medio | Δacción final | Δv pedida final (m/s) |
+|---|---|---|---|---|---|---|
+| `base` | 4 | 3/4 | 0% (s1), 76% (s2), 70% (s3), 72% (s42) | 54% | 0.63 | 0.227 |
+| `suave_c002` | 4 | 4/4 | 76% (s1), 75% (s2), 71% (s3), 72% (s42) | 74% | 0.20 | 0.112 |
+| `base + log_std_init -0.5` | 3 | **3/3** | 79% (s1), 76% (s2), 81% (s42) | **79%** | 0.38 | 0.194 |
+
+![control exploracion](media/plots/control_exploracion.png)
+
+- **Confirmado: con menos ruido de exploración, `base` aprende en todas las seeds** (incluida la seed 1, que con
+  desvío 1 quedaba flotando) **y llega al mejor éxito final hasta ahora: 79 % de media** (76–81 %).
+- Aprende algo más lento que `suave_c002` (cruza 50 % a 0.78–1.22M contra 0.55–0.66M), pero termina más alto.
+- Satura menos la acción: `dz` saturado en 85–86 % de los pasos (contra ~97 %) y las 3 direcciones juntas en 14 %
+  (contra ~30 %). La media de la gaussiana queda más cerca del rango (1.6–1.8 en `dz`, contra 2.3–3.7).
+- Suavidad intermedia: Δacción 0.38, entre `base` (0.63) y `suave_c002` (0.20).
+- **Conclusión parcial importante:** buena parte de lo que parecía "efecto de la recompensa" es en realidad
+  **efecto de la exploración**. La trampa de flotar aparece cuando la exploración es muy ruidosa: los intentos
+  de bajar terminan casi siempre en choque y el agente aprende a no bajar. Con menos ruido, más intentos llegan a
+  aterrizar.
+- Siguiente: `suave_c002` + desvío 0.61 (¿se suman?) y `base` con desvío 0.37 (`log_std_init -1.0`), 3 seeds cada una.
+
 (se completa a medida que terminan)
 
 ## Conclusiones
