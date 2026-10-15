@@ -40,7 +40,13 @@ def summarize(run_id):
         run = json.load(f)
     session = run["sessions"][0]
     args = session["args"]
-    row = {"run": run_tag(run_id), "reward": args.get("reward") or "base", "seed": args["seed"]}
+    reward = args.get("reward") or "base"
+    # Las corridas con otros hiperparametros de exploracion se agrupan aparte
+    if args.get("log_std_init", 0.0) != 0.0:
+        reward += f" + log_std_init {args['log_std_init']}"
+    if args.get("ent_coef", 0.01) != 0.01:
+        reward += f" + ent_coef {args['ent_coef']}"
+    row = {"run": run_tag(run_id), "reward": reward, "seed": args["seed"]}
 
     steps, values = load_curve(run_id)
     for t in CHECKPOINTS:
