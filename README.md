@@ -42,13 +42,14 @@ RL-TPFinal/
 ├── runs/               Una carpeta por corrida (ver abajo)
 ├── tools/              Scripts de análisis
 ├── media/              gifs/ y plots/ para el informe y la presentación
-├── docs/               Consigna, informe y presentación
+├── docs/               Consigna, informe, presentación y reportes de experimentos
 ├── logs/               TensorBoard de las corridas viejas de curriculum (landing_level_1)
 │
 ├── EXPERIMENTS.md      Índice de todas las corridas (generado, no editar a mano)
 ├── BITACORA.md         Decisiones e ideas, con fecha y autor
 ├── TODO.md             Pendientes generales, en orden
 ├── TODO_SIM2REAL.md    Pendientes para pasar al robot real
+├── cola_pendiente.txt  Corridas planeadas sin correr (para tools/run_queue.py)
 ├── CLAUDE.md           Contexto del proyecto para Claude Code
 └── .claude/skills/     Skill /registrar-corrida de Claude Code
 ```
@@ -62,6 +63,10 @@ RL-TPFinal/
 | `plot_trajectory.py` | Corre un episodio y grafica la trayectoria del dron y de la plataforma |
 | `plots.py` | Grafica curvas de TensorBoard de una o varias corridas (se configura editando su `__main__`) |
 | `experiments_index.py` | Regenera `EXPERIMENTS.md` a partir de `runs/*/run.json` |
+| `run_queue.py` | Corre una cola de entrenamientos en paralelo y evalúa cada uno (best y final) al terminar |
+| `compare_runs.py` | Tabla comparativa de corridas (y por recompensa, juntando seeds) y gráfico de la tasa de éxito |
+| `action_saturation.py` | Cuánto satura la acción una política (si es bang-bang) |
+| `plot_actions.py` | Grafica la velocidad pedida paso a paso, para comparar la suavidad |
 
 ### `runs/<id>/`: todo lo de una corrida
 
@@ -77,7 +82,7 @@ número no se repita.
 | `diff.patch` | Cambios sin commitear al momento de entrenar (solo si había) |
 | `env.py`, `levels.yaml`, `rewards.yaml` | Copias exactas de los que se usaron |
 | `tb/` | Logs de TensorBoard |
-| `eval_best.json` | Evaluación de 100 episodios del best (la escribe `tools/evaluate.py`) |
+| `eval_best.json`, `eval_final.json` | Evaluación de 100 episodios del best y del modelo final (`tools/evaluate.py`), con suavidad |
 | `NOTES.md` | Qué cambió respecto de la corrida anterior y qué dio (lo escribe `/registrar-corrida`) |
 
 Si seguís entrenando una corrida con `--load`, los archivos de la sesión nueva llevan sufijo `_s2`, `_s3`, etc.
@@ -90,7 +95,7 @@ el modelo, y no se pueden cargar con el código actual (tenían otra observació
 ### Entrenar
 
 ```bash
-python train.py                                   # corrida nueva, 1M pasos
+python train.py                                   # corrida nueva, 1M pasos, recompensa suave_bajada
 python train.py --timesteps 5000000               # corrida nueva, 5M pasos
 python train.py --load v16-lucio --timesteps 1000000   # seguir entrenando v16-lucio 1M pasos más
 ```
@@ -100,14 +105,19 @@ python train.py --load v16-lucio --timesteps 1000000   # seguir entrenando v16-l
 | `--timesteps` | 1 000 000 | Pasos de entrenamiento (de esta sesión, si se usa `--load`) |
 | `--n_envs` | 8 | Entornos en paralelo. Conviene no pasar la cantidad de núcleos de la CPU |
 | `--seed` | 42 | Semilla. Con la misma semilla y el mismo código, la corrida debería repetirse (salvo diferencias numéricas entre máquinas) |
-| `--reward` | `base` | Variante de recompensa de `rewards.yaml` (`base`, `A1`, `A2`, `B`...). Con `--load`, por defecto la de la corrida |
+| `--reward` | `suave_bajada` | Variante de recompensa de `rewards.yaml` (`suave_bajada`, `base`, `suave_c002`, `A2_k3`...). Con `--load`, por defecto la de la corrida (`base` si es vieja) |
+| `--log_std_init` | 0 | Log del desvío inicial de la acción (0 → desvío 1). Con −0.5 (desvío 0.61) se explora con menos ruido y aprende más seguido |
+| `--ent_coef` | 0.01 | Coeficiente de entropía de PPO |
+| `--run_id` | `v<N>-<autor>` | Nombre de la corrida. Hace falta al lanzar varias a la vez (si no, pueden sacar el mismo número) |
 | `--load` | (ninguno) | Sigue entrenando una corrida existente en vez de crear una nueva |
 
 Cada 100 000 pasos evalúa la política en 8 episodios y guarda el mejor modelo en `best/`. A ~900 pasos
 por segundo con 8 entornos, 1M de pasos tarda unos 20 minutos.
 
 Para probar una recompensa nueva, agregá una variante con nombre en `rewards.yaml` y entrená con
-`--reward <nombre>`, sin tocar `env.py`.
+`--reward <nombre>`, sin tocar `env.py`. **Para compararla, entrená ≥ 3 seeds** (`--seed 1`, `2`, `42`...) y
+mirá el modelo final evaluado en 100 episodios: con una sola seed los resultados engañan (ver
+`docs/pruebas-recompensas-2026-10-15.md`).
 
 Para entrenamientos largos, que siguen aunque cierres la terminal:
 
@@ -116,16 +126,20 @@ nohup python train.py --timesteps 5000000 > train.log 2>&1 &
 tail -f train.log                                 # ver cómo va (Ctrl+C sale del tail, no corta el entrenamiento)
 ```
 
-Varias corridas seguidas (por ejemplo, una por variante de recompensa):
+Varias corridas, en paralelo, con una cola (cada línea: `<run_id> <recompensa> <seed> <timesteps> [args]`):
 
 ```bash
-nohup sh -c 'for r in A1 A2 B; do python train.py --timesteps 1500000 --reward $r; done' > exp.log 2>&1 &
+setsid nohup python -m tools.run_queue cola_pendiente.txt --parallel 2 > logs/queue.log 2>&1 &
 ```
+
+Entrena y evalúa (best y final, 100 episodios) cada corrida; los logs quedan en `logs/queue/`. **Cada corrida usa
+~3.5 GB de RAM:** en una máquina de 13–16 GB, no más de 2 a la vez. Con 2–3 en paralelo, 1.5M pasos tarda ~55 min.
 
 ### Evaluar en muchos episodios (el número para comparar corridas)
 
 ```bash
 python -m tools.evaluate --load v17-lucio --best              # best, 100 episodios
+python -m tools.evaluate --load v17-lucio                     # modelo final, 100 episodios
 python -m tools.evaluate --load v17-lucio --episodes 300      # modelo final, 300 episodios
 ```
 
@@ -140,7 +154,20 @@ Sin ventana, tarda menos de un minuto para 100 episodios. Imprime la tasa de éx
 confianza del 95 %, cómo terminan los episodios (éxito, choque contra el piso, contra la plataforma, por
 inclinación, o se acaba el tiempo) y cuánto tarda en aterrizar, y lo guarda en `runs/<id>/eval_best.json`
 (o `eval_final.json`). Las evaluaciones durante el entrenamiento son de solo 8 episodios y saltan mucho:
-para comparar corridas, usar esta.
+para comparar corridas, usar esta. **Evaluar también el modelo final:** el best se elige con 8 episodios y puede
+estar lejos del final (v57: best 75 %, final 93 %). También guarda la suavidad (`smoothness`: cuánto cambia la
+acción y la velocidad pedida por paso).
+
+### Comparar corridas
+
+```bash
+python -m tools.compare_runs v21-lucio v29-lucio v54-lucio v56-lucio --by-reward --plot media/plots/x.png
+python -m tools.action_saturation v54-lucio
+python -m tools.plot_actions v40-lucio v54-lucio --out media/plots/acciones.png
+```
+
+`compare_runs` imprime una tabla en markdown (éxito en el entrenamiento, cuándo cruza 50 %, best y final en 100
+episodios, cómo falla y suavidad) y, con `--by-reward`, otra que junta las seeds de cada recompensa.
 
 ### Ver una política volar
 
@@ -216,7 +243,8 @@ Regenera `EXPERIMENTS.md`. Si git marca un conflicto en ese archivo, alcanza con
    un commit limpio.
 3. `python train.py ...`
 4. Ver cómo quedó: `eval.py`, TensorBoard.
-5. Evaluar el best: `python -m tools.evaluate --load <id> --best` (si no, lo corre la skill del paso 6).
+5. Evaluar el best y el final: `python -m tools.evaluate --load <id> --best` y `python -m tools.evaluate --load <id>`
+   (`tools/run_queue.py` lo hace solo).
 6. Registrar la corrida con `/registrar-corrida` en Claude Code (escribe `runs/<id>/NOTES.md` y regenera
    `EXPERIMENTS.md`).
 7. Commitear `runs/<id>/` y `EXPERIMENTS.md`.
