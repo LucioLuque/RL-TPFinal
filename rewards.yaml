@@ -95,3 +95,8 @@ suave_c01:   # castigo por cambiar la accion 5 veces mas fuerte que suave_c002, 
   reward_distance_coef: 0.1
   reward_action_coef: 0.1
   crash_penalty: 10.0
+
+borde_k02:   # borde_k1 (v28) quedo flotando: lo mismo 5 veces mas suave
+  reward_distance_coef: 0.1
+  reward_edge_coef: 0.2
+  crash_penalty: 10.0

@@ -112,6 +112,17 @@ Lectura:
   **Conclusión: el "ruido" que mete la plataforma en el progreso `total` no es un defecto, es lo que hace que el
   término sea (casi) un potencial y no se pueda explotar.** No vale la pena "limpiarlo".
 
+### Tanda 3: castigo por estar bajo y afuera (seed 42)
+
+- **v28 `borde_k1`** (`−1·(d_xy − 0.25)₊·(0.15 − dz)₊/0.15` por paso): **0 % de éxito**, best y final; 96–97 de
+  100 episodios terminan por tiempo. A 0.2–0.4M los episodios eran cortos (chocaba, como `base` al principio) y desde
+  0.5M quedó flotando. Además es la política más brusca de todas (Δacción 2.37, aceleración 3.1 m/s²): oscila en el
+  aire.
+- Es la misma trampa que XY (v22), B (v20), A1 (v18) y `PBRS_k10` hasta 1.2M: **cualquier término que haga más caro
+  bajar cerca de la plataforma, mientras el agente todavía no sabe aterrizar, lo lleva a no bajar nunca.** Como
+  aterrizar con éxito es raro al principio, la recompensa de aterrizar no alcanza para compensar el castigo
+  seguro de intentarlo. Se encola `borde_k02` (5 veces más suave) para ver si hay un punto intermedio.
+
 (se completa a medida que terminan)
 
 ## Conclusiones
