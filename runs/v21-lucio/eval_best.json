@@ -21,6 +21,11 @@
     "median": 2.42,
     "p90": 3.19
   },
+  "smoothness": {
+    "action_change": 0.5092,
+    "cmd_vel_change": 0.2158,
+    "drone_accel": 1.7691
+  },
   "obs_clipped_fraction": {
     "rel_px": 0.0,
     "rel_py": 0.0,
@@ -84,8 +89,8 @@
     "prev_a2": 1.0,
     "prev_a3": 1.0
   },
-  "git_commit": "2ff0a3bbb11415ee74b43b21cab0db219c0f5894",
-  "evaluated_at": "2026-10-04T22:37:42",
+  "git_commit": "eea703862610193dc64abd8f4a83df6323840b8d",
+  "evaluated_at": "2026-10-15T08:02:28",
   "per_episode": [
     {
       "seed": 42,
