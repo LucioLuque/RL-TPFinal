@@ -136,6 +136,21 @@ robustez. Está bien dejarlos así.
 - [ ] Medir la aceleración del turtlebot real, o sacarla de la documentación.
 - [ ] Implementar el límite de aceleración.
 
+## 5b. Política bang-bang y saltos en la velocidad pedida
+
+**Hoy** (medido el 2026-10-15, `docs/pruebas-recompensas-2026-10-15.md`): las políticas son casi bang-bang.
+`dz` está saturado en ~97 % de los pasos (bajan siempre a máxima velocidad) y la velocidad pedida salta entre
+esquinas de la caja de acciones: con `base`, cambia ~0.23 m/s por paso (24 Hz) sobre un máximo de 0.6 m/s.
+
+**Problema:** en el Crazyflie real, esos saltos se traducen en inclinaciones bruscas y más sensibilidad al retraso
+del radio y a la frecuencia de OptiTrack (punto 4). En simulación el PID los filtra en parte, en el real puede que no.
+
+**Lo que ya ayuda:** `suave_bajada` (recompensa por defecto) castiga el cambio de acción y baja ese salto a
+~0.14 m/s por paso; `suave_c002` con `--log_std_init -0.5`, a ~0.08 m/s.
+
+- [ ] Medir la suavidad (`smoothness` en `eval_final.json`) de la política que se vaya a usar en el real.
+- [ ] Probar una acción que no tienda a saturar (velocidad directa o con `tanh`; `TODO.md`, punto 3).
+
 ## 6. Domain randomization
 
 Que en cada episodio los parámetros del simulador cambien un poco, para que la política no dependa de
