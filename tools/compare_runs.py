@@ -4,7 +4,7 @@
 
 Por corrida: variante de recompensa, seed, rollout/success_rate (promedio en una ventana alrededor de 0.5M,
 1.0M y 1.5M pasos), primer paso con >= 50 %, y la evaluacion de 100 episodios del best (eval_best.json):
-exito, como terminan, tiempo hasta aterrizar y suavidad.
+exito, como terminan, tiempo hasta aterrizar y suavidad; y la del modelo final (eval_final.json) si existe.
 """
 import argparse
 import glob
@@ -58,6 +58,12 @@ def summarize(run_id):
         row["outcomes"] = ev["outcomes"]
         row["landing"] = (ev.get("landing_time_s") or {}).get("median")
         row["smooth"] = ev.get("smoothness")
+    final_path = os.path.join(run_dir, "eval_final.json")
+    if os.path.exists(final_path):
+        with open(final_path) as f:
+            fin = json.load(f)
+        row["final"] = fin["success_rate"]
+        row["final_smooth"] = fin.get("smoothness")
     row["best_at"] = session["results"].get("best_at_timesteps") if session.get("results") else None
     return row
 
@@ -68,8 +74,9 @@ def pct(x):
 
 def to_markdown(rows):
     head = ("| Run | Recompensa | Seed | Éxito entr. 0.5M / 1M / 1.5M | Cruza 50 % | Best a | Éxito best (100 ep.) "
-            "| Choque plat. / piso / tiempo | Aterriza (s) | Δacción | Δv pedida (m/s) |")
-    lines = [head, "|---" * 11 + "|"]
+            "| Choque plat. / piso / tiempo | Aterriza (s) | Δacción | Δv pedida (m/s) "
+            "| Éxito final (100 ep.) | Δacción final | Δv pedida final |")
+    lines = [head, "|---" * 14 + "|"]
     for r in rows:
         sr = " / ".join(pct(r[f"sr_{t // 1000}k"]) for t in CHECKPOINTS)
         first = f"{r['first_50'] / 1e6:.2f}M" if r["first_50"] else "nunca"
@@ -84,8 +91,12 @@ def to_markdown(rows):
             dv = f"{sm['cmd_vel_change']:.3f}" if sm else "–"
         else:
             ev = fails = land = da = dv = "–"
+        fsm = r.get("final_smooth") or {}
+        fin = pct(r.get("final"))
+        fda = f"{fsm['action_change']:.2f}" if fsm else "–"
+        fdv = f"{fsm['cmd_vel_change']:.3f}" if fsm else "–"
         lines.append(f"| {r['run']} | `{r['reward']}` | {r['seed']} | {sr} | {first} | {best_at} | {ev} | {fails} "
-                     f"| {land} | {da} | {dv} |")
+                     f"| {land} | {da} | {dv} | {fin} | {fda} | {fdv} |")
     return "\n".join(lines)
 
 
