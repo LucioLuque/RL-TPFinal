@@ -90,3 +90,8 @@ combo_k3_c002:   # A2_k3 + suave_c002: progreso chico y castigo por cambiar la a
   reward_progress_coef: 3.0
   reward_action_coef: 0.02
   crash_penalty: 10.0
+
+suave_c01:   # castigo por cambiar la accion 5 veces mas fuerte que suave_c002, para ver hasta donde se puede suavizar
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.1
+  crash_penalty: 10.0
