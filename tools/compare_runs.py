@@ -100,6 +100,34 @@ def to_markdown(rows):
     return "\n".join(lines)
 
 
+LEARNED = 0.3  # una seed "aprendio" si el modelo final aterriza en al menos 30 % de los 100 episodios
+
+
+def by_reward(rows):
+    """Una fila por recompensa, juntando las seeds: cuantas aprendieron, exito medio y suavidad media."""
+    groups = {}
+    for r in rows:
+        groups.setdefault(r["reward"], []).append(r)
+    head = ("| Recompensa | Seeds | Aprendieron (final ≥ 30 %) | Éxito final por seed | Éxito final medio "
+            "| Éxito final medio de las que aprendieron | Δacción final (las que aprendieron) "
+            "| Δv pedida final (las que aprendieron) |")
+    lines = [head, "|---" * 8 + "|"]
+    for reward, rs in groups.items():
+        rs = [r for r in rs if r.get("final") is not None]
+        if not rs:
+            continue
+        learned = [r for r in rs if r["final"] >= LEARNED]
+        per_seed = ", ".join(f"{pct(r['final'])} (s{r['seed']})" for r in sorted(rs, key=lambda r: r["seed"]))
+        mean = np.mean([r["final"] for r in rs])
+        mean_l = pct(np.mean([r["final"] for r in learned])) if learned else "–"
+        sm = [r["final_smooth"] for r in learned if r.get("final_smooth")]
+        da = f"{np.mean([x['action_change'] for x in sm]):.2f}" if sm else "–"
+        dv = f"{np.mean([x['cmd_vel_change'] for x in sm]):.3f}" if sm else "–"
+        lines.append(f"| `{reward}` | {len(rs)} | {len(learned)}/{len(rs)} | {per_seed} | {pct(mean)} | {mean_l} "
+                     f"| {da} | {dv} |")
+    return "\n".join(lines)
+
+
 def plot(run_ids, out_path, smooth=10):
     import matplotlib.pyplot as plt
 
@@ -127,9 +155,14 @@ def plot(run_ids, out_path, smooth=10):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("runs", nargs="+")
+    parser.add_argument("--by-reward", action="store_true", help="Agregar ademas una tabla por recompensa (seeds juntas).")
     parser.add_argument("--plot", default=None, help="Ruta del png con las curvas de exito.")
     args = parser.parse_args()
-    print(to_markdown([summarize(r) for r in args.runs]))
+    rows = [summarize(r) for r in args.runs]
+    print(to_markdown(rows))
+    if args.by_reward:
+        print()
+        print(by_reward(rows))
     if args.plot:
         plot(args.runs, args.plot)
 
