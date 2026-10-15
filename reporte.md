@@ -307,6 +307,46 @@ Seed 1:
 
 (se completa a medida que terminan)
 
-## Conclusiones
+## Conclusiones (provisorias, se actualizan con cada tanda)
 
-(pendiente)
+Resumen por recompensa, modelo final a 1.5M pasos, 100 episodios ("aprendió" = final ≥ 30 %):
+
+| Recompensa | Seeds | Aprendieron | Éxito final medio | Δacción final | Comentario |
+|---|---|---|---|---|---|
+| `base` | 4 | 3/4 | 54 % (73 % las que aprendieron) | 0.63 | con la seed 1 queda flotando |
+| `base` + desvío inicial 0.61 | 3 | 3/3 | 79 % | 0.38 | solo cambia la exploración |
+| `A2_k3` (progreso k=3) | 4 | 4/4 | 66 % | 1.07 | robusta pero lenta en algunas seeds, brusca |
+| `A2_k1`, `PBRS_k10` | 1 c/u | 1/1 | 74 %, 72 % | 0.98, 1.47 | una seed; PBRS aprende muy tarde |
+| `suave_c002` | 4 | 4/4 | 74 % | 0.20 | aprende antes que todas, muy suave |
+| `bajada_k03` | 2 | 1/2 | 54 % | 0.55 | sola, depende de la seed |
+| **`suave_bajada`** | 2 | **2/2** | **90 %** | **0.13** | **la mejor en éxito y en suavidad** |
+| `A2_k3_drone`, `borde_k1` | 1 c/u | 0/1 | 2 %, 0 % | | se rompen (hackeo / flotar) |
+
+1. **No, la recompensa más simple no es la mejor.** `suave_bajada` (`base` + `0.02·Σ(Δa)²` + castigo por bajar
+   estando afuera) llega a ~90 % a 1.5M pasos con dos seeds, contra 73 % de `base` cuando aprende (y `base` no
+   siempre aprende). Ataca el modo de fallo de `base` (choques contra el borde: 5–13 de 100 contra 20–31).
+2. **Lo que parecía "base es lo mejor" era un artefacto de usar una sola seed.** `base` con la seed 1 no aprende
+   nada (queda flotando, igual que A1, B y XY). Las variantes viejas se descartaron con una sola seed: no está
+   probado que sean malas. **Toda comparación de recompensas necesita ≥ 3 seeds**, y mirar el modelo final con
+   100 episodios: el best elegido con 8 episodios de evaluación es muy ruidoso.
+3. **El progreso sí ayuda, pero con k chico, y no mejora el techo.** Con k = 1–3 aprende siempre, a veces antes;
+   con k = 10 domina la recompensa. Teoría útil: `k·(d_ant − d)` es PBRS menos `(1−γ)·k·d`, así que A2 con k=10
+   era `base` con el doble de castigo por distancia. El "ruido" de la plataforma en el progreso no hay que
+   sacarlo: es lo que lo hace telescópico; sin él, el agente aprende a perseguir la plataforma sin bajar (v27).
+4. **Castigar el cambio de acción hace la política ~3 veces más suave y además la hace aprender mejor**, porque
+   baja el ruido de exploración. El control (v50–v52: `base` con desvío inicial 0.61, sin tocar la recompensa)
+   lo confirma: aprende en todas las seeds. **La exploración (desvío de la gaussiana ~1 sobre acciones en
+   [−1, 1]) era un problema más grande que los pesos de la recompensa.**
+5. **Todas las políticas son casi bang-bang y bajan a velocidad máxima** (`dz` saturado ~97 % de los pasos). Eso
+   explica los choques contra el borde. Castigar *estar* bajo y afuera (`borde_k1`) hace que no baje nunca;
+   castigar *bajar* estando afuera funciona, pero solo junto con el castigo a la acción.
+6. **Patrón general:** cualquier término que haga más caro intentar bajar mientras el agente todavía no sabe
+   aterrizar (XY, B, A1, `borde_k1`, `bajada_k03` sola) lo puede dejar flotando. Lo que lo evita es explorar con
+   menos ruido (castigo a la acción o desvío inicial más chico).
+
+**Recomendación:** usar `suave_bajada` como nueva recompensa de referencia (pendiente de confirmar con las seeds
+2 y 3), y considerar bajar `log_std_init` a −0.5 (se está probando la combinación). Para el informe, las
+comparaciones de recompensa tienen que ser con varias seeds.
+
+**Ideas que quedan (no probadas):** acción como velocidad directa (`v = 0.6·a`) o con `tanh` para que los valores
+intermedios sean naturales; entrenar más de 1.5M las mejores; `ent_coef = 0`.
