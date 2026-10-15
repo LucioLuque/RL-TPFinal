@@ -3,7 +3,7 @@ import time
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv
 
-from utils import DEFAULT_CTRL_FREQ, parse_args, get_model_path, get_latest_version, make_env, set_global_seeds
+from utils import DEFAULT_CTRL_FREQ, parse_args, get_model_path, get_latest_version, make_env, run_reward, set_global_seeds
 
 DEFAULT_EVAL_EPISODES = 5
 
@@ -23,7 +23,7 @@ def main():
 
     model_path = get_model_path(version, with_extension=True)
 
-    env = DummyVecEnv([make_env(gui=True, seed=args.seed)])
+    env = DummyVecEnv([make_env(gui=True, seed=args.seed, reward=run_reward(version))])
 
     model = PPO.load(model_path, env=env, device="cpu")
 

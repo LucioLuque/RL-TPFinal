@@ -19,7 +19,7 @@ import pybullet as p
 from stable_baselines3 import PPO
 
 from run_registry import _git
-from utils import get_best_model_dir, get_latest_version, get_model_path, get_run_dir, make_env, parse_args, run_tag
+from utils import get_best_model_dir, get_latest_version, get_model_path, get_run_dir, make_env, parse_args, run_reward, run_tag
 
 DEFAULT_EPISODES = 100
 
@@ -116,7 +116,7 @@ def main():
     )
 
     model = PPO.load(model_path, device="cpu")
-    env = make_env(gui=False, seed=args.seed)()
+    env = make_env(gui=False, seed=args.seed, reward=run_reward(run_id))()
     ctrl_freq = env.unwrapped.CTRL_FREQ
 
     episodes, raws, smooths = [], [], []
