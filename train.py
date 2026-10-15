@@ -176,6 +176,8 @@ def train(
     run_args: dict | None = None,
     reward: str | None = None,
     run_id: str | None = None,
+    ent_coef: float = 0.01,
+    log_std_init: float = 0.0,
 ):
     # Sin VecNormalize: el entorno ya devuelve la observacion normalizada con escalas fijas
     # (env._computeObs) y la recompensa va sin normalizar, porque su escala es conocida (TODO.md, punto 1).
@@ -206,9 +208,10 @@ def train(
             n_epochs=5,
             gamma=0.99,
             gae_lambda=0.95,
-            ent_coef=0.01,
+            ent_coef=ent_coef,
             clip_range=0.2,
             policy_kwargs=dict(
+                log_std_init=log_std_init,  # desvio inicial de la accion = exp(log_std_init)
                 net_arch=dict(
                     pi=[128, 128],
                     vf=[128, 128],
@@ -263,11 +266,14 @@ def main():
     new_args = [("timesteps", int, DEFAULT_TOTAL_TIMESTEPS, "Total PPO timesteps to train."),
                 ("n_envs", int, DEFAULT_N_ENVS, "Number of parallel environments to use."),
                 ("reward", str, None, "Reward variant from rewards.yaml (default: base, or the one of --load)."),
+                ("ent_coef", float, 0.01, "PPO entropy coefficient."),
+                ("log_std_init", float, 0.0, "Initial log std of the Gaussian policy (0 -> std 1)."),
                 ("run_id", str, None, "Name of the new run (default: next v<N>-<author>). Use it to launch runs in parallel."),
     ]
     args = parse_args(new_args=new_args)
     set_global_seeds(args.seed)
-    model_path = train(args.load, args.timesteps, args.seed, args.n_envs, SAVE_BEST_MODEL, vars(args), args.reward, args.run_id)
+    model_path = train(args.load, args.timesteps, args.seed, args.n_envs, SAVE_BEST_MODEL, vars(args), args.reward, args.run_id,
+                       args.ent_coef, args.log_std_init)
 
     print(f"Saved model to {model_path}")
 

@@ -148,6 +148,42 @@ Lectura:
   de `PBRS_k10` y `A2_k1`, antes que variantes nuevas. La métrica principal pasa a ser **en cuántas seeds aprende**
   y el éxito medio entre seeds.
 
+### Tanda 5: tres seeds de `base`, `A2_k3` y `suave_c002`
+
+| Run | Recompensa | Seed | Éxito entr. 0.5M / 1M / 1.5M | Cruza 50 % | Best a | Éxito best (100 ep.) | Choque plat. / piso / tiempo | Aterriza (s) | Δacción | Δv pedida (m/s) | Éxito final (100 ep.) | Δacción final | Δv pedida final |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| v21-lucio | `base` | 42 | 5% / 52% / 73% | 0.86M | 0.9M | 65% (55–74) | 31 / 3 / 1 | 2.42 | 0.51 | 0.216 | 72% | 0.79 | 0.259 |
+| v29-lucio | `base` | 1 | 0% / 0% / 0% | nunca | 0.2M | 10% (6–17) | 25 / 64 / 1 | 3.15 | 0.14 | 0.101 | 0% | 1.45 | 0.334 |
+| v30-lucio | `base` | 2 | 8% / 52% / 75% | 0.87M | 1.2M | 74% (65–82) | 22 / 3 / 1 | 2.29 | 0.35 | 0.163 | 76% | 0.39 | 0.183 |
+| v23-lucio | `A2_k3` | 42 | 15% / 63% / 76% | 0.62M | 1.4M | 75% (66–82) | 25 / 0 / 0 | 2.33 | 0.86 | 0.272 | 64% | 0.83 | 0.267 |
+| v33-lucio | `A2_k3` | 1 | 0% / 0% / 62% | 1.40M | 1.4M | 64% (54–73) | 31 / 0 / 3 | 3.52 | 1.36 | 0.292 | 64% | 1.51 | 0.352 |
+| v34-lucio | `A2_k3` | 2 | 15% / 72% / 80% | 0.62M | 1.4M | 81% (72–88) | 18 / 1 / 0 | 2.38 | 0.71 | 0.248 | 80% | 0.77 | 0.253 |
+| v24-lucio | `suave_c002` | 42 | 14% / 57% / 75% | 0.63M | 1.4M | 67% (57–75) | 26 / 2 / 5 | 2.38 | 0.20 | 0.119 | 72% | 0.26 | 0.133 |
+| v35-lucio | `suave_c002` | 1 | 20% / 61% / 74% | 0.66M | 1.2M | 72% (62–80) | 24 / 1 / 2 | 2.4 | 0.15 | 0.087 | 76% | 0.30 | 0.144 |
+| v36-lucio | `suave_c002` | 2 | 26% / 56% / 73% | 0.66M | 1.4M | 74% (65–82) | 20 / 3 / 3 | 2.33 | 0.09 | 0.075 | 75% | 0.10 | 0.076 |
+
+Por recompensa (seeds juntas; "aprendió" = el modelo final aterriza en ≥ 30 % de los 100 episodios):
+
+| Recompensa | Seeds | Aprendieron | Éxito final por seed | Éxito final medio | Medio de las que aprendieron | Δacción final | Δv pedida final (m/s) |
+|---|---|---|---|---|---|---|---|
+| `base` | 3 | 2/3 | 0% (s1), 76% (s2), 72% (s42) | 49% | 74% | 0.59 | 0.221 |
+| `A2_k3` | 3 | 3/3 | 64% (s1), 80% (s2), 64% (s42) | 69% | 69% | 1.04 | 0.291 |
+| `suave_c002` | 3 | **3/3** | 76% (s1), 75% (s2), 72% (s42) | **74%** | 74% | **0.22** | **0.118** |
+
+![seeds tanda 5](media/plots/seeds_tanda5.png)
+
+- **`suave_c002` es la mejor hasta ahora en todo:** aprendió en las 3 seeds (incluida la seed 1, donde `base` no
+  aprendió), el éxito final es el más parejo (72–76 %), cruza el 50 % antes en todas (0.63–0.66M contra 0.86M,
+  0.87M y nunca de `base`) y cambia la acción ~3 veces menos que `base`.
+- **Hipótesis de por qué el castigo a la acción ayuda a aprender, y no solo a suavizar:** la condición de éxito
+  pide 10 pasos seguidos apoyado con `|vz_rel| < 0.1` y roll/pitch < 0.1. Una política que salta de acción en
+  acción hace que el dron se incline y rebote, y le cuesta cumplir eso; el castigo hace que el aterrizaje "por
+  casualidad" (que es lo que el agente necesita al principio para descubrir el +25) pase más seguido. Además,
+  castiga el ruido de exploración (la acción estocástica cambia mucho de paso a paso), así que la política reduce
+  antes ese ruido. Se puede verificar mirando `train/std` en TensorBoard.
+- **`A2_k3`** aprendió en las 3 seeds (más robusta que `base`) pero no es mejor en éxito (69 % medio) y es la
+  menos suave de las tres.
+
 (se completa a medida que terminan)
 
 ## Conclusiones
