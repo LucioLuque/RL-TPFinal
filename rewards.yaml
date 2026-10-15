@@ -84,3 +84,9 @@ borde_k1:   # base + castigo por estar bajo y afuera (los choques contra el bord
   reward_distance_coef: 0.1
   reward_edge_coef: 1.0
   crash_penalty: 10.0
+
+combo_k3_c002:   # A2_k3 + suave_c002: progreso chico y castigo por cambiar la accion
+  reward_distance_coef: 0.1
+  reward_progress_coef: 3.0
+  reward_action_coef: 0.02
+  crash_penalty: 10.0
