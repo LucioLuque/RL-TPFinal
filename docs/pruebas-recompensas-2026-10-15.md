@@ -1,7 +1,67 @@
-# Reporte: pruebas de recompensa (2026-10-15)
+# Pruebas de recompensa (2026-10-15)
 
-Rama `pruebas-recompensas` (sin pushear). Trabajo autónomo mientras Lucio no estaba.
-Este archivo se va actualizando a medida que terminan las corridas; la sección **Conclusiones** está al final.
+Lucio. Rama `pruebas-recompensas`. 26 corridas nuevas (entre v23 y v64,
+1.5M pasos cada una), todas en `runs/`.
+
+**Para leer rápido:** el resumen de abajo, la tabla de [Conclusiones](#conclusiones) y [Cómo seguir](#cómo-seguir).
+Las tandas están en el orden en que se corrieron; cada una cambió lo que se probó después.
+
+## Resumen
+
+- **Nueva recompensa por defecto: `suave_bajada`** (código abajo). 92 % de éxito medio en el modelo final con 4
+  seeds (88 / 93 / 95 / 92 %) a 1.5M pasos, contra 54 % de `base` (73 % en las seeds en que aprende). Choca el
+  borde 5–13 veces de cada 100, contra 20–31 de `base`, y cambia la acción menos de la mitad que `base`.
+- **`base` no es robusta:** con la seed 1 no aprende (queda flotando). Las comparaciones anteriores eran con una
+  sola seed (42), así que no prueban que A1, B o XY sean malas.
+- **La exploración pesa tanto como la recompensa:** con desvío inicial 0.61 (`--log_std_init -0.5`) en vez de 1,
+  `base` aprende en todas las seeds (79 %). El castigo a la acción ayuda en parte por lo mismo.
+- **Las políticas son casi bang-bang y bajan siempre a velocidad máxima** (`dz` saturado ~97 % de los pasos): por
+  eso chocan el borde. `suave_bajada` castiga justo bajar estando afuera.
+- **El progreso sirve con k chico (1–3)**, pero no mejora el techo. Con k = 10, A2 era `base` con el doble de
+  castigo por distancia (cuenta abajo).
+- **Metodología:** comparar con ≥ 3 seeds y con el modelo final en 100 episodios (`eval_final.json`); el best se
+  elige con 8 episodios y es muy ruidoso.
+
+## La recompensa `suave_bajada`
+
+`rewards.yaml`:
+
+```yaml
+suave_bajada:
+  reward_distance_coef: 0.1   # como base
+  reward_action_coef: 0.02    # castigo por cambiar la accion
+  reward_descent_coef: 0.3    # castigo por bajar estando afuera y cerca del tope
+  crash_penalty: 10.0         # como base
+```
+
+Lo que calcula `env.py` (`_computeReward`) por paso, con esos coeficientes (los demás términos valen 0):
+
+```python
+rel_pos = drone_pos - platform_top          # posicion relativa al tope de la plataforma
+rel_vel = drone_vel - platform_vel
+d = norm(rel_pos);  d_xy = norm(rel_pos[0:2])
+
+reward = -0.1 * d - 0.01                                      # base: distancia + costo por paso
+
+if step > 1:                                                  # suave: castigo por cambiar la accion
+    reward -= 0.02 * sum((action - prev_action) ** 2)         # accion = [dx, dy, dz, s], ya recortada
+
+if rel_pos[2] < 0.3:                                          # bajada: a menos de 30 cm del tope...
+    outside    = max(0, d_xy - 0.25)                          # ...cuanto esta afuera del radio (m)...
+    descending = max(0, -rel_vel[2])                          # ...y que tan rapido baja (m/s)
+    reward -= 0.3 * outside * descending / 0.1
+
+if touching_top: reward += 0.1                                # base
+if landed:       reward += 25 - 50 * d_xy                     # base (terminal)
+elif crashed:    reward -= 10                                 # base (terminal)
+```
+
+Escalas de los términos nuevos:
+- **Suavidad:** la política de `base` cambia la acción ~0.6 por paso → −0.012. Con exploración (desvío ~1) el
+  cambio es mucho mayor, y por eso el término también reduce el ruido de exploración.
+- **Bajada:** 20 cm afuera bajando a 0.35 m/s → −0.21 por paso. Medido sobre episodios de v40 (`base`): los que
+  chocan el borde pierden 4–14 puntos más y los que aterrizan, casi nada. Bajar alineado, bajar lejos de la
+  plataforma o quedarse quieto afuera no cuestan nada (por eso no cae en la trampa de `borde_k1`).
 
 ## Qué se quería responder
 
@@ -24,7 +84,10 @@ Este archivo se va actualizando a medida que terminan las corridas; la sección 
   - `prev_d` en el `reset` ahora se mide contra el tope y no contra el centro de la plataforma (no cambiaba nada:
     el progreso del primer paso no se cuenta).
 - `rewards.yaml`: variantes nuevas (ver la tabla de corridas).
-- `train.py`: `--run_id` para lanzar varias corridas en paralelo sin que saquen el mismo número.
+- `train.py`: `--run_id` para lanzar varias corridas en paralelo sin que saquen el mismo número; después
+  `--ent_coef` y `--log_std_init` (tanda 7). Con los valores por defecto entrena igual que antes.
+- Después de las pruebas: `suave_bajada` pasó a ser `DEFAULT_REWARD` (`utils.py`), y las herramientas que cargan
+  una corrida usan la recompensa de esa corrida (`utils.run_reward`; `base` si es vieja y no la tiene).
 - `tools/evaluate.py`: guarda `smoothness` en `eval_*.json`: cambio medio de la acción por paso
   (`action_change`, lo mismo que castiga `reward_action_coef`), cambio de la velocidad pedida por paso
   (`cmd_vel_change`, m/s) y aceleración media del dron (`drone_accel`, m/s²). Reevaluado v21 con esto (mismos
@@ -68,7 +131,7 @@ más chico = más suave), y lo mismo para el modelo final a 1.5M. Tabla generada
 | v24-lucio | `suave_c002` | 42 | 14% / 57% / 75% | 0.63M | 1.4M | 67% (57–75) | 26 / 2 / 5 | 2.38 | 0.20 | 0.119 | 72% | 0.26 | 0.133 |
 | v25-lucio | `PBRS_k10` | 42 | 0% / 0% / 70% | 1.31M | 1.5M | 69% (59–77) | 30 / 0 / 0 | 2.46 | 1.46 | 0.360 | 72% | 1.47 | 0.358 |
 
-![curvas tanda 1](media/plots/recompensas_tanda1.png)
+![curvas tanda 1](../media/plots/recompensas_tanda1.png)
 
 Lectura:
 - **`A2_k3` (progreso k=3 + distancia):** con k chico el progreso ya no rompe nada (con k=10, v19, no aprendía).
@@ -99,7 +162,7 @@ Lectura:
 | v26-lucio | `A2_k1` | 42 | 9% / 66% / 82% | 0.74M | 1.2M | 66% (56–74) | 24 / 3 / 7 | 2.4 | 1.07 | 0.309 | 74% | 0.98 | 0.296 |
 | v27-lucio | `A2_k3_drone` | 42 | 0% / 0% / 1% | nunca | 0.2M | 35% (26–45) | 48 / 2 / 14 | 2.42 | 0.11 | 0.088 | 2% | 3.11 | 0.555 |
 
-![curvas progreso](media/plots/recompensas_progreso.png)
+![curvas progreso](../media/plots/recompensas_progreso.png)
 
 - **`A2_k1`:** como `A2_k3`: aprende antes que `base` (0.74M) y tiene el éxito de entrenamiento más alto a 1.5M
   (82 %), pero en 100 episodios el final da 74 %, igual que `base`. Y es menos suave.
@@ -133,7 +196,7 @@ Lectura:
 | v23-lucio | `A2_k3` | 42 | 15% / 63% / 76% | 0.62M | 1.4M | 75% (66–82) | 25 / 0 / 0 | 2.33 | 0.86 | 0.272 | 64% | 0.83 | 0.267 |
 | v33-lucio | `A2_k3` | 1 | 0% / 0% / 62% | 1.40M | 1.4M | 64% (54–73) | 31 / 0 / 3 | 3.52 | 1.36 | 0.292 | 64% | 1.51 | 0.352 |
 
-![seeds](media/plots/seeds_base_vs_A2k3.png)
+![seeds](../media/plots/seeds_base_vs_A2k3.png)
 
 - **`base` con la seed 1 (v29) no aprende:** 0 % en el entrenamiento a 1.5M y el modelo final queda flotando (76 de
   100 episodios por tiempo). **Es la misma trampa en la que cayeron A1, B, XY y `borde_k1`, pero con la recompensa
@@ -170,7 +233,7 @@ Por recompensa (seeds juntas; "aprendió" = el modelo final aterriza en ≥ 30 %
 | `A2_k3` | 3 | 3/3 | 64% (s1), 80% (s2), 64% (s42) | 69% | 69% | 1.04 | 0.291 |
 | `suave_c002` | 3 | **3/3** | 76% (s1), 75% (s2), 72% (s42) | **74%** | 74% | **0.22** | **0.118** |
 
-![seeds tanda 5](media/plots/seeds_tanda5.png)
+![seeds tanda 5](../media/plots/seeds_tanda5.png)
 
 - **`suave_c002` es la mejor hasta ahora en todo:** aprendió en las 3 seeds (incluida la seed 1, donde `base` no
   aprendió), el éxito final es el más parejo (72–76 %), cruza el 50 % antes en todas (0.63–0.66M contra 0.86M,
@@ -211,7 +274,7 @@ Acumulado con 4 seeds (1, 2, 3, 42):
 
 Graficando la velocidad pedida en un episodio (`media/plots/accion_base_vs_suave.png`), las políticas casi no usan
 valores intermedios: las componentes de la acción quedan pegadas a ±1. Medido en 20 episodios con el modelo final
-(script en el scratchpad, `saturation.py`; "saturada" = |a| > 0.99 después del recorte):
+(`python -m tools.action_saturation <runs>`; "saturada" = |a| > 0.99 después del recorte):
 
 | Corrida | `dx` sat. | `dy` sat. | **`dz` sat.** | `s` = 1 | Las 3 dir. saturadas | Media gaussiana de `dz` (mediana de \|μ\|) |
 |---|---|---|---|---|---|---|
@@ -220,7 +283,7 @@ valores intermedios: las componentes de la acción quedan pegadas a ±1. Medido 
 | v23 `A2_k3` s42 | 37 % | 48 % | **95 %** | 100 % | 23 % | 3.11 |
 | v42 `suave_c002` s3 | 68 % | 69 % | **99 %** | 100 % | 47 % | 3.66 |
 
-![velocidad pedida](media/plots/accion_base_vs_suave.png)
+![velocidad pedida](../media/plots/accion_base_vs_suave.png)
 
 - **Todas bajan siempre, a velocidad máxima** (`s` = 1 casi siempre, `dz` = −1 en ~97 % de los pasos). Como la
   dirección se normaliza, el dron baja a entre 0.35 m/s (si se mueve en diagonal) y 0.6 m/s (si va derecho para
@@ -257,7 +320,7 @@ afuera del rango y se recorta. Control: `base` con `--log_std_init -0.5` (desví
 | `suave_c002` | 4 | 4/4 | 76% (s1), 75% (s2), 71% (s3), 72% (s42) | 74% | 0.20 | 0.112 |
 | `base + log_std_init -0.5` | 3 | **3/3** | 79% (s1), 76% (s2), 81% (s42) | **79%** | 0.38 | 0.194 |
 
-![control exploracion](media/plots/control_exploracion.png)
+![control exploracion](../media/plots/control_exploracion.png)
 
 - **Confirmado: con menos ruido de exploración, `base` aprende en todas las seeds** (incluida la seed 1, que con
   desvío 1 quedaba flotando) **y llega al mejor éxito final hasta ahora: 79 % de media** (76–81 %).
@@ -316,7 +379,7 @@ Seed 1:
 | v57-lucio | `suave_c002 + log_std_init -0.5` | 42 | 29% / 78% / 93% | 0.54M | 0.9M | 75% (66–82) | 22 / 1 / 2 | 2.33 | 0.05 | 0.066 | 93% | 0.09 | 0.088 |
 | v58-lucio | `suave_c002 + log_std_init -0.5` | 1 | 9% / 68% / 86% | 0.70M | 1.3M | 81% (72–88) | 17 / 2 / 0 | 2.25 | 0.08 | 0.085 | 85% | 0.07 | 0.079 |
 
-![base vs suave_bajada](media/plots/base_vs_suave_bajada.png)
+![base vs suave_bajada](../media/plots/base_vs_suave_bajada.png)
 
 - **`suave_bajada` con 4 seeds: 92 / 88 / 93 / 95 % → 92 % de media, 4 de 4.** Todas cruzan el 50 % a ~0.7M y
   siguen subiendo a 1.5M (ver gráfico: las 4 curvas de `suave_bajada` terminan arriba de las de `base`).
@@ -379,27 +442,38 @@ recompensa tienen que ser con varias seeds.
 **Para sim2real:** la suavidad importa en el Crazyflie real. `suave_bajada` cambia la velocidad pedida 0.14 m/s
 por paso contra 0.23 de `base`, y `suave_c002` + desvío 0.61, 0.08 m/s.
 
-## Pendiente (la cola que quedó sin correr)
+## Cómo seguir
 
-En orden de prioridad. Comando: `python train.py --run_id <id> --reward <recompensa> --seed <s> --timesteps <t> [args]`,
-y después `python -m tools.evaluate --load <id> --best` y `python -m tools.evaluate --load <id>` (final).
+La cola que quedó sin correr está en `cola_pendiente.txt`, en orden de prioridad:
 
-1. `suave_c002` seed 2 con `--log_std_init -0.5` (era v59; se cortó para liberar memoria).
-2. `base` con `--log_std_init -1.0` (desvío 0.37), seeds 42, 1, 2: ¿más bajo todavía es mejor?
-3. **`suave_bajada` con `--log_std_init -0.5`, seeds 42 y 1** (la combinación más prometedora).
-4. `suave_bajada` seed 42 con 3M pasos (¿hasta dónde llega?).
-5. Menos prioritario: seeds 1 y 2 de `PBRS_k10` y `A2_k1`; seed 4 de `base`, `A2_k3` y `suave_c002`;
-   `combo_k3_c002`; `suave_c005` y `suave_c01` (curva éxito contra suavidad); `PBRS_k3`; `borde_k02`.
-6. No es de la recompensa: probar la acción como velocidad directa (`v = 0.6·a`) o con `tanh`, para que la
-   política no sea bang-bang.
+1. **`suave_bajada` + `--log_std_init -0.5`** (3 seeds): las dos mejoras juntas. Es lo más prometedor.
+2. Tercera seed de `suave_c002` + `--log_std_init -0.5` (se cortó para liberar memoria).
+3. `suave_bajada` con 3M pasos: las curvas siguen subiendo a 1.5M.
+4. `base` con `--log_std_init -1.0` (desvío 0.37): ¿más bajo todavía es mejor?
+5. Menos prioritario: más seeds de `PBRS_k10` y `A2_k1`, seed 4 de `base` y `suave_c002`, `suave_c005` y
+   `suave_c01` (curva éxito contra suavidad), `combo_k3_c002`, `PBRS_k3`, `borde_k02`.
 
-Con 2 corridas en paralelo (con 3 la máquina se queda sin RAM: cada una usa ~3.5 GB), cada tanda tarda ~50 min.
+```bash
+python -m tools.run_queue cola_pendiente.txt --parallel 2          # entrena y evalua (best y final)
+python -m tools.compare_runs v54-lucio v56-lucio v65-lucio ... --by-reward --plot media/plots/x.png
+python -m tools.action_saturation v65-lucio                         # cuanto satura la accion
+python -m tools.plot_actions v40-lucio v65-lucio --out media/plots/y.png
+```
+
+**Memoria:** cada corrida usa ~3.5 GB de RAM; con 3 en paralelo, una máquina de 13 GB se quedó sin memoria. Usar
+`--parallel 2`. Cada corrida de 1.5M tarda ~50–55 min.
+
+Ideas que no son de la recompensa (no probadas): acción como velocidad directa (`v = 0.6·a`, sin normalizar la
+dirección) o con `tanh` dentro del entorno, para que la política no sea bang-bang; `ent_coef = 0`.
 
 ## Notas
 
-- Todas las corridas de este reporte están en `runs/v23-lucio` … `runs/v64-lucio` (con `eval_best.json` y
-  `eval_final.json`). No tienen `NOTES.md` (no se corrió `/registrar-corrida` en cada una): este reporte cumple
-  ese rol. `EXPERIMENTS.md` se regeneró.
-- Herramientas nuevas: `tools/compare_runs.py` (tablas y gráficos; `--by-reward` junta seeds) y
-  `tools/action_saturation.py`.
-- `train.py`: `--run_id`, `--ent_coef`, `--log_std_init`. Con los valores por defecto entrena igual que antes.
+- Corridas: `runs/v23-lucio` … `runs/v64-lucio` (faltan números: v31, v32, v37–v39, v43–v49 y v59–v62 se
+  reservaron y no se corrieron). Cada una tiene `eval_best.json`, `eval_final.json` y un `NOTES.md` corto que
+  apunta a la tanda de este documento.
+- Herramientas nuevas: `tools/compare_runs.py` (tablas y gráficos; `--by-reward` junta seeds),
+  `tools/action_saturation.py`, `tools/plot_actions.py` y `tools/run_queue.py`.
+- Las columnas de las tablas: "Éxito entr." es `rollout/success_rate` (política **estocástica**, promedio de los
+  100k pasos anteriores); "Éxito best/final" es la evaluación determinista de 100 episodios (seeds 42–141);
+  Δacción = media por paso de `Σ(a − a_anterior)²`; Δv pedida = media por paso de cuánto cambia la velocidad que
+  se le pide al dron (m/s).
