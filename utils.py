@@ -1,5 +1,6 @@
 import argparse
 import glob
+import json
 import os
 import random
 import re
@@ -18,7 +19,11 @@ DEFAULT_CTRL_FREQ = 24
 DEFAULT_MAX_EPISODE_SECONDS = 20
 DEFAULT_SEED = 42
 LEVEL = "turtlebot_hard_fixed"
-DEFAULT_REWARD = "base"  # variante de rewards.yaml
+# Variante de rewards.yaml para corridas nuevas. suave_bajada desde 2026-10-15 (92 % de exito medio con 4 seeds
+# a 1.5M pasos, contra 54 % de base; docs/pruebas-recompensas-2026-10-15.md).
+DEFAULT_REWARD = "suave_bajada"
+# Las corridas anteriores a que run.json guardara args.reward (v16, v17) se entrenaron con base.
+LEGACY_REWARD = "base"
 RUNS_DIR = "runs"
 RUN_TAG_RE = re.compile(r"^(?:version_|v)(\d+)(?:-[a-z0-9]+)?$")
 
@@ -119,6 +124,21 @@ def set_global_seeds(seed: int):
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
+
+def run_reward(run_id) -> str:
+    """Variante de recompensa con la que se entreno una corrida (ultima sesion de run.json).
+
+    Las corridas sin ese dato usaban base. Sirve para que las herramientas que cargan una corrida usen su
+    recompensa y no DEFAULT_REWARD (el exito no depende de la recompensa, pero el reward que se muestra si).
+    """
+    path = os.path.join(get_run_dir(run_id), "run.json")
+    if os.path.exists(path):
+        with open(path) as f:
+            sessions = json.load(f)["sessions"]
+        recorded = sessions[-1].get("args", {}).get("reward")
+        if recorded:
+            return recorded
+    return LEGACY_REWARD
 
 def get_env_kwargs(gui: bool, reward: str = DEFAULT_REWARD) -> dict:
     with open("levels.yaml", "r") as f:

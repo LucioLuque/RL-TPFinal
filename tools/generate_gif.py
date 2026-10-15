@@ -14,6 +14,7 @@ from utils import (
     get_latest_version,
     run_tag,
     make_env,
+    run_reward,
     set_global_seeds,
 )
 
@@ -148,7 +149,7 @@ def main():
     # 2. Creamos un entorno real con GUI.
     #    Este lo pisamos manualmente para evitar el autoreset de DummyVecEnv.
     # ------------------------------------------------------------------
-    env = make_env(gui=True, seed=args.seed)()
+    env = make_env(gui=True, seed=args.seed, reward=run_reward(version))()
     obs, info = env.reset(seed=args.seed)
 
     raw_env = unwrap_env(env)

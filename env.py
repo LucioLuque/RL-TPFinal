@@ -38,6 +38,12 @@ class MovingPlatformLandingAviary(VelocityAviary):
         reward_dxy_coef: float = 0.0,       # castigo por paso proporcional a la distancia horizontal
         reward_dz_coef: float = 0.0,        # castigo por paso proporcional a la altura sobre el tope (|dz|)
         reward_progress_coef: float = 0.0,  # premio por acercarse: k * (d_anterior - d)
+        reward_progress_mode: str = "total",  # "total": d_anterior con la plataforma anterior; "drone": solo lo que se movio el dron
+        reward_pbrs_coef: float = 0.0,      # shaping por potencial: gamma * Phi(s') - Phi(s), Phi = -k * d (Ng et al. 1999)
+        reward_pbrs_gamma: float = 0.99,    # tiene que ser el gamma de PPO para que el shaping no cambie la politica optima
+        reward_action_coef: float = 0.0,    # castigo por cambiar la accion: c * sum((a - a_anterior)^2)
+        reward_edge_coef: float = 0.0,      # castigo por estar bajo y afuera de la plataforma (modo de fallo de base)
+        reward_descent_coef: float = 0.0,   # castigo por bajar mientras esta afuera de la plataforma y cerca en altura
         crash_penalty: float = 10.0,        # castigo al chocar
     ):
         self.platform_radius = 0.25
@@ -52,6 +58,12 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self.reward_dxy_coef = reward_dxy_coef
         self.reward_dz_coef = reward_dz_coef
         self.reward_progress_coef = reward_progress_coef
+        self.reward_progress_mode = reward_progress_mode
+        self.reward_pbrs_coef = reward_pbrs_coef
+        self.reward_pbrs_gamma = reward_pbrs_gamma
+        self.reward_action_coef = reward_action_coef
+        self.reward_edge_coef = reward_edge_coef
+        self.reward_descent_coef = reward_descent_coef
         self.crash_penalty = crash_penalty
 
         self.max_episode_steps = int(max_episode_seconds * ctrl_freq)
@@ -249,8 +261,10 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self._create_platform()
         self._update_platform()
 
-        rel_pos0 = self._getDroneStateVector(0)[0:3] - self.platform_pos
-        self.prev_d = np.linalg.norm(rel_pos0)
+        # Antes se media contra el centro de la plataforma y no contra el tope (no importaba: el progreso
+        # del primer paso no se cuenta).
+        self.prev_drone_pos = self._getDroneStateVector(0)[0:3].copy()
+        self.prev_d = np.linalg.norm(self.prev_drone_pos - self._platform_top())
 
         self._motion_step_count = 0
 
@@ -278,11 +292,15 @@ class MovingPlatformLandingAviary(VelocityAviary):
 
         self.prev_action = self._current_action.copy()
         self.prev_d = self._current_d
+        self.prev_drone_pos = self._getDroneStateVector(0)[0:3].copy()
 
         obs = self._computeObs()
         info = self._computeInfo()
 
         return obs, reward, terminated, self.is_truncated, info
+
+    def _platform_top(self):
+        return np.array([self.platform_pos[0], self.platform_pos[1], self.platform_height])
 
     def _computeObs(self):
         """Observacion normalizada a [-1, 1] con escalas fijas (self._obs_scale).
@@ -345,11 +363,39 @@ class MovingPlatformLandingAviary(VelocityAviary):
         reward -= self.reward_dxy_coef * d_xy + self.reward_dz_coef * abs(rel_pos[2])
         reward -= 0.01
         if self.reward_progress_coef and self.episode_step_counter > 1:
-            reward += self.reward_progress_coef * (self.prev_d - self._current_d)
+            if self.reward_progress_mode == "drone":
+                # Solo lo que se acerco el dron: las dos distancias contra el tope actual, asi el movimiento
+                # de la plataforma no mete ruido (con "total", d cambia aunque el dron no haga nada).
+                d_before = np.linalg.norm(self.prev_drone_pos - platform_top)
+                reward += self.reward_progress_coef * (d_before - self._current_d)
+            else:
+                reward += self.reward_progress_coef * (self.prev_d - self._current_d)
 
-        # if self.episode_step_counter > 1:
-        #     da = np.sum((self._current_action - self.prev_action) ** 2)
-        #     reward -= 0.02 * da  # alpha_action, punto de partida a tunear
+        if self.reward_pbrs_coef:
+            # Phi(s) = -k * d. En un estado terminal Phi = 0 (si no, deja de ser invariante); al truncar no,
+            # porque PPO hace bootstrap con el valor del ultimo estado.
+            phi_prev = -self.reward_pbrs_coef * self.prev_d
+            phi_now = 0.0 if (self.has_landed or self.has_crashed) else -self.reward_pbrs_coef * self._current_d
+            reward += self.reward_pbrs_gamma * phi_now - phi_prev
+
+        if self.reward_action_coef and self.episode_step_counter > 1:
+            reward -= self.reward_action_coef * float(np.sum((self._current_action - self.prev_action) ** 2))
+
+        if self.reward_edge_coef:
+            # v17/v21 chocan el borde bajando en diagonal desde afuera: castigar estar afuera del radio y a menos
+            # de 15 cm del tope, proporcional a cuan afuera y cuan bajo.
+            outside = max(0.0, d_xy - self.platform_radius)
+            low = max(0.0, 0.15 - rel_pos[2])
+            reward -= self.reward_edge_coef * outside * low / 0.15
+
+        if self.reward_descent_coef:
+            # Las politicas bajan siempre a velocidad maxima (dz saturado) y chocan el borde si llegan afuera.
+            # Castiga la velocidad de bajada (no la posicion, como reward_edge_coef) estando afuera del radio y a
+            # menos de 30 cm del tope: bajar alineado o lejos no cuesta nada, quedarse quieto tampoco.
+            outside = max(0.0, d_xy - self.platform_radius)
+            descending = max(0.0, -rel_vel[2])
+            if rel_pos[2] < 0.3:
+                reward -= self.reward_descent_coef * outside * descending / 0.1
 
         if self._is_touching_platform():
             reward += 0.1

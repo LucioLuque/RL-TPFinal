@@ -8,10 +8,16 @@ archivo). gym-pybullet-drones (2.2.0) se instala desde GitHub, fijado a un commi
 ## Comandos
 
 ```bash
-python train.py                                  # corrida nueva -> v<N>-<autor>
-python train.py --load v16-lucio --timesteps 500000   # seguir entrenando una corrida
+python train.py                                  # corrida nueva -> v<N>-<autor>, recompensa suave_bajada
+python train.py --reward base --seed 1 --log_std_init -0.5   # otra recompensa, seed y desvío inicial
+python train.py --load v16-lucio --timesteps 500000   # seguir entrenando una corrida (con su recompensa)
 python eval.py --load v16-lucio --episodes 5     # con GUI; sin --load usa la última
 python -m tools.evaluate --load v17-lucio --best # 100 episodios sin GUI -> runs/<id>/eval_best.json
+python -m tools.evaluate --load v17-lucio        # lo mismo con el modelo final -> eval_final.json
+python -m tools.run_queue cola_pendiente.txt --parallel 2   # cola de corridas en paralelo + evaluaciones
+python -m tools.compare_runs v54-lucio v56-lucio --by-reward --plot media/plots/x.png   # tabla y curvas
+python -m tools.action_saturation v54-lucio      # cuánto satura la acción (bang-bang)
+python -m tools.plot_actions v40-lucio v54-lucio # velocidad pedida paso a paso
 python -m tools.generate_gif --load v16-lucio    # gif de un episodio en media/gifs/
 python -m tools.plot_trajectory --load v16-lucio
 python -m tools.plots                            # curvas de TensorBoard (editar el __main__)
@@ -26,7 +32,8 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
 - `runs/<id>/`: todo lo de una corrida (ver abajo).
 - `tools/`: análisis (gifs, trayectorias, curvas, índice de experimentos).
 - `media/`: gifs y plots para el informe o la presentación.
-- `docs/`: consigna, informe y presentación.
+- `docs/`: consigna, informe, presentación y reportes de experimentos (`pruebas-recompensas-2026-10-15.md`).
+- `cola_pendiente.txt`: corridas planeadas que no se corrieron todavía (para `tools/run_queue.py`).
 - `logs/landing_level_1/`: TensorBoard de las corridas de curriculum viejas. `logs/` está en
   `.gitignore`; los logs de `version_N` van en `runs/version_N/tb/`.
 
@@ -36,6 +43,9 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
 
 - **Id**: `v<N>-<autor>`. N es global entre los dos autores (el mayor existente + 1). El autor es la
   primera palabra de `git config user.name`. Hacer `git pull` antes de entrenar.
+- `train.py --run_id <id>` fija el nombre (hace falta para lanzar varias en paralelo; `tools/run_queue.py` lo usa).
+- **Memoria:** cada corrida usa ~3.5 GB de RAM (8 entornos de entrenamiento + 8 de evaluación). En la máquina de
+  Lucio (13 GB), no más de 2 corridas a la vez: con 3 se llenó la RAM y se trabó todo.
 - **`runs/<id>/`** tiene todo lo de una corrida, y lo escribe `train.py` solo:
   - `model.zip`: el modelo final;
   - `best/best_model.zip`: el mejor por tasa de éxito y, si empatan, por reward;
@@ -75,14 +85,32 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
   cilindro de 12 cm × 2.5 cm.
 - **Choque**: contacto que no sea base contra tope, o `|roll|` o `|pitch|` mayor a 0.7.
 - **Truncado**: a los 20 s (24 Hz, 480 steps).
-- **Reward**: ver `_computeReward`. Los coeficientes (distancia, progreso, castigo por choque) son
-  parámetros del entorno; las variantes con nombre están en `rewards.yaml` y se eligen con
-  `train.py --reward <nombre>`. Para probar una recompensa nueva, agregar una variante ahí. Hay términos comentados de pruebas anteriores. Ojo: el commit
-  `f94b2d3` dice que agrega una penalización por cambios de acción, pero está comentada.
+- **Reward**: ver `_computeReward`. Todos los coeficientes son parámetros del entorno (apagados por defecto); las
+  variantes con nombre están en `rewards.yaml` y se eligen con `train.py --reward <nombre>`. Para probar una
+  recompensa nueva, agregar una variante ahí.
+  - **Por defecto (`utils.DEFAULT_REWARD`): `suave_bajada`** desde 2026-10-15: `base` (`−0.1·d − 0.01` por paso,
+    +0.1 tocando el tope, +25 − 50·d_xy al aterrizar, −10 al chocar) + `0.02·Σ(a − a_anterior)²` de castigo por
+    cambiar la acción + `0.3·(d_xy − 0.25)₊·(velocidad de bajada)₊/0.1` de castigo por bajar estando afuera y a
+    menos de 30 cm del tope. 92 % de éxito medio con 4 seeds a 1.5M, contra 54 % de `base`.
+  - Con `--load`, se usa la recompensa de esa corrida (`utils.run_reward`; `base` si es vieja y no la tiene).
+    Las herramientas que cargan una corrida (`eval.py`, `tools/evaluate.py`, gifs, trayectorias) también.
+  - Otros términos: progreso (`reward_progress_coef`, `reward_progress_mode`), PBRS (`reward_pbrs_coef`),
+    estar bajo y afuera (`reward_edge_coef`), distancia horizontal y vertical por separado (`reward_dxy_coef`,
+    `reward_dz_coef`). Qué dio cada uno: `docs/pruebas-recompensas-2026-10-15.md` y `BITACORA.md`.
+  - Ojo: el progreso `k·(d_ant − d)` **no** es shaping por potencial (es PBRS − (1−γ)·k·d), y medirlo sin el
+    movimiento de la plataforma (`mode: drone`) se puede explotar persiguiéndola.
+- **Las políticas son casi bang-bang**: `dz` saturado en ~97 % de los pasos (bajan siempre a máxima velocidad) y
+  la media de la gaussiana muy afuera de [−1, 1]. Ver `tools/action_saturation.py`.
 
 ## Convenciones
 
 - Comentarios y mensajes en español.
 - La selección del mejor modelo es por tasa de éxito, no por reward (ver el docstring de `BestModelCallback`).
 - Con 8 episodios de evaluación, la tasa de éxito va de a 12.5%: no sacar conclusiones de un episodio de diferencia.
+- **Para comparar recompensas o hiperparámetros: ≥ 3 seeds por variante, y mirar el modelo final evaluado en
+  100 episodios (`eval_final.json`), no solo el best.** Con una sola seed, `base` parecía la mejor y con la seed 1
+  no aprende; el best (elegido con 8 episodios) puede estar 20 puntos lejos del final. `tools/compare_runs.py
+  --by-reward` junta las seeds. Ver `BITACORA.md`, 2026-10-15.
+- **Exploración:** el desvío inicial de la acción (`--log_std_init`, default 0 → desvío 1) pesa tanto como la
+  recompensa: con desvío 0.61 (`-0.5`) `base` aprende en todas las seeds. Tenerlo en cuenta al comparar.
 - Todo `runs/` se commitea (modelos y TensorBoard), porque es chico y el otro los necesita para evaluar. Los gifs se commitean solo si van al informe.

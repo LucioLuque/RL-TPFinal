@@ -19,7 +19,7 @@ import pybullet as p
 from stable_baselines3 import PPO
 
 from run_registry import _git
-from utils import get_best_model_dir, get_latest_version, get_model_path, get_run_dir, make_env, parse_args, run_tag
+from utils import get_best_model_dir, get_latest_version, get_model_path, get_run_dir, make_env, parse_args, run_reward, run_tag
 
 DEFAULT_EPISODES = 100
 
@@ -50,18 +50,45 @@ def crash_kind(raw_env) -> str:
     return "inclinacion"
 
 
-def run_episode(model, env, seed: int) -> tuple[dict, list]:
+def commanded_velocity(raw_env, action) -> np.ndarray:
+    """Velocidad que se le pide al dron (m/s), con la misma cuenta que VelocityAviary."""
+    direction = action[0:3]
+    norm = np.linalg.norm(direction)
+    if norm == 0:
+        return np.zeros(3)
+    return raw_env.SPEED_LIMIT * abs(action[3]) * direction / norm
+
+
+def run_episode(model, env, seed: int) -> tuple[dict, list, dict]:
+    """Corre un episodio. Ademas del resultado, devuelve cuanto cambia la accion entre pasos (suavidad)."""
     raw_env = env.unwrapped
     obs, _ = env.reset(seed=seed)
     raws = []
     steps = 0
+    actions, cmd_vels, drone_vels = [], [], []
     while True:
         action, _ = model.predict(obs, deterministic=True)
+        action = np.clip(action, env.action_space.low, env.action_space.high)
         obs, _, terminated, truncated, info = env.step(action)
         steps += 1
-        raws.append(raw_env._computeRawObs())
+        raw = raw_env._computeRawObs()
+        raws.append(raw)
+        actions.append(action)
+        cmd_vels.append(commanded_velocity(raw_env, action))
+        drone_vels.append(raw[12:15])
         if terminated or truncated:
             break
+    smooth = {}
+    if steps > 1:
+        freq = raw_env.CTRL_FREQ
+        smooth = {
+            # sum((a - a_anterior)^2), lo mismo que castiga reward_action_coef
+            "action_change": float(np.mean(np.sum(np.diff(actions, axis=0) ** 2, axis=1))),
+            # cuanto cambia la velocidad pedida por paso (m/s)
+            "cmd_vel_change": float(np.mean(np.linalg.norm(np.diff(cmd_vels, axis=0), axis=1))),
+            # aceleracion real del dron (m/s^2)
+            "drone_accel": float(np.mean(np.linalg.norm(np.diff(drone_vels, axis=0), axis=1)) * freq),
+        }
 
     if info["is_success"]:
         outcome = "exito"
@@ -69,7 +96,7 @@ def run_episode(model, env, seed: int) -> tuple[dict, list]:
         outcome = f"choque_{crash_kind(raw_env)}"
     else:
         outcome = "tiempo"
-    return {"seed": seed, "outcome": outcome, "steps": steps, "d_xy": round(info["d_xy"], 3)}, raws
+    return {"seed": seed, "outcome": outcome, "steps": steps, "d_xy": round(info["d_xy"], 3)}, raws, smooth
 
 
 def main():
@@ -89,14 +116,16 @@ def main():
     )
 
     model = PPO.load(model_path, device="cpu")
-    env = make_env(gui=False, seed=args.seed)()
+    env = make_env(gui=False, seed=args.seed, reward=run_reward(run_id))()
     ctrl_freq = env.unwrapped.CTRL_FREQ
 
-    episodes, raws = [], []
+    episodes, raws, smooths = [], [], []
     for i in range(args.episodes):
-        ep, ep_raws = run_episode(model, env, args.seed + i)
+        ep, ep_raws, smooth = run_episode(model, env, args.seed + i)
         episodes.append(ep)
         raws.extend(ep_raws)
+        if smooth:
+            smooths.append(smooth)
         print(f"\r{i + 1}/{args.episodes} episodios", end="", flush=True)
     print()
     env.close()
@@ -123,6 +152,8 @@ def main():
             {"median": round(float(np.median(landing_s)), 2), "p90": round(float(np.percentile(landing_s, 90)), 2)}
             if len(landing_s) else None
         ),
+        # Promedio por episodio de cuanto cambia la accion entre pasos (mas chico = mas suave)
+        "smoothness": {k: round(float(np.mean([s[k] for s in smooths])), 4) for k in smooths[0]} if smooths else None,
         "obs_clipped_fraction": {n: round(float(c), 4) for n, c in zip(OBS_NAMES, clipped)},
         "obs_abs_p999": {n: round(float(v), 3) for n, v in zip(OBS_NAMES, p999)},
         "obs_scale": {n: round(float(s), 3) for n, s in zip(OBS_NAMES, scale)},
@@ -140,6 +171,8 @@ def main():
     if result["landing_time_s"]:
         print(f"Tiempo hasta aterrizar: mediana {result['landing_time_s']['median']} s, "
               f"p90 {result['landing_time_s']['p90']} s")
+    if result["smoothness"]:
+        print("Suavidad (promedio por episodio):", result["smoothness"])
     over = {n: f"{100 * c:.1f} %" for n, c in result["obs_clipped_fraction"].items() if c > 0.01}
     print("Valores recortados en mas del 1 % de los pasos:", over or "ninguno")
     print(f"Guardado en {out_path}")

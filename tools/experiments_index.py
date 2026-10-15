@@ -16,8 +16,8 @@ HEADER = """# Experimentos
 Indice generado por `python -m tools.experiments_index` (no editar a mano). El detalle de cada corrida
 esta en `runs/<run_id>/NOTES.md` (escrito con `/registrar-corrida`) y `runs/<run_id>/run.json`.
 
-| Run | Autor | Fecha | Estado | Timesteps | Éxito best (100 ep.) | Best éxito (8 ep.) | Best reward | Cambio |
-|---|---|---|---|---|---|---|---|---|
+| Run | Autor | Fecha | Estado | Timesteps | Éxito final (100 ep.) | Éxito best (100 ep.) | Best éxito (8 ep.) | Best reward | Cambio |
+|---|---|---|---|---|---|---|---|---|---|
 """
 
 
@@ -39,9 +39,13 @@ def _change_line(run_dir: str) -> str:
     return ""
 
 
-def _eval_cell(run_dir: str) -> str:
-    """Exito del best en la evaluacion larga (tools/evaluate.py), con su intervalo del 95 %."""
-    path = os.path.join(run_dir, "eval_best.json")
+def _eval_cell(run_dir: str, which: str = "best") -> str:
+    """Exito del best o del modelo final en la evaluacion larga (tools/evaluate.py), con su intervalo del 95 %.
+
+    Para comparar corridas conviene el final: el best se elige con 8 episodios y es ruidoso
+    (docs/pruebas-recompensas-2026-10-15.md).
+    """
+    path = os.path.join(run_dir, f"eval_{which}.json")
     if not os.path.exists(path):
         return "-"
     with open(path) as f:
@@ -63,13 +67,14 @@ def _row(run_dir: str) -> tuple[int, str, str]:
     run_id = data["run_id"]
     status = last["status"] + (f" ({len(sessions)} sesiones)" if len(sessions) > 1 else "")
 
-    row = "| {} | {} | {} | {} | {} | {} | {} | {} | {} |".format(
+    row = "| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |".format(
         f"[{run_id}]({run_dir}/)",
         last.get("author", ""),
         sessions[0]["started_at"][:10],
         status,
         f"{timesteps:,}" if timesteps is not None else "-",
-        _eval_cell(run_dir),
+        _eval_cell(run_dir, "final"),
+        _eval_cell(run_dir, "best"),
         f"{100 * success:.0f}%" if success is not None else "-",
         f"{reward:.2f}" if reward is not None else "-",
         _change_line(run_dir),

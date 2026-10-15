@@ -1,0 +1,696 @@
+{
+  "run_id": "v23-lucio",
+  "model": "final",
+  "episodes": 100,
+  "seeds": [
+    42,
+    141
+  ],
+  "success_rate": 0.64,
+  "success_ci95": [
+    0.542,
+    0.727
+  ],
+  "outcomes": {
+    "choque_plataforma": 33,
+    "exito": 64,
+    "tiempo": 2,
+    "choque_inclinacion": 1
+  },
+  "landing_time_s": {
+    "median": 2.42,
+    "p90": 3.17
+  },
+  "smoothness": {
+    "action_change": 0.834,
+    "cmd_vel_change": 0.2665,
+    "drone_accel": 1.7005
+  },
+  "obs_clipped_fraction": {
+    "rel_px": 0.0,
+    "rel_py": 0.0,
+    "rel_pz": 0.0,
+    "rel_vx": 0.0005,
+    "rel_vy": 0.0,
+    "rel_vz": 0.0,
+    "roll": 0.0008,
+    "pitch": 0.0002,
+    "yaw": 0.0,
+    "wx": 0.005,
+    "wy": 0.0049,
+    "wz": 0.0002,
+    "vx": 0.0014,
+    "vy": 0.0009,
+    "vz": 0.0002,
+    "prev_a0": 0.0,
+    "prev_a1": 0.0,
+    "prev_a2": 0.0,
+    "prev_a3": 0.0
+  },
+  "obs_abs_p999": {
+    "rel_px": 0.803,
+    "rel_py": 0.772,
+    "rel_pz": 1.128,
+    "rel_vx": 0.889,
+    "rel_vy": 0.826,
+    "rel_vz": 0.573,
+    "roll": 0.562,
+    "pitch": 0.482,
+    "yaw": 0.612,
+    "wx": 8.718,
+    "wy": 8.264,
+    "wz": 2.632,
+    "vx": 0.829,
+    "vy": 0.736,
+    "vz": 0.573,
+    "prev_a0": 1.0,
+    "prev_a1": 1.0,
+    "prev_a2": 1.0,
+    "prev_a3": 1.0
+  },
+  "obs_scale": {
+    "rel_px": 1.5,
+    "rel_py": 1.5,
+    "rel_pz": 1.5,
+    "rel_vx": 1.125,
+    "rel_vy": 1.125,
+    "rel_vz": 1.125,
+    "roll": 0.7,
+    "pitch": 0.7,
+    "yaw": 3.142,
+    "wx": 5.0,
+    "wy": 5.0,
+    "wz": 5.0,
+    "vx": 0.75,
+    "vy": 0.75,
+    "vz": 0.75,
+    "prev_a0": 1.0,
+    "prev_a1": 1.0,
+    "prev_a2": 1.0,
+    "prev_a3": 1.0
+  },
+  "git_commit": "b72fbbdf7ae0d77917964685ca8c45d78b733617",
+  "evaluated_at": "2026-10-15T09:25:03",
+  "per_episode": [
+    {
+      "seed": 42,
+      "outcome": "choque_plataforma",
+      "steps": 33,
+      "d_xy": 0.306
+    },
+    {
+      "seed": 43,
+      "outcome": "choque_plataforma",
+      "steps": 37,
+      "d_xy": 0.304
+    },
+    {
+      "seed": 44,
+      "outcome": "choque_plataforma",
+      "steps": 36,
+      "d_xy": 0.312
+    },
+    {
+      "seed": 45,
+      "outcome": "choque_plataforma",
+      "steps": 332,
+      "d_xy": 0.255
+    },
+    {
+      "seed": 46,
+      "outcome": "exito",
+      "steps": 63,
+      "d_xy": 0.019
+    },
+    {
+      "seed": 47,
+      "outcome": "exito",
+      "steps": 63,
+      "d_xy": 0.021
+    },
+    {
+      "seed": 48,
+      "outcome": "exito",
+      "steps": 43,
+      "d_xy": 0.165
+    },
+    {
+      "seed": 49,
+      "outcome": "exito",
+      "steps": 53,
+      "d_xy": 0.037
+    },
+    {
+      "seed": 50,
+      "outcome": "exito",
+      "steps": 78,
+      "d_xy": 0.026
+    },
+    {
+      "seed": 51,
+      "outcome": "exito",
+      "steps": 80,
+      "d_xy": 0.029
+    },
+    {
+      "seed": 52,
+      "outcome": "choque_plataforma",
+      "steps": 19,
+      "d_xy": 0.317
+    },
+    {
+      "seed": 53,
+      "outcome": "exito",
+      "steps": 60,
+      "d_xy": 0.065
+    },
+    {
+      "seed": 54,
+      "outcome": "choque_plataforma",
+      "steps": 40,
+      "d_xy": 0.304
+    },
+    {
+      "seed": 55,
+      "outcome": "exito",
+      "steps": 76,
+      "d_xy": 0.023
+    },
+    {
+      "seed": 56,
+      "outcome": "exito",
+      "steps": 71,
+      "d_xy": 0.048
+    },
+    {
+      "seed": 57,
+      "outcome": "exito",
+      "steps": 54,
+      "d_xy": 0.032
+    },
+    {
+      "seed": 58,
+      "outcome": "exito",
+      "steps": 50,
+      "d_xy": 0.05
+    },
+    {
+      "seed": 59,
+      "outcome": "exito",
+      "steps": 28,
+      "d_xy": 0.036
+    },
+    {
+      "seed": 60,
+      "outcome": "exito",
+      "steps": 58,
+      "d_xy": 0.067
+    },
+    {
+      "seed": 61,
+      "outcome": "exito",
+      "steps": 69,
+      "d_xy": 0.032
+    },
+    {
+      "seed": 62,
+      "outcome": "exito",
+      "steps": 44,
+      "d_xy": 0.044
+    },
+    {
+      "seed": 63,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.229
+    },
+    {
+      "seed": 64,
+      "outcome": "exito",
+      "steps": 53,
+      "d_xy": 0.054
+    },
+    {
+      "seed": 65,
+      "outcome": "exito",
+      "steps": 42,
+      "d_xy": 0.016
+    },
+    {
+      "seed": 66,
+      "outcome": "choque_plataforma",
+      "steps": 23,
+      "d_xy": 0.308
+    },
+    {
+      "seed": 67,
+      "outcome": "exito",
+      "steps": 60,
+      "d_xy": 0.031
+    },
+    {
+      "seed": 68,
+      "outcome": "choque_plataforma",
+      "steps": 14,
+      "d_xy": 0.319
+    },
+    {
+      "seed": 69,
+      "outcome": "exito",
+      "steps": 76,
+      "d_xy": 0.029
+    },
+    {
+      "seed": 70,
+      "outcome": "exito",
+      "steps": 37,
+      "d_xy": 0.041
+    },
+    {
+      "seed": 71,
+      "outcome": "exito",
+      "steps": 45,
+      "d_xy": 0.02
+    },
+    {
+      "seed": 72,
+      "outcome": "exito",
+      "steps": 56,
+      "d_xy": 0.181
+    },
+    {
+      "seed": 73,
+      "outcome": "exito",
+      "steps": 67,
+      "d_xy": 0.041
+    },
+    {
+      "seed": 74,
+      "outcome": "exito",
+      "steps": 72,
+      "d_xy": 0.044
+    },
+    {
+      "seed": 75,
+      "outcome": "exito",
+      "steps": 76,
+      "d_xy": 0.039
+    },
+    {
+      "seed": 76,
+      "outcome": "choque_plataforma",
+      "steps": 28,
+      "d_xy": 0.306
+    },
+    {
+      "seed": 77,
+      "outcome": "exito",
+      "steps": 74,
+      "d_xy": 0.034
+    },
+    {
+      "seed": 78,
+      "outcome": "choque_plataforma",
+      "steps": 33,
+      "d_xy": 0.309
+    },
+    {
+      "seed": 79,
+      "outcome": "exito",
+      "steps": 33,
+      "d_xy": 0.04
+    },
+    {
+      "seed": 80,
+      "outcome": "exito",
+      "steps": 38,
+      "d_xy": 0.037
+    },
+    {
+      "seed": 81,
+      "outcome": "exito",
+      "steps": 59,
+      "d_xy": 0.087
+    },
+    {
+      "seed": 82,
+      "outcome": "exito",
+      "steps": 46,
+      "d_xy": 0.059
+    },
+    {
+      "seed": 83,
+      "outcome": "exito",
+      "steps": 43,
+      "d_xy": 0.003
+    },
+    {
+      "seed": 84,
+      "outcome": "choque_plataforma",
+      "steps": 58,
+      "d_xy": 0.303
+    },
+    {
+      "seed": 85,
+      "outcome": "choque_plataforma",
+      "steps": 26,
+      "d_xy": 0.254
+    },
+    {
+      "seed": 86,
+      "outcome": "exito",
+      "steps": 57,
+      "d_xy": 0.075
+    },
+    {
+      "seed": 87,
+      "outcome": "exito",
+      "steps": 61,
+      "d_xy": 0.032
+    },
+    {
+      "seed": 88,
+      "outcome": "exito",
+      "steps": 44,
+      "d_xy": 0.077
+    },
+    {
+      "seed": 89,
+      "outcome": "choque_plataforma",
+      "steps": 36,
+      "d_xy": 0.31
+    },
+    {
+      "seed": 90,
+      "outcome": "choque_plataforma",
+      "steps": 28,
+      "d_xy": 0.289
+    },
+    {
+      "seed": 91,
+      "outcome": "choque_plataforma",
+      "steps": 29,
+      "d_xy": 0.27
+    },
+    {
+      "seed": 92,
+      "outcome": "exito",
+      "steps": 54,
+      "d_xy": 0.035
+    },
+    {
+      "seed": 93,
+      "outcome": "choque_plataforma",
+      "steps": 32,
+      "d_xy": 0.308
+    },
+    {
+      "seed": 94,
+      "outcome": "choque_plataforma",
+      "steps": 34,
+      "d_xy": 0.25
+    },
+    {
+      "seed": 95,
+      "outcome": "exito",
+      "steps": 64,
+      "d_xy": 0.03
+    },
+    {
+      "seed": 96,
+      "outcome": "exito",
+      "steps": 56,
+      "d_xy": 0.074
+    },
+    {
+      "seed": 97,
+      "outcome": "exito",
+      "steps": 73,
+      "d_xy": 0.049
+    },
+    {
+      "seed": 98,
+      "outcome": "exito",
+      "steps": 73,
+      "d_xy": 0.027
+    },
+    {
+      "seed": 99,
+      "outcome": "exito",
+      "steps": 38,
+      "d_xy": 0.054
+    },
+    {
+      "seed": 100,
+      "outcome": "choque_plataforma",
+      "steps": 46,
+      "d_xy": 0.244
+    },
+    {
+      "seed": 101,
+      "outcome": "exito",
+      "steps": 52,
+      "d_xy": 0.031
+    },
+    {
+      "seed": 102,
+      "outcome": "exito",
+      "steps": 74,
+      "d_xy": 0.004
+    },
+    {
+      "seed": 103,
+      "outcome": "choque_plataforma",
+      "steps": 18,
+      "d_xy": 0.259
+    },
+    {
+      "seed": 104,
+      "outcome": "choque_plataforma",
+      "steps": 50,
+      "d_xy": 0.302
+    },
+    {
+      "seed": 105,
+      "outcome": "exito",
+      "steps": 48,
+      "d_xy": 0.057
+    },
+    {
+      "seed": 106,
+      "outcome": "exito",
+      "steps": 43,
+      "d_xy": 0.039
+    },
+    {
+      "seed": 107,
+      "outcome": "exito",
+      "steps": 73,
+      "d_xy": 0.063
+    },
+    {
+      "seed": 108,
+      "outcome": "choque_plataforma",
+      "steps": 30,
+      "d_xy": 0.309
+    },
+    {
+      "seed": 109,
+      "outcome": "exito",
+      "steps": 62,
+      "d_xy": 0.032
+    },
+    {
+      "seed": 110,
+      "outcome": "exito",
+      "steps": 60,
+      "d_xy": 0.15
+    },
+    {
+      "seed": 111,
+      "outcome": "exito",
+      "steps": 82,
+      "d_xy": 0.107
+    },
+    {
+      "seed": 112,
+      "outcome": "choque_plataforma",
+      "steps": 43,
+      "d_xy": 0.245
+    },
+    {
+      "seed": 113,
+      "outcome": "exito",
+      "steps": 56,
+      "d_xy": 0.038
+    },
+    {
+      "seed": 114,
+      "outcome": "exito",
+      "steps": 76,
+      "d_xy": 0.048
+    },
+    {
+      "seed": 115,
+      "outcome": "exito",
+      "steps": 60,
+      "d_xy": 0.036
+    },
+    {
+      "seed": 116,
+      "outcome": "choque_plataforma",
+      "steps": 31,
+      "d_xy": 0.262
+    },
+    {
+      "seed": 117,
+      "outcome": "exito",
+      "steps": 65,
+      "d_xy": 0.042
+    },
+    {
+      "seed": 118,
+      "outcome": "exito",
+      "steps": 58,
+      "d_xy": 0.039
+    },
+    {
+      "seed": 119,
+      "outcome": "choque_plataforma",
+      "steps": 46,
+      "d_xy": 0.305
+    },
+    {
+      "seed": 120,
+      "outcome": "choque_plataforma",
+      "steps": 35,
+      "d_xy": 0.262
+    },
+    {
+      "seed": 121,
+      "outcome": "exito",
+      "steps": 59,
+      "d_xy": 0.049
+    },
+    {
+      "seed": 122,
+      "outcome": "exito",
+      "steps": 49,
+      "d_xy": 0.062
+    },
+    {
+      "seed": 123,
+      "outcome": "exito",
+      "steps": 53,
+      "d_xy": 0.05
+    },
+    {
+      "seed": 124,
+      "outcome": "exito",
+      "steps": 48,
+      "d_xy": 0.041
+    },
+    {
+      "seed": 125,
+      "outcome": "choque_plataforma",
+      "steps": 31,
+      "d_xy": 0.312
+    },
+    {
+      "seed": 126,
+      "outcome": "exito",
+      "steps": 26,
+      "d_xy": 0.081
+    },
+    {
+      "seed": 127,
+      "outcome": "exito",
+      "steps": 42,
+      "d_xy": 0.063
+    },
+    {
+      "seed": 128,
+      "outcome": "choque_plataforma",
+      "steps": 33,
+      "d_xy": 0.305
+    },
+    {
+      "seed": 129,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.225
+    },
+    {
+      "seed": 130,
+      "outcome": "choque_plataforma",
+      "steps": 57,
+      "d_xy": 0.304
+    },
+    {
+      "seed": 131,
+      "outcome": "choque_plataforma",
+      "steps": 14,
+      "d_xy": 0.258
+    },
+    {
+      "seed": 132,
+      "outcome": "choque_plataforma",
+      "steps": 41,
+      "d_xy": 0.267
+    },
+    {
+      "seed": 133,
+      "outcome": "exito",
+      "steps": 242,
+      "d_xy": 0.188
+    },
+    {
+      "seed": 134,
+      "outcome": "choque_inclinacion",
+      "steps": 7,
+      "d_xy": 0.554
+    },
+    {
+      "seed": 135,
+      "outcome": "choque_plataforma",
+      "steps": 49,
+      "d_xy": 0.305
+    },
+    {
+      "seed": 136,
+      "outcome": "exito",
+      "steps": 62,
+      "d_xy": 0.089
+    },
+    {
+      "seed": 137,
+      "outcome": "exito",
+      "steps": 204,
+      "d_xy": 0.199
+    },
+    {
+      "seed": 138,
+      "outcome": "exito",
+      "steps": 31,
+      "d_xy": 0.04
+    },
+    {
+      "seed": 139,
+      "outcome": "choque_plataforma",
+      "steps": 43,
+      "d_xy": 0.303
+    },
+    {
+      "seed": 140,
+      "outcome": "choque_plataforma",
+      "steps": 36,
+      "d_xy": 0.307
+    },
+    {
+      "seed": 141,
+      "outcome": "exito",
+      "steps": 36,
+      "d_xy": 0.188
+    }
+  ]
+}

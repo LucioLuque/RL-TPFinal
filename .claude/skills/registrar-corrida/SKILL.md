@@ -28,8 +28,14 @@ El código con el que se entrenó cada corrida es su `git.commit` + su `diff.pat
 
 - **Variante de recompensa**: `args.reward` en `run.json` (nombre en `rewards.yaml`) y sus coeficientes en
   `env_kwargs` (`reward_distance_coef`, `reward_dxy_coef`, `reward_dz_coef`, `reward_progress_coef`,
-  `crash_penalty`; los que falten valen lo mismo que en `base`). Si cambió, es el cambio
-  principal de la corrida. Las corridas sin `args.reward` usaban la recompensa `base`.
+  `reward_progress_mode`, `reward_pbrs_coef`, `reward_action_coef`, `reward_edge_coef`, `reward_descent_coef`,
+  `crash_penalty`; los que falten valen 0, salvo `reward_distance_coef` 0.1 y `crash_penalty` 10). Si cambió, es
+  el cambio principal de la corrida. Las corridas sin `args.reward` usaban la recompensa `base`; desde el
+  2026-10-15 el default es `suave_bajada`.
+- **Exploración y seed**: `args.log_std_init` (desvío inicial de la acción, 0 → 1), `args.ent_coef` y `args.seed`.
+  Cambian mucho el resultado: con la misma recompensa, una seed puede aprender y otra no. Si la corrida es
+  otra seed de una variante ya corrida, compararla con las demás seeds de esa variante
+  (`python -m tools.compare_runs <runs> --by-reward`), no con la corrida anterior en número.
 - **Reward y observación**: `diff runs/<anterior>/env.py runs/<actual>/env.py` (copias exactas).
   Mirar `_computeReward`, `_computeObs` y las condiciones de aterrizaje/choque. Ver `obs_dim`.
 - **Entorno/nivel**: `level`, `env_kwargs` y `env_constants` (límite de velocidad del dron y escalas de
@@ -63,11 +69,16 @@ va de a 12.5%. Una diferencia de un episodio no es señal: decirlo así y no sac
 conda run -n drone-landing python -m tools.evaluate --load <run_id> --best --episodes 100
 ```
 
+Evaluar también el modelo final si no tiene `eval_final.json` (mismo comando sin `--best`): el best se elige
+con 8 episodios y puede estar lejos del final; para comparar variantes, el final es más confiable.
+
 Usa siempre las mismas semillas, así que todas las corridas se evalúan sobre los mismos episodios. De
 `eval_best.json` usar: `success_rate` y `success_ci95` (intervalo del 95 %), `outcomes` (cómo terminan:
 `exito`, `choque_piso`, `choque_plataforma`, `choque_inclinacion`, `tiempo`), `landing_time_s` y
 `obs_clipped_fraction` (si algún valor se recorta en más del 1 % de los pasos, sugerir subir su escala).
-Si los intervalos de dos corridas se superponen mucho, no afirmar que una es mejor que la otra.
+Si los intervalos de dos corridas se superponen mucho, no afirmar que una es mejor que la otra. Tampoco sacar
+conclusiones de una recompensa con una sola seed (ver `BITACORA.md`, 2026-10-15). `smoothness` mide cuánto
+cambia la acción por paso (`action_change`) y la velocidad pedida (`cmd_vel_change`, m/s): más chico es más suave.
 
 ## 4. Escribir `runs/<run_id>/NOTES.md`
 
@@ -80,6 +91,7 @@ Cambio: <el cambio principal en una línea>
 
 | | <anterior> | <actual> |
 |---|---|---|
+| Éxito final (100 ep.) | 74% (65–82) | 92% (85–96) |
 | Éxito best (100 ep.) | 78% (69–85) | 85% (77–91) |
 | Best éxito (8 ep.) | 40% | 62% |
 | Best reward | ... | ... |

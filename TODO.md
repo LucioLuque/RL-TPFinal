@@ -85,14 +85,29 @@ Las variantes se definen con nombre en `rewards.yaml` y se entrenan con `train.p
 Con k = 10, el progreso domina la recompensa por paso (hasta ±0.37, contra ~0.08 del resto) y mete ruido,
 porque la plataforma se mueve y cambia `d` aunque el dron no haga nada.
 
-**Pendiente:**
-- [ ] **A2 con factores más chicos:** progreso sumado a `base` con k = 0.5, 1 y 3 (agregar `A2_k05`, `A2_k1`,
-  `A2_k3` a `rewards.yaml`). Con k chico, la señal de acercarse ayuda sin dominar ni meter tanto ruido.
-- [ ] **Suavidad de la acción:** `base` + `−c·sum((acción − acción_previa)²)`. Hay que agregar
-  `reward_action_coef` como parámetro del entorno (hoy está comentado en `_computeReward`). Probar c = 0.02.
-  Medir también cuánto cambia la acción entre pasos, en `base` y en esta variante.
-- Mismos timesteps (1.5M) y seed (42) que v18–v20, para comparar contra la curva de v17. Si alguna
-  promete, repetirla con más seeds.
+**Hecho (2026-10-15, 26 corridas con varias seeds; `docs/pruebas-recompensas-2026-10-15.md` y `BITACORA.md`):**
+- [x] **A2 con factores más chicos:** `A2_k1` y `A2_k3`. Con k chico aprende en todas las seeds, a veces antes que
+  `base`, pero no sube el techo (66 % de media con 4 seeds) y es menos suave.
+- [x] **Suavidad de la acción:** `reward_action_coef` en `env.py`, `suave_c002` (c = 0.02). Aprende en 4 de 4
+  seeds (74 %), antes que `base`, y cambia la acción ~3 veces menos. `tools/evaluate.py` mide la suavidad.
+- [x] Además: PBRS (`PBRS_k10`), progreso sin la plataforma (`A2_k3_drone`, se hackea), castigo por estar bajo y
+  afuera (`borde_k1`, flota) y por bajar estando afuera (`bajada_k03`). **Ganó `suave_bajada`** (92 % con 4 seeds)
+  y es la nueva recompensa por defecto.
+
+**Pendiente** (la lista para correr está en `cola_pendiente.txt`: `python -m tools.run_queue cola_pendiente.txt --parallel 2`):
+- [ ] **`suave_bajada` + `--log_std_init -0.5`** (3 seeds). Si mejora, cambiar el default de `log_std_init` en
+  `train.py` y anotarlo en `BITACORA.md`.
+- [ ] Tercera seed de `suave_c002` + `--log_std_init -0.5`.
+- [ ] `suave_bajada` con 3M pasos (las curvas siguen subiendo a 1.5M).
+- [ ] `base` con `--log_std_init -1.0` (desvío 0.37).
+- [ ] Menos prioritario: más seeds de `PBRS_k10` y `A2_k1`; `suave_c005` y `suave_c01` (curva éxito contra
+  suavidad); `combo_k3_c002`; `PBRS_k3`; `borde_k02`.
+- [ ] **Acción no bang-bang:** las políticas saturan `dz` en ~97 % de los pasos. Probar la acción como velocidad
+  directa (`v = 0.6·a`, sin normalizar la dirección) o con `tanh` en el entorno. Cambia la acción: corrida aparte y
+  revisar `TODO_SIM2REAL.md`.
+
+Para comparar: ≥ 3 seeds por variante y el modelo final evaluado en 100 episodios (`eval_final.json`), no solo el
+best (que se elige con 8 episodios).
 
 ## 4. ❓ Marco de referencia de la observación y la acción: ¿hace falta probar el de la plataforma?
 
