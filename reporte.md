@@ -293,6 +293,18 @@ c = 0.3, sobre episodios de v40: los que chocan el borde pierden 4–14 puntos m
   afuera. Es la primera variante que ataca el modo de fallo de `base` sin romper el aprendizaje.
 - **Una sola seed.** Corren las seeds 1, 2 y 3 de `suave_bajada`, y `suave_bajada` con desvío bajo.
 
+Seed 1:
+
+| Run | Recompensa | Seed | Éxito entr. 0.5M / 1M / 1.5M | Cruza 50 % | Best a | Éxito best (100 ep.) | Choque plat. / piso / tiempo | Aterriza (s) | Δacción | Δv pedida (m/s) | Éxito final (100 ep.) | Δacción final | Δv pedida final |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| v55-lucio | `bajada_k03` | 1 | 0% / 0% / 81% | 1.23M | 1.5M | 77% (68–84) | 19 / 0 / 4 | 2.38 | 0.53 | 0.183 | 81% | 0.55 | 0.186 |
+| v56-lucio | `suave_bajada` | 1 | 0% / 62% / 84% | 0.69M | 1.5M | 84% (76–90) | 13 / 1 / 1 | 2.44 | 0.13 | 0.093 | **88%** | 0.13 | 0.091 |
+
+- **`suave_bajada` con la seed 1: 88 %.** Con dos seeds: 92 % y 88 %, 90 % de media, cruzando el 50 % a ~0.68M
+  las dos, y la más suave (Δacción 0.13). Ninguna otra recompensa pasó de 81 % en un modelo final.
+- **`bajada_k03` sola con la seed 1 sí aprende (81 %)**, pero tarde (cruza 50 % a 1.23M): es dependiente de la
+  seed, como `base` (con la 42 quedó flotando). Otra vez, el castigo a la acción es lo que la vuelve robusta.
+
 (se completa a medida que terminan)
 
 ## Conclusiones
