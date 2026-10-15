@@ -43,6 +43,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
         reward_pbrs_gamma: float = 0.99,    # tiene que ser el gamma de PPO para que el shaping no cambie la politica optima
         reward_action_coef: float = 0.0,    # castigo por cambiar la accion: c * sum((a - a_anterior)^2)
         reward_edge_coef: float = 0.0,      # castigo por estar bajo y afuera de la plataforma (modo de fallo de base)
+        reward_descent_coef: float = 0.0,   # castigo por bajar mientras esta afuera de la plataforma y cerca en altura
         crash_penalty: float = 10.0,        # castigo al chocar
     ):
         self.platform_radius = 0.25
@@ -62,6 +63,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self.reward_pbrs_gamma = reward_pbrs_gamma
         self.reward_action_coef = reward_action_coef
         self.reward_edge_coef = reward_edge_coef
+        self.reward_descent_coef = reward_descent_coef
         self.crash_penalty = crash_penalty
 
         self.max_episode_steps = int(max_episode_seconds * ctrl_freq)
@@ -385,6 +387,15 @@ class MovingPlatformLandingAviary(VelocityAviary):
             outside = max(0.0, d_xy - self.platform_radius)
             low = max(0.0, 0.15 - rel_pos[2])
             reward -= self.reward_edge_coef * outside * low / 0.15
+
+        if self.reward_descent_coef:
+            # Las politicas bajan siempre a velocidad maxima (dz saturado) y chocan el borde si llegan afuera.
+            # Castiga la velocidad de bajada (no la posicion, como reward_edge_coef) estando afuera del radio y a
+            # menos de 30 cm del tope: bajar alineado o lejos no cuesta nada, quedarse quieto tampoco.
+            outside = max(0.0, d_xy - self.platform_radius)
+            descending = max(0.0, -rel_vel[2])
+            if rel_pos[2] < 0.3:
+                reward -= self.reward_descent_coef * outside * descending / 0.1
 
         if self._is_touching_platform():
             reward += 0.1

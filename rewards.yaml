@@ -100,3 +100,14 @@ borde_k02:   # borde_k1 (v28) quedo flotando: lo mismo 5 veces mas suave
   reward_distance_coef: 0.1
   reward_edge_coef: 0.2
   crash_penalty: 10.0
+
+bajada_k03:   # castigo por bajar estando afuera y a menos de 30 cm del tope (no por estar ahi, como borde_k1)
+  reward_distance_coef: 0.1
+  reward_descent_coef: 0.3
+  crash_penalty: 10.0
+
+suave_bajada:   # suave_c002 + bajada_k03
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.02
+  reward_descent_coef: 0.3
+  crash_penalty: 10.0

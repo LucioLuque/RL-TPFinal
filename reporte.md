@@ -207,6 +207,37 @@ Acumulado con 4 seeds (1, 2, 3, 42):
 - Cuando `base` aprende, llega a lo mismo que `suave_c002` (73 % contra 74 %). **La diferencia en éxito está en la
   robustez (en cuántas seeds aprende) y en la velocidad, no en el techo a 1.5M.**
 
+### Hallazgo: las políticas son bang-bang y siempre bajan a velocidad máxima
+
+Graficando la velocidad pedida en un episodio (`media/plots/accion_base_vs_suave.png`), las políticas casi no usan
+valores intermedios: las componentes de la acción quedan pegadas a ±1. Medido en 20 episodios con el modelo final
+(script en el scratchpad, `saturation.py`; "saturada" = |a| > 0.99 después del recorte):
+
+| Corrida | `dx` sat. | `dy` sat. | **`dz` sat.** | `s` = 1 | Las 3 dir. saturadas | Media gaussiana de `dz` (mediana de \|μ\|) |
+|---|---|---|---|---|---|---|
+| v21 `base` s42 | 58 % | 62 % | **96 %** | 91 % | 35 % | 2.35 |
+| v40 `base` s3 | 58 % | 55 % | **97 %** | 99 % | 29 % | 2.76 |
+| v23 `A2_k3` s42 | 37 % | 48 % | **95 %** | 100 % | 23 % | 3.11 |
+| v42 `suave_c002` s3 | 68 % | 69 % | **99 %** | 100 % | 47 % | 3.66 |
+
+![velocidad pedida](media/plots/accion_base_vs_suave.png)
+
+- **Todas bajan siempre, a velocidad máxima** (`s` = 1 casi siempre, `dz` = −1 en ~97 % de los pasos). Como la
+  dirección se normaliza, el dron baja a entre 0.35 m/s (si se mueve en diagonal) y 0.6 m/s (si va derecho para
+  abajo). **Nunca pide "quedarse a esta altura".** Por eso, si llega bajo y todavía afuera, choca el borde: es el
+  modo de fallo de `base` que se vio en v17 y v21. No es un problema de pesos de la distancia (XY, `borde_k1`), es
+  que la política aprendió una estrategia de "tirarse en picada y corregir en horizontal".
+- La media de la gaussiana de `dz` está entre 2 y 4 (muy afuera de [−1, 1]). Es un problema conocido de PPO con
+  acciones recortadas: más allá del borde todas las acciones dan lo mismo, así que la media se va lejos y la
+  política deja de poder ajustar fino ese eje (habría que mover la media muchos desvíos para que cambie algo).
+- **Relativiza la suavidad de `suave_c002`:** es más suave en parte porque se queda más pegada a las esquinas
+  (47 % de los pasos con las 3 direcciones saturadas, contra ~30 % en `base`). Pasar de esquina a esquina sale
+  caro, y la política aprendió a cambiar menos de esquina, no a usar acciones intermedias.
+- Ideas que salen de esto (no son de la recompensa): una acción que sea directamente la velocidad
+  (`v = 0.6·a`, sin normalizar la dirección), o aplastar la acción con `tanh` dentro del entorno, para que los
+  valores intermedios sean naturales. Para la recompensa: castigar **bajar** mientras está afuera, en vez de
+  castigar **estar** bajo y afuera (`borde_k1`, que llevó a no bajar nunca). Se prueba como `bajada_k1`.
+
 (se completa a medida que terminan)
 
 ## Conclusiones
