@@ -67,7 +67,8 @@ def run_episode(model, env, seed: int) -> tuple[dict, list, dict]:
     raws = []
     steps = 0
     actions, cmd_vels, drone_vels = [], [], []
-    touchdown = None  # estado en el primer paso con contacto (cualquiera)
+    touchdown = None  # como llega al primer contacto (cualquiera)
+    prev_raw = None
     bounces = 0       # veces que deja de tocar el tope despues de haberlo tocado
     was_on_top = False
     while True:
@@ -82,14 +83,18 @@ def run_episode(model, env, seed: int) -> tuple[dict, list, dict]:
         drone_vels.append(raw[12:15])
         contact = raw_env._contact
         if contact is not None and touchdown is None:
+            # Velocidad e inclinacion del ultimo paso sin contacto: al final del paso con contacto, el choque ya freno
+            # al dron en los pasos de fisica (v67 llega a 0.51 m/s y al final de ese paso marca ~0).
+            before = prev_raw if prev_raw is not None else raw
             touchdown = {
                 "contact": contact,
-                # velocidad vertical relativa a la plataforma al tocar (m/s, positiva = bajando)
-                "vz": round(float(-raw[5]), 3),
-                # inclinacion al tocar: max(|roll|, |pitch|) en grados
-                "tilt_deg": round(float(np.degrees(np.max(np.abs(raw[6:8])))), 2),
+                # velocidad vertical relativa a la plataforma justo antes de tocar (m/s, positiva = bajando)
+                "vz": round(float(-before[5]), 3),
+                # inclinacion justo antes de tocar: max(|roll|, |pitch|) en grados
+                "tilt_deg": round(float(np.degrees(np.max(np.abs(before[6:8])))), 2),
                 "d_xy": round(float(np.linalg.norm(raw[0:2])), 3),
             }
+        prev_raw = raw
         on_top = contact == "top"
         if was_on_top and not on_top and not terminated:
             bounces += 1
@@ -145,7 +150,8 @@ def landing_summary(episodes: list) -> dict | None:
 
 
 def touchdown_summary(episodes: list) -> dict | None:
-    """Como toca la plataforma la primera vez, en los episodios en que el primer contacto es base contra tope."""
+    """Como llega a la plataforma la primera vez (ultimo paso antes del contacto), en los episodios en que el primer
+    contacto es base contra tope."""
     tds = [ep["touchdown"] for ep in episodes if ep["touchdown"] and ep["touchdown"]["contact"] == "top"]
     if not tds:
         return None
@@ -217,7 +223,7 @@ def main():
         ),
         # Aterrizajes: distancia al centro de la plataforma (m)
         "landing": landing_summary(episodes),
-        # Primer contacto con el tope: velocidad de bajada, inclinacion y rebotes
+        # Primer contacto con el tope: velocidad de bajada e inclinacion justo antes de tocar, y rebotes
         "touchdown": touchdown_summary(episodes),
         # Promedio por episodio de cuanto cambia la accion entre pasos y de cuanto se mueve el dron (mas chico = mas suave)
         "smoothness": {k: round(float(np.mean([s[k] for s in smooths])), 4) for k in smooths[0]} if smooths else None,
