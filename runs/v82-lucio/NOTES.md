@@ -13,7 +13,7 @@ Cambio: `suave_bajada` + castigo 0.1·|Δv pedida/0.6|² (`suave_bajada_v01`), s
 | Timesteps totales | 1,503,232 | 1,503,232 |
 | Final: cómo terminan | exito 92, choque_plataforma 5, choque_inclinacion 1, tiempo 2 | tiempo 100 |
 | Final: centro, mediana / < 5 cm | 8.1 cm / 24% | – |
-| Final: toca a (mediana) | 0.31 m/s | – |
+| Final: llega a tocar a (mediana) | 0.31 m/s | – |
 | Final: Δacción / Δv pedida (p95) | 0.13 / 0.100 (0.288) m/s | 0.00 / 0.000 (0.000) m/s |
 | Final: inclinación RMS / jerk | 8.1° / 32 m/s³ | 0.0° / 0 m/s³ |
 
@@ -40,3 +40,5 @@ Crazyflie real), en vez del cambio de la acción, que tiene una dimensión redun
 - Descartar `suave_bajada_v01` y `_v03` (no se corren las otras seeds). Si se quiere castigar la velocidad pedida,
   hacerlo solo cuando el agente ya aterriza (curriculum) o con exploración más chica.
 - Para suavidad, probar castigo a la acción más fuerte con desvío 0.61 (`suave_bajada_c005`).
+
+_Corregido el 2026-10-25: la velocidad al tocar se mide ahora en el último paso antes del contacto (antes, al final del paso con contacto, cuando el choque ya había frenado al dron)._

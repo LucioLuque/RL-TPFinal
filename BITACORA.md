@@ -200,8 +200,8 @@ intermedios sean naturales.
 `tools/evaluate.py` guarda ahora, en cada `eval_*.json`:
 - **`landing`**: distancia horizontal al centro de la plataforma en los aterrizajes (`d_xy_mean`, `d_xy_median`,
   `d_xy_p90`) y fracción a menos de 5 y 10 cm (`within_5cm`, `within_10cm`).
-- **`touchdown`**: en el primer contacto con el tope, velocidad de bajada relativa (`vz_*`, m/s), inclinación
-  (`tilt_deg_*`) y rebotes por episodio (`bounces_mean`).
+- **`touchdown`**: en el último paso antes del primer contacto con el tope, velocidad de bajada relativa (`vz_*`,
+  m/s) e inclinación (`tilt_deg_*`) y rebotes por episodio (`bounces_mean`).
 - **`smoothness`**, además de lo que ya tenía: `cmd_vel_change_p95` (los saltos grandes de la velocidad pedida),
   `drone_jerk` (m/s³), `tilt_rms_deg` (inclinación RMS en vuelo) y `ang_vel_rms` (velocidad angular de roll y pitch).
 
@@ -209,8 +209,8 @@ Se reevaluaron best y final de todas las corridas con `eval_*.json` (v16–v64) 
 lo tenía. Antes de pisar cada archivo se comprobó que el éxito, los `outcomes` y la suavidad vieja dieran igual.
 `compare_runs` y `EXPERIMENTS.md` muestran las columnas nuevas.
 
-Ejemplo, v54 (`suave_bajada`, final): aterriza a 8.1 cm del centro (mediana), solo 24 % a menos de 5 cm; toca bajando
-a 0.31 m/s (mediana) y vuela con 8° de inclinación RMS.
+Ejemplo, v54 (`suave_bajada`, final): aterriza a 8.1 cm del centro (mediana), solo 24 % a menos de 5 cm; llega a tocar
+bajando a 0.45 m/s (mediana) y vuela con 8° de inclinación RMS.
 
 ## 2026-10-24 · lucio (sesión de Claude) · A 24 Hz, el PID del dron oscila solo (limitación del modelo, no error de código)
 
@@ -257,7 +257,7 @@ con el desvío por defecto (v54 / v56 / v63 / v64):
 | Δv pedida por paso | 0.137 m/s | 0.083 m/s |
 | Δacción por paso | 0.27 | 0.08 |
 | Centro (mediana) / a menos de 5 cm | 8.2 cm / 21 % | 6.3 cm / 36 % |
-| Velocidad al tocar (mediana) | 0.28 m/s | 0.18 m/s |
+| Velocidad al llegar a tocar (mediana) | 0.43 m/s | 0.48 m/s |
 | Cruza 50 % en el entrenamiento | ~0.7M | ~1.0M |
 
 - En éxito no hay diferencia. En suavidad y centrado sí, aunque no en todas las seeds: comparando seed por seed, la
@@ -266,7 +266,10 @@ con el desvío por defecto (v54 / v56 / v63 / v64):
 - No se cambió el default de `log_std_init` (queda anotado para que Lucio decida). Las variantes nuevas de suavidad
   se prueban con este desvío (`suave_bajada_c005`, v91–v93).
 
-Otra cosa que mostraron las métricas nuevas: **el castigo a la acción hace que toque más rápido y menos centrado**
-cuando el desvío es 1 (`suave_c002`: 0.30 m/s y 8.5 cm; `base`: 0.15 m/s y 6.8 cm; `suave_bajada`: 0.28 m/s y 8.2 cm).
-Hipótesis: para no pagar el cambio de acción se queda en `dz = −1` hasta tocar. Con desvío 0.61 no pasa (`suave_c002`:
-0.14 m/s y 6.5 cm). Por eso se prueban `suave_bajada_flare` y `suave_bajada_centro` (v83–v90).
+~~Otra cosa que mostraron las métricas nuevas: el castigo a la acción hace que toque más rápido.~~ **Falso, error
+de la métrica:** `touchdown.vz` se medía al final del paso con contacto, cuando el choque ya había frenado al dron
+(v67 marcaba 0.03 m/s y en realidad llega a 0.51). Arreglado en `tools/evaluate.py` (se mide en el último paso antes
+del contacto) y reevaluadas todas las corridas: **todas llegan a tocar bajando a 0.41–0.48 m/s** (mediana), casi a la
+velocidad máxima de bajada, sin diferencia entre recompensas. El centrado sí cambia (no dependía de esa métrica):
+`base` 6.8 cm, `suave_c002` 8.5, `suave_bajada` 8.2, `suave_bajada` + desvío 0.61 6.3. `suave_bajada_flare` (v83, v86,
+v89) ataca justamente la velocidad de llegada.

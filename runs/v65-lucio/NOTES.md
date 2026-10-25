@@ -13,7 +13,7 @@ Cambio: `suave_bajada` con `--log_std_init -0.5` (desvío inicial 0.61), seed 42
 | Timesteps totales | 1,503,232 | 1,503,232 |
 | Final: cómo terminan | exito 92, choque_plataforma 5, choque_inclinacion 1, tiempo 2 | exito 92, tiempo 1, choque_plataforma 7 |
 | Final: centro, mediana / < 5 cm | 8.1 cm / 24% | 5.2 cm / 42% |
-| Final: toca a (mediana) | 0.31 m/s | 0.30 m/s |
+| Final: llega a tocar a (mediana) | 0.45 m/s | 0.47 m/s |
 | Final: Δacción / Δv pedida (p95) | 0.13 / 0.100 (0.288) m/s | 0.04 / 0.059 (0.159) m/s |
 | Final: inclinación RMS / jerk | 8.1° / 32 m/s³ | 7.7° / 28 m/s³ |
 
@@ -28,7 +28,7 @@ Prioridad 1 de `cola_pendiente.txt` (`docs/pruebas-recompensas-2026-10-15.md`, "
 ## Resultado
 - Mismo éxito que v54 en el modelo final (92 %, intervalos iguales), pero **más suave y más centrado**: la velocidad
   pedida cambia 0.059 m/s por paso contra 0.100 (p95 0.16 contra 0.29) y aterriza a 5.2 cm del centro (mediana)
-  contra 8.1, con 42 % a menos de 5 cm contra 24 %. Toca igual de rápido (0.30 m/s).
+  contra 8.1, con 42 % a menos de 5 cm contra 24 %. Llega a tocar igual de rápido (0.47 contra 0.45 m/s).
 - Aprende más tarde: cruza 50 % a 0.99M (v54: 0.68M). Evals de 8 episodios: 0 hasta 0.6M, 88 % a 1.2M, 100 % a 1.5M:
   sigue subiendo al final.
 - Choca el borde 7 de 100 veces (v54: 5); con 100 episodios eso no es una diferencia.
@@ -36,3 +36,5 @@ Prioridad 1 de `cola_pendiente.txt` (`docs/pruebas-recompensas-2026-10-15.md`, "
 ## Próximo paso
 - Ver las seeds 1 y 2 (v66, v67) antes de concluir: la mejora en suavidad puede depender de la seed.
 - Si se confirma, combinar el desvío 0.61 con los términos nuevos (`suave_bajada_v01`, `_flare`, `_centro`).
+
+_Corregido el 2026-10-25: la velocidad al tocar se mide ahora en el último paso antes del contacto (antes, al final del paso con contacto, cuando el choque ya había frenado al dron)._

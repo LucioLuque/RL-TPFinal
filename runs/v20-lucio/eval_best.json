@@ -18,10 +18,10 @@
   "landing": null,
   "touchdown": {
     "n": 1,
-    "vz_median": -0.045,
-    "vz_p90": -0.045,
-    "tilt_deg_median": 16.55,
-    "tilt_deg_p90": 16.55,
+    "vz_median": 0.006,
+    "vz_p90": 0.006,
+    "tilt_deg_median": 13.12,
+    "tilt_deg_p90": 13.12,
     "bounces_mean": 0.0
   },
   "smoothness": {
@@ -96,8 +96,8 @@
     "prev_a2": 1.0,
     "prev_a3": 1.0
   },
-  "git_commit": "b26accee82dfb6592a1d561f5d323fbbabd040b9",
-  "evaluated_at": "2026-10-24T22:54:49",
+  "git_commit": "9f9e2059f623c509fbbd48d4344493d364cfd7e3",
+  "evaluated_at": "2026-10-25T00:49:31",
   "per_episode": [
     {
       "seed": 42,
@@ -370,8 +370,8 @@
       "d_xy": 0.546,
       "touchdown": {
         "contact": "top",
-        "vz": -0.045,
-        "tilt_deg": 16.55,
+        "vz": 0.006,
+        "tilt_deg": 13.12,
         "d_xy": 0.081
       },
       "bounces": 1

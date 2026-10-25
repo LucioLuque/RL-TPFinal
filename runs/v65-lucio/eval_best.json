@@ -30,10 +30,10 @@
   },
   "touchdown": {
     "n": 96,
-    "vz_median": 0.089,
-    "vz_p90": 0.447,
-    "tilt_deg_median": 1.59,
-    "tilt_deg_p90": 5.64,
+    "vz_median": 0.438,
+    "vz_p90": 0.562,
+    "tilt_deg_median": 4.71,
+    "tilt_deg_p90": 8.84,
     "bounces_mean": 0.0
   },
   "smoothness": {
@@ -108,8 +108,8 @@
     "prev_a2": 1.0,
     "prev_a3": 1.0
   },
-  "git_commit": "3b06583d6e4fcace4c7baf0ea858675d2ba28c47",
-  "evaluated_at": "2026-10-24T23:44:41",
+  "git_commit": "9f9e2059f623c509fbbd48d4344493d364cfd7e3",
+  "evaluated_at": "2026-10-25T01:22:15",
   "per_episode": [
     {
       "seed": 42,
@@ -118,8 +118,8 @@
       "d_xy": 0.085,
       "touchdown": {
         "contact": "top",
-        "vz": 0.084,
-        "tilt_deg": 1.41,
+        "vz": 0.497,
+        "tilt_deg": 2.1,
         "d_xy": 0.081
       },
       "bounces": 0
@@ -131,8 +131,8 @@
       "d_xy": 0.061,
       "touchdown": {
         "contact": "top",
-        "vz": -0.098,
-        "tilt_deg": 1.89,
+        "vz": 0.46,
+        "tilt_deg": 3.47,
         "d_xy": 0.061
       },
       "bounces": 0
@@ -144,8 +144,8 @@
       "d_xy": 0.076,
       "touchdown": {
         "contact": "top",
-        "vz": 0.327,
-        "tilt_deg": 7.35,
+        "vz": 0.412,
+        "tilt_deg": 15.84,
         "d_xy": 0.02
       },
       "bounces": 0
@@ -157,8 +157,8 @@
       "d_xy": 0.038,
       "touchdown": {
         "contact": "top",
-        "vz": 0.327,
-        "tilt_deg": 6.87,
+        "vz": 0.393,
+        "tilt_deg": 4.9,
         "d_xy": 0.076
       },
       "bounces": 0
@@ -170,8 +170,8 @@
       "d_xy": 0.097,
       "touchdown": {
         "contact": "top",
-        "vz": -0.034,
-        "tilt_deg": 1.37,
+        "vz": 0.483,
+        "tilt_deg": 3.99,
         "d_xy": 0.068
       },
       "bounces": 0
@@ -183,8 +183,8 @@
       "d_xy": 0.079,
       "touchdown": {
         "contact": "top",
-        "vz": 0.407,
-        "tilt_deg": 0.68,
+        "vz": 0.422,
+        "tilt_deg": 4.04,
         "d_xy": 0.089
       },
       "bounces": 0
@@ -196,8 +196,8 @@
       "d_xy": 0.107,
       "touchdown": {
         "contact": "top",
-        "vz": 0.336,
-        "tilt_deg": 1.28,
+        "vz": 0.398,
+        "tilt_deg": 4.59,
         "d_xy": 0.123
       },
       "bounces": 0
@@ -209,8 +209,8 @@
       "d_xy": 0.053,
       "touchdown": {
         "contact": "top",
-        "vz": -0.052,
-        "tilt_deg": 1.47,
+        "vz": 0.579,
+        "tilt_deg": 6.6,
         "d_xy": 0.054
       },
       "bounces": 0
@@ -222,8 +222,8 @@
       "d_xy": 0.035,
       "touchdown": {
         "contact": "top",
-        "vz": -0.006,
-        "tilt_deg": 0.97,
+        "vz": 0.412,
+        "tilt_deg": 4.16,
         "d_xy": 0.021
       },
       "bounces": 0
@@ -235,8 +235,8 @@
       "d_xy": 0.004,
       "touchdown": {
         "contact": "top",
-        "vz": -0.014,
-        "tilt_deg": 1.45,
+        "vz": 0.398,
+        "tilt_deg": 0.27,
         "d_xy": 0.033
       },
       "bounces": 0
@@ -248,8 +248,8 @@
       "d_xy": 0.038,
       "touchdown": {
         "contact": "top",
-        "vz": 0.473,
-        "tilt_deg": 2.21,
+        "vz": 0.527,
+        "tilt_deg": 0.17,
         "d_xy": 0.05
       },
       "bounces": 0
@@ -261,8 +261,8 @@
       "d_xy": 0.078,
       "touchdown": {
         "contact": "top",
-        "vz": 0.08,
-        "tilt_deg": 1.58,
+        "vz": 0.471,
+        "tilt_deg": 5.82,
         "d_xy": 0.073
       },
       "bounces": 0
@@ -274,8 +274,8 @@
       "d_xy": 0.207,
       "touchdown": {
         "contact": "top",
-        "vz": -0.027,
-        "tilt_deg": 1.32,
+        "vz": 0.353,
+        "tilt_deg": 1.5,
         "d_xy": 0.222
       },
       "bounces": 0
@@ -287,8 +287,8 @@
       "d_xy": 0.023,
       "touchdown": {
         "contact": "top",
-        "vz": 0.514,
-        "tilt_deg": 0.8,
+        "vz": 0.577,
+        "tilt_deg": 6.41,
         "d_xy": 0.029
       },
       "bounces": 0
@@ -300,8 +300,8 @@
       "d_xy": 0.059,
       "touchdown": {
         "contact": "top",
-        "vz": 0.324,
-        "tilt_deg": 1.69,
+        "vz": 0.467,
+        "tilt_deg": 4.26,
         "d_xy": 0.054
       },
       "bounces": 0
@@ -313,8 +313,8 @@
       "d_xy": 0.079,
       "touchdown": {
         "contact": "top",
-        "vz": -0.019,
-        "tilt_deg": 0.95,
+        "vz": 0.49,
+        "tilt_deg": 4.75,
         "d_xy": 0.074
       },
       "bounces": 0
@@ -326,8 +326,8 @@
       "d_xy": 0.04,
       "touchdown": {
         "contact": "top",
-        "vz": 0.035,
-        "tilt_deg": 1.61,
+        "vz": 0.491,
+        "tilt_deg": 1.44,
         "d_xy": 0.04
       },
       "bounces": 0
@@ -339,8 +339,8 @@
       "d_xy": 0.063,
       "touchdown": {
         "contact": "top",
-        "vz": 0.079,
-        "tilt_deg": 1.65,
+        "vz": 0.559,
+        "tilt_deg": 7.29,
         "d_xy": 0.067
       },
       "bounces": 0
@@ -352,8 +352,8 @@
       "d_xy": 0.047,
       "touchdown": {
         "contact": "top",
-        "vz": -0.011,
-        "tilt_deg": 0.56,
+        "vz": 0.379,
+        "tilt_deg": 3.94,
         "d_xy": 0.045
       },
       "bounces": 0
@@ -365,8 +365,8 @@
       "d_xy": 0.044,
       "touchdown": {
         "contact": "top",
-        "vz": -0.019,
-        "tilt_deg": 1.25,
+        "vz": 0.461,
+        "tilt_deg": 4.27,
         "d_xy": 0.032
       },
       "bounces": 0
@@ -378,8 +378,8 @@
       "d_xy": 0.082,
       "touchdown": {
         "contact": "top",
-        "vz": 0.403,
-        "tilt_deg": 2.29,
+        "vz": 0.481,
+        "tilt_deg": 6.93,
         "d_xy": 0.077
       },
       "bounces": 0
@@ -391,8 +391,8 @@
       "d_xy": 0.115,
       "touchdown": {
         "contact": "top",
-        "vz": 0.014,
-        "tilt_deg": 1.16,
+        "vz": 0.372,
+        "tilt_deg": 2.22,
         "d_xy": 0.167
       },
       "bounces": 0
@@ -404,8 +404,8 @@
       "d_xy": 0.082,
       "touchdown": {
         "contact": "top",
-        "vz": 0.495,
-        "tilt_deg": 3.89,
+        "vz": 0.576,
+        "tilt_deg": 5.69,
         "d_xy": 0.055
       },
       "bounces": 0
@@ -417,8 +417,8 @@
       "d_xy": 0.057,
       "touchdown": {
         "contact": "top",
-        "vz": 0.422,
-        "tilt_deg": 3.76,
+        "vz": 0.509,
+        "tilt_deg": 8.52,
         "d_xy": 0.058
       },
       "bounces": 0
@@ -430,8 +430,8 @@
       "d_xy": 0.068,
       "touchdown": {
         "contact": "top",
-        "vz": -0.046,
-        "tilt_deg": 0.68,
+        "vz": 0.57,
+        "tilt_deg": 0.3,
         "d_xy": 0.074
       },
       "bounces": 0
@@ -443,8 +443,8 @@
       "d_xy": 0.044,
       "touchdown": {
         "contact": "top",
-        "vz": -0.034,
-        "tilt_deg": 1.56,
+        "vz": 0.507,
+        "tilt_deg": 4.62,
         "d_xy": 0.043
       },
       "bounces": 0
@@ -464,8 +464,8 @@
       "d_xy": 0.044,
       "touchdown": {
         "contact": "top",
-        "vz": 0.502,
-        "tilt_deg": 1.1,
+        "vz": 0.55,
+        "tilt_deg": 6.09,
         "d_xy": 0.033
       },
       "bounces": 0
@@ -477,8 +477,8 @@
       "d_xy": 0.062,
       "touchdown": {
         "contact": "top",
-        "vz": 0.107,
-        "tilt_deg": 2.19,
+        "vz": 0.569,
+        "tilt_deg": 8.78,
         "d_xy": 0.072
       },
       "bounces": 0
@@ -490,8 +490,8 @@
       "d_xy": 0.04,
       "touchdown": {
         "contact": "top",
-        "vz": 0.478,
-        "tilt_deg": 5.23,
+        "vz": 0.598,
+        "tilt_deg": 9.53,
         "d_xy": 0.037
       },
       "bounces": 0
@@ -503,8 +503,8 @@
       "d_xy": 0.062,
       "touchdown": {
         "contact": "top",
-        "vz": 0.147,
-        "tilt_deg": 1.31,
+        "vz": 0.37,
+        "tilt_deg": 4.67,
         "d_xy": 0.068
       },
       "bounces": 0
@@ -516,8 +516,8 @@
       "d_xy": 0.023,
       "touchdown": {
         "contact": "top",
-        "vz": 0.229,
-        "tilt_deg": 1.79,
+        "vz": 0.427,
+        "tilt_deg": 6.44,
         "d_xy": 0.028
       },
       "bounces": 0
@@ -529,8 +529,8 @@
       "d_xy": 0.063,
       "touchdown": {
         "contact": "top",
-        "vz": 0.024,
-        "tilt_deg": 1.55,
+        "vz": 0.476,
+        "tilt_deg": 3.14,
         "d_xy": 0.059
       },
       "bounces": 0
@@ -542,8 +542,8 @@
       "d_xy": 0.041,
       "touchdown": {
         "contact": "top",
-        "vz": -0.029,
-        "tilt_deg": 1.53,
+        "vz": 0.542,
+        "tilt_deg": 4.84,
         "d_xy": 0.034
       },
       "bounces": 0
@@ -555,8 +555,8 @@
       "d_xy": 0.008,
       "touchdown": {
         "contact": "top",
-        "vz": -0.142,
-        "tilt_deg": 2.5,
+        "vz": 0.565,
+        "tilt_deg": 3.89,
         "d_xy": 0.022
       },
       "bounces": 0
@@ -568,8 +568,8 @@
       "d_xy": 0.077,
       "touchdown": {
         "contact": "top",
-        "vz": 0.167,
-        "tilt_deg": 1.63,
+        "vz": 0.554,
+        "tilt_deg": 5.82,
         "d_xy": 0.086
       },
       "bounces": 0
@@ -581,8 +581,8 @@
       "d_xy": 0.15,
       "touchdown": {
         "contact": "top",
-        "vz": -0.051,
-        "tilt_deg": 1.6,
+        "vz": 0.412,
+        "tilt_deg": 0.61,
         "d_xy": 0.149
       },
       "bounces": 0
@@ -594,8 +594,8 @@
       "d_xy": 0.01,
       "touchdown": {
         "contact": "top",
-        "vz": 0.388,
-        "tilt_deg": 2.48,
+        "vz": 0.425,
+        "tilt_deg": 6.52,
         "d_xy": 0.009
       },
       "bounces": 0
@@ -607,8 +607,8 @@
       "d_xy": 0.028,
       "touchdown": {
         "contact": "top",
-        "vz": -0.03,
-        "tilt_deg": 1.23,
+        "vz": 0.519,
+        "tilt_deg": 5.18,
         "d_xy": 0.024
       },
       "bounces": 0
@@ -620,8 +620,8 @@
       "d_xy": 0.071,
       "touchdown": {
         "contact": "top",
-        "vz": 0.445,
-        "tilt_deg": 2.1,
+        "vz": 0.482,
+        "tilt_deg": 10.35,
         "d_xy": 0.049
       },
       "bounces": 0
@@ -633,8 +633,8 @@
       "d_xy": 0.04,
       "touchdown": {
         "contact": "top",
-        "vz": 0.125,
-        "tilt_deg": 2.24,
+        "vz": 0.506,
+        "tilt_deg": 8.59,
         "d_xy": 0.038
       },
       "bounces": 0
@@ -646,8 +646,8 @@
       "d_xy": 0.032,
       "touchdown": {
         "contact": "top",
-        "vz": 0.394,
-        "tilt_deg": 3.54,
+        "vz": 0.493,
+        "tilt_deg": 9.25,
         "d_xy": 0.038
       },
       "bounces": 0
@@ -659,8 +659,8 @@
       "d_xy": 0.285,
       "touchdown": {
         "contact": "top",
-        "vz": 0.318,
-        "tilt_deg": 7.74,
+        "vz": 0.375,
+        "tilt_deg": 3.52,
         "d_xy": 0.292
       },
       "bounces": 0
@@ -672,8 +672,8 @@
       "d_xy": 0.02,
       "touchdown": {
         "contact": "top",
-        "vz": 0.401,
-        "tilt_deg": 0.93,
+        "vz": 0.433,
+        "tilt_deg": 7.12,
         "d_xy": 0.007
       },
       "bounces": 0
@@ -685,8 +685,8 @@
       "d_xy": 0.008,
       "touchdown": {
         "contact": "top",
-        "vz": 0.188,
-        "tilt_deg": 1.27,
+        "vz": 0.416,
+        "tilt_deg": 2.97,
         "d_xy": 0.001
       },
       "bounces": 0
@@ -698,8 +698,8 @@
       "d_xy": 0.03,
       "touchdown": {
         "contact": "top",
-        "vz": -0.037,
-        "tilt_deg": 0.83,
+        "vz": 0.385,
+        "tilt_deg": 1.97,
         "d_xy": 0.03
       },
       "bounces": 0
@@ -711,8 +711,8 @@
       "d_xy": 0.02,
       "touchdown": {
         "contact": "top",
-        "vz": 0.06,
-        "tilt_deg": 2.29,
+        "vz": 0.43,
+        "tilt_deg": 7.42,
         "d_xy": 0.022
       },
       "bounces": 0
@@ -724,8 +724,8 @@
       "d_xy": 0.007,
       "touchdown": {
         "contact": "top",
-        "vz": 0.002,
-        "tilt_deg": 0.34,
+        "vz": 0.419,
+        "tilt_deg": 5.1,
         "d_xy": 0.053
       },
       "bounces": 0
@@ -737,8 +737,8 @@
       "d_xy": 0.148,
       "touchdown": {
         "contact": "top",
-        "vz": 0.331,
-        "tilt_deg": 1.09,
+        "vz": 0.4,
+        "tilt_deg": 1.58,
         "d_xy": 0.156
       },
       "bounces": 0
@@ -750,8 +750,8 @@
       "d_xy": 0.216,
       "touchdown": {
         "contact": "top",
-        "vz": -0.06,
-        "tilt_deg": 2.51,
+        "vz": 0.347,
+        "tilt_deg": 2.33,
         "d_xy": 0.231
       },
       "bounces": 0
@@ -763,8 +763,8 @@
       "d_xy": 0.023,
       "touchdown": {
         "contact": "top",
-        "vz": 0.464,
-        "tilt_deg": 3.72,
+        "vz": 0.523,
+        "tilt_deg": 7.24,
         "d_xy": 0.019
       },
       "bounces": 0
@@ -776,8 +776,8 @@
       "d_xy": 0.013,
       "touchdown": {
         "contact": "top",
-        "vz": 0.077,
-        "tilt_deg": 1.48,
+        "vz": 0.435,
+        "tilt_deg": 6.29,
         "d_xy": 0.011
       },
       "bounces": 0
@@ -789,8 +789,8 @@
       "d_xy": 0.176,
       "touchdown": {
         "contact": "top",
-        "vz": -0.035,
-        "tilt_deg": 2.31,
+        "vz": 0.415,
+        "tilt_deg": 5.4,
         "d_xy": 0.243
       },
       "bounces": 0
@@ -802,8 +802,8 @@
       "d_xy": 0.052,
       "touchdown": {
         "contact": "top",
-        "vz": 0.429,
-        "tilt_deg": 4.22,
+        "vz": 0.528,
+        "tilt_deg": 4.56,
         "d_xy": 0.045
       },
       "bounces": 0
@@ -815,8 +815,8 @@
       "d_xy": 0.019,
       "touchdown": {
         "contact": "top",
-        "vz": 0.007,
-        "tilt_deg": 1.14,
+        "vz": 0.409,
+        "tilt_deg": 3.69,
         "d_xy": 0.022
       },
       "bounces": 0
@@ -828,8 +828,8 @@
       "d_xy": 0.148,
       "touchdown": {
         "contact": "top",
-        "vz": 0.094,
-        "tilt_deg": 0.79,
+        "vz": 0.471,
+        "tilt_deg": 2.29,
         "d_xy": 0.079
       },
       "bounces": 0
@@ -841,8 +841,8 @@
       "d_xy": 0.023,
       "touchdown": {
         "contact": "top",
-        "vz": 0.348,
-        "tilt_deg": 3.16,
+        "vz": 0.414,
+        "tilt_deg": 5.72,
         "d_xy": 0.022
       },
       "bounces": 0
@@ -854,8 +854,8 @@
       "d_xy": 0.066,
       "touchdown": {
         "contact": "top",
-        "vz": 0.123,
-        "tilt_deg": 1.7,
+        "vz": 0.59,
+        "tilt_deg": 7.29,
         "d_xy": 0.064
       },
       "bounces": 0
@@ -867,8 +867,8 @@
       "d_xy": 0.204,
       "touchdown": {
         "contact": "top",
-        "vz": -0.059,
-        "tilt_deg": 2.03,
+        "vz": 0.411,
+        "tilt_deg": 3.65,
         "d_xy": 0.223
       },
       "bounces": 0
@@ -880,8 +880,8 @@
       "d_xy": 0.024,
       "touchdown": {
         "contact": "top",
-        "vz": 0.37,
-        "tilt_deg": 1.36,
+        "vz": 0.44,
+        "tilt_deg": 0.49,
         "d_xy": 0.023
       },
       "bounces": 0
@@ -893,8 +893,8 @@
       "d_xy": 0.062,
       "touchdown": {
         "contact": "top",
-        "vz": 0.008,
-        "tilt_deg": 0.5,
+        "vz": 0.506,
+        "tilt_deg": 8.08,
         "d_xy": 0.046
       },
       "bounces": 0
@@ -906,8 +906,8 @@
       "d_xy": 0.116,
       "touchdown": {
         "contact": "top",
-        "vz": -0.072,
-        "tilt_deg": 2.13,
+        "vz": 0.418,
+        "tilt_deg": 0.16,
         "d_xy": 0.12
       },
       "bounces": 0
@@ -919,8 +919,8 @@
       "d_xy": 0.303,
       "touchdown": {
         "contact": "crash",
-        "vz": 0.401,
-        "tilt_deg": 5.21,
+        "vz": 0.4,
+        "tilt_deg": 8.34,
         "d_xy": 0.303
       },
       "bounces": 0
@@ -932,8 +932,8 @@
       "d_xy": 0.075,
       "touchdown": {
         "contact": "top",
-        "vz": 0.026,
-        "tilt_deg": 1.01,
+        "vz": 0.534,
+        "tilt_deg": 6.32,
         "d_xy": 0.057
       },
       "bounces": 0
@@ -945,8 +945,8 @@
       "d_xy": 0.032,
       "touchdown": {
         "contact": "top",
-        "vz": -0.015,
-        "tilt_deg": 1.25,
+        "vz": 0.408,
+        "tilt_deg": 6.34,
         "d_xy": 0.035
       },
       "bounces": 0
@@ -958,8 +958,8 @@
       "d_xy": 0.041,
       "touchdown": {
         "contact": "top",
-        "vz": 0.381,
-        "tilt_deg": 4.35,
+        "vz": 0.429,
+        "tilt_deg": 4.91,
         "d_xy": 0.037
       },
       "bounces": 0
@@ -971,8 +971,8 @@
       "d_xy": 0.067,
       "touchdown": {
         "contact": "top",
-        "vz": 0.012,
-        "tilt_deg": 1.2,
+        "vz": 0.365,
+        "tilt_deg": 3.97,
         "d_xy": 0.105
       },
       "bounces": 0
@@ -984,8 +984,8 @@
       "d_xy": 0.044,
       "touchdown": {
         "contact": "top",
-        "vz": 0.409,
-        "tilt_deg": 0.79,
+        "vz": 0.495,
+        "tilt_deg": 2.4,
         "d_xy": 0.041
       },
       "bounces": 0
@@ -997,8 +997,8 @@
       "d_xy": 0.139,
       "touchdown": {
         "contact": "top",
-        "vz": 0.362,
-        "tilt_deg": 5.41,
+        "vz": 0.42,
+        "tilt_deg": 4.81,
         "d_xy": 0.149
       },
       "bounces": 0
@@ -1010,8 +1010,8 @@
       "d_xy": 0.104,
       "touchdown": {
         "contact": "top",
-        "vz": 0.036,
-        "tilt_deg": 1.03,
+        "vz": 0.386,
+        "tilt_deg": 0.87,
         "d_xy": 0.109
       },
       "bounces": 0
@@ -1023,8 +1023,8 @@
       "d_xy": 0.04,
       "touchdown": {
         "contact": "top",
-        "vz": 0.024,
-        "tilt_deg": 0.94,
+        "vz": 0.433,
+        "tilt_deg": 5.47,
         "d_xy": 0.053
       },
       "bounces": 0
@@ -1036,8 +1036,8 @@
       "d_xy": 0.032,
       "touchdown": {
         "contact": "top",
-        "vz": -0.038,
-        "tilt_deg": 1.72,
+        "vz": 0.515,
+        "tilt_deg": 2.07,
         "d_xy": 0.029
       },
       "bounces": 0
@@ -1049,8 +1049,8 @@
       "d_xy": 0.066,
       "touchdown": {
         "contact": "top",
-        "vz": 0.448,
-        "tilt_deg": 4.43,
+        "vz": 0.472,
+        "tilt_deg": 5.87,
         "d_xy": 0.057
       },
       "bounces": 0
@@ -1062,8 +1062,8 @@
       "d_xy": 0.015,
       "touchdown": {
         "contact": "top",
-        "vz": -0.013,
-        "tilt_deg": 0.94,
+        "vz": 0.415,
+        "tilt_deg": 1.08,
         "d_xy": 0.015
       },
       "bounces": 0
@@ -1075,8 +1075,8 @@
       "d_xy": 0.058,
       "touchdown": {
         "contact": "top",
-        "vz": 0.113,
-        "tilt_deg": 1.18,
+        "vz": 0.421,
+        "tilt_deg": 3.4,
         "d_xy": 0.082
       },
       "bounces": 0
@@ -1088,8 +1088,8 @@
       "d_xy": 0.036,
       "touchdown": {
         "contact": "top",
-        "vz": -0.042,
-        "tilt_deg": 1.17,
+        "vz": 0.493,
+        "tilt_deg": 1.64,
         "d_xy": 0.032
       },
       "bounces": 0
@@ -1101,8 +1101,8 @@
       "d_xy": 0.081,
       "touchdown": {
         "contact": "top",
-        "vz": 0.462,
-        "tilt_deg": 14.28,
+        "vz": 0.552,
+        "tilt_deg": 11.51,
         "d_xy": 0.071
       },
       "bounces": 0
@@ -1114,8 +1114,8 @@
       "d_xy": 0.252,
       "touchdown": {
         "contact": "top",
-        "vz": 0.362,
-        "tilt_deg": 3.33,
+        "vz": 0.42,
+        "tilt_deg": 6.49,
         "d_xy": 0.253
       },
       "bounces": 0
@@ -1127,8 +1127,8 @@
       "d_xy": 0.282,
       "touchdown": {
         "contact": "top",
-        "vz": 0.272,
-        "tilt_deg": 6.02,
+        "vz": 0.345,
+        "tilt_deg": 3.94,
         "d_xy": 0.289
       },
       "bounces": 0
@@ -1140,8 +1140,8 @@
       "d_xy": 0.012,
       "touchdown": {
         "contact": "top",
-        "vz": 0.082,
-        "tilt_deg": 1.32,
+        "vz": 0.381,
+        "tilt_deg": 3.95,
         "d_xy": 0.019
       },
       "bounces": 0
@@ -1153,8 +1153,8 @@
       "d_xy": 0.101,
       "touchdown": {
         "contact": "top",
-        "vz": 0.474,
-        "tilt_deg": 1.32,
+        "vz": 0.543,
+        "tilt_deg": 8.79,
         "d_xy": 0.091
       },
       "bounces": 0
@@ -1166,8 +1166,8 @@
       "d_xy": 0.086,
       "touchdown": {
         "contact": "top",
-        "vz": -0.053,
-        "tilt_deg": 2.7,
+        "vz": 0.602,
+        "tilt_deg": 7.73,
         "d_xy": 0.076
       },
       "bounces": 0
@@ -1179,8 +1179,8 @@
       "d_xy": 0.068,
       "touchdown": {
         "contact": "top",
-        "vz": 0.421,
-        "tilt_deg": 4.79,
+        "vz": 0.508,
+        "tilt_deg": 8.88,
         "d_xy": 0.067
       },
       "bounces": 0
@@ -1192,8 +1192,8 @@
       "d_xy": 0.032,
       "touchdown": {
         "contact": "top",
-        "vz": 0.357,
-        "tilt_deg": 1.78,
+        "vz": 0.455,
+        "tilt_deg": 12.21,
         "d_xy": 0.031
       },
       "bounces": 0
@@ -1213,8 +1213,8 @@
       "d_xy": 0.083,
       "touchdown": {
         "contact": "top",
-        "vz": 0.398,
-        "tilt_deg": 10.48,
+        "vz": 0.553,
+        "tilt_deg": 10.29,
         "d_xy": 0.069
       },
       "bounces": 0
@@ -1226,8 +1226,8 @@
       "d_xy": 0.062,
       "touchdown": {
         "contact": "top",
-        "vz": 0.059,
-        "tilt_deg": 1.7,
+        "vz": 0.436,
+        "tilt_deg": 4.14,
         "d_xy": 0.017
       },
       "bounces": 0
@@ -1239,8 +1239,8 @@
       "d_xy": 0.082,
       "touchdown": {
         "contact": "top",
-        "vz": 0.334,
-        "tilt_deg": 2.6,
+        "vz": 0.363,
+        "tilt_deg": 1.91,
         "d_xy": 0.127
       },
       "bounces": 0
@@ -1252,8 +1252,8 @@
       "d_xy": 0.253,
       "touchdown": {
         "contact": "top",
-        "vz": 0.03,
-        "tilt_deg": 5.87,
+        "vz": 0.415,
+        "tilt_deg": 2.37,
         "d_xy": 0.237
       },
       "bounces": 0
@@ -1265,8 +1265,8 @@
       "d_xy": 0.027,
       "touchdown": {
         "contact": "top",
-        "vz": 0.411,
-        "tilt_deg": 7.09,
+        "vz": 0.459,
+        "tilt_deg": 11.52,
         "d_xy": 0.096
       },
       "bounces": 0
@@ -1278,8 +1278,8 @@
       "d_xy": 0.034,
       "touchdown": {
         "contact": "top",
-        "vz": 0.487,
-        "tilt_deg": 5.99,
+        "vz": 0.519,
+        "tilt_deg": 6.5,
         "d_xy": 0.068
       },
       "bounces": 0
@@ -1291,8 +1291,8 @@
       "d_xy": 0.135,
       "touchdown": {
         "contact": "top",
-        "vz": -0.003,
-        "tilt_deg": 0.45,
+        "vz": 0.382,
+        "tilt_deg": 1.69,
         "d_xy": 0.138
       },
       "bounces": 0
@@ -1304,8 +1304,8 @@
       "d_xy": 0.077,
       "touchdown": {
         "contact": "top",
-        "vz": 0.347,
-        "tilt_deg": 21.4,
+        "vz": 0.391,
+        "tilt_deg": 24.66,
         "d_xy": 0.125
       },
       "bounces": 0
@@ -1317,8 +1317,8 @@
       "d_xy": 0.165,
       "touchdown": {
         "contact": "top",
-        "vz": 0.327,
-        "tilt_deg": 0.64,
+        "vz": 0.394,
+        "tilt_deg": 1.26,
         "d_xy": 0.173
       },
       "bounces": 0
@@ -1330,8 +1330,8 @@
       "d_xy": 0.056,
       "touchdown": {
         "contact": "top",
-        "vz": -0.025,
-        "tilt_deg": 1.27,
+        "vz": 0.428,
+        "tilt_deg": 4.45,
         "d_xy": 0.058
       },
       "bounces": 0
@@ -1343,8 +1343,8 @@
       "d_xy": 0.074,
       "touchdown": {
         "contact": "top",
-        "vz": 0.014,
-        "tilt_deg": 0.93,
+        "vz": 0.421,
+        "tilt_deg": 3.23,
         "d_xy": 0.154
       },
       "bounces": 0
@@ -1356,8 +1356,8 @@
       "d_xy": 0.057,
       "touchdown": {
         "contact": "top",
-        "vz": -0.038,
-        "tilt_deg": 1.44,
+        "vz": 0.582,
+        "tilt_deg": 7.84,
         "d_xy": 0.069
       },
       "bounces": 0
@@ -1369,8 +1369,8 @@
       "d_xy": 0.187,
       "touchdown": {
         "contact": "top",
-        "vz": -0.059,
-        "tilt_deg": 1.23,
+        "vz": 0.379,
+        "tilt_deg": 4.14,
         "d_xy": 0.205
       },
       "bounces": 0
@@ -1382,8 +1382,8 @@
       "d_xy": 0.304,
       "touchdown": {
         "contact": "crash",
-        "vz": 0.27,
-        "tilt_deg": 5.41,
+        "vz": 0.293,
+        "tilt_deg": 9.1,
         "d_xy": 0.304
       },
       "bounces": 0
@@ -1395,8 +1395,8 @@
       "d_xy": 0.129,
       "touchdown": {
         "contact": "top",
-        "vz": 0.34,
-        "tilt_deg": 3.26,
+        "vz": 0.361,
+        "tilt_deg": 5.0,
         "d_xy": 0.161
       },
       "bounces": 0
