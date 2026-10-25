@@ -44,7 +44,7 @@ aterrizajes; Δv pedida = cambio medio por paso de la velocidad pedida; inclinac
 | [v65-lucio](runs/v65-lucio/) | lucio | 2026-10-24 | finished | 1,503,232 | 92% (85–96) | 89% (81–94) | 100% | 18.73 | 5.2 | 0.059 | 7.7 | `suave_bajada` con `--log_std_init -0.5` (desvío inicial 0.61), seed 42 |
 | [v66-lucio](runs/v66-lucio/) | lucio | 2026-10-24 | finished | 1,503,232 | 97% (92–99) | 96% (90–98) | 100% | 18.13 | 7.1 | 0.100 | 7.8 | `suave_bajada` con `--log_std_init -0.5` (desvío inicial 0.61), seed 1 |
 | [v67-lucio](runs/v67-lucio/) | lucio | 2026-10-24 | finished | 1,503,232 | 89% (81–94) | 87% (79–92) | 100% | 19.10 | 6.5 | 0.090 | 7.7 | `suave_bajada` con `--log_std_init -0.5` (desvío inicial 0.61), seed 2 |
-| [v69-lucio](runs/v69-lucio/) | lucio | 2026-10-25 | running | - | - | - | - | - | - | - | - | _sin registrar_ |
+| [v69-lucio](runs/v69-lucio/) | lucio | 2026-10-25 | finished | 3,002,368 | 99% (95–100) | 99% (95–100) | 100% | 21.07 | 3.7 | 0.119 | 7.0 | `suave_bajada` entrenada 3M pasos en vez de 1.5M, seed 42 |
 | [v82-lucio](runs/v82-lucio/) | lucio | 2026-10-24 | finished | 1,503,232 | 0% (0–4) | 0% (0–4) | 0% | -63.62 | - | 0.000 | 0.0 | `suave_bajada` + castigo 0.1·\|Δv pedida/0.6\|² (`suave_bajada_v01`), seed 42: flota |
 | [v83-lucio](runs/v83-lucio/) | lucio | 2026-10-25 | finished | 1,503,232 | 0% (0–4) | 0% (0–4) | 0% | -12.53 | - | 0.041 | 8.3 | `suave_bajada` + castigo por llegar rápido al tope (`suave_bajada_flare`), seed 42: flota |
 | [v84-lucio](runs/v84-lucio/) | lucio | 2026-10-25 | finished | 1,503,232 | 96% (90–98) | 83% (74–89) | 100% | 12.82 | 8.6 | 0.060 | 8.4 | premio al aterrizar 25 − 100·d_xy en vez de 25 − 50·d_xy (`suave_bajada_centro`), seed 42 |
@@ -59,3 +59,4 @@ aterrizajes; Δv pedida = cambio medio por paso de la velocidad pedida; inclinac
 | [v96-lucio](runs/v96-lucio/) | lucio | 2026-10-25 | finished | 1,503,232 | 0% (0–4) | 0% (0–4) | 0% | -63.64 | - | 0.000 | 0.0 | castigo a la acción 0.1 (`suave_bajada_c01`) con desvío inicial 0.61, seed 42: no se mueve |
 | [v97-lucio](runs/v97-lucio/) | lucio | 2026-10-25 | finished | 1,503,232 | 42% (33–52) | 40% (31–50) | 50% | -0.50 | 13.8 | 0.031 | 8.3 | castigo a la acción 0.1 (`suave_bajada_c01`) con desvío inicial 0.61, seed 1 |
 | [v98-lucio](runs/v98-lucio/) | lucio | 2026-10-25 | finished | 1,503,232 | 72% (62–80) | 78% (69–85) | 88% | 17.05 | 13.4 | 0.041 | 8.1 | castigo a la acción 0.05 (`suave_bajada_c005`) con desvío inicial 0.61, seed 3 |
+| [v99-lucio](runs/v99-lucio/) | lucio | 2026-10-25 | finished | 1,503,232 | - | - | 100% | 20.09 | - | - | - | _sin registrar_ |
