@@ -105,7 +105,8 @@ porque la plataforma se mueve y cambia `d` aunque el dron no haga nada.
   aprende tarde con 2 de 4 seeds (v92 61 %, v98 72 % a 1.5M). Probar 3M pasos y un castigo intermedio (0.03).
 - [ ] **Decidir (Lucio) la recompensa y la exploración por defecto:** la más robusta es `suave_bajada_c003` +
   `--log_std_init -0.5` (97.7 % con 3 seeds, v99/v101/v102; `BITACORA.md` 2026-10-25). Hoy siguen `suave_bajada` y 0.
-- [ ] Entrenar `suave_bajada_c003` + desvío 0.61 a 3M (v69: entrenar más centra).
+- [ ] Entrenar `suave_bajada_c003` y `c005` + desvío 0.61 a 3M completo con ≥ 3 seeds: v103 y v104 (1 seed cada una)
+  se cortaron antes del final; sus best dan 100 % y ~4 cm del centro (`BITACORA.md`, 2026-10-25).
 - [ ] Centrar mejor: el premio terminal no sirve; probar algo que actúe antes de tocar, sin encarecer bajar (trampa de flotar).
 - [x] `suave_bajada` con 3M pasos (v69, 2026-10-25): 99 % y 3.7 cm del centro (1.5M: 92 % y 8.1 cm), igual de suave. Faltan más seeds y probar 3M con desvío 0.61.
 - [ ] `base` con `--log_std_init -1.0` (desvío 0.37).

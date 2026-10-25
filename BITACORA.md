@@ -356,3 +356,21 @@ Con v69 (`suave_bajada` a 3M: 99 %, 3.7 cm), el patrón de la noche es: **a 1.5M
 están contaminadas por la velocidad de aprendizaje.** Un castigo a la acción más fuerte da un vuelo más suave pero
 aprende más lento; a 3M las dos dan ~100 % y centran mucho mejor. Para elegir la recompensa final conviene comparar a
 3M (corre `c003` + desvío 0.61 a 3M, v103).
+
+## 2026-10-25 · lucio (sesión de Claude) · A 3M pasos, `c003` y `c005` (con desvío 0.61) aterrizan siempre; cierre de la noche
+
+v103 (`c003`, seed 42) y v104 (`c005`, seed 3) a 3M se cortaron por un apagado de la notebook (~11:00), en 2.81M y
+2.95M: no hay modelo final. Se evaluó el best (`eval_best.json`; estado en `run.json` cambiado a mano a `interrupted`).
+
+| Corrida (desvío 0.61, salvo v69) | Pasos | Éxito (100 ep.) | Centro / < 5 cm | Δv pedida |
+|---|---|---|---|---|
+| v69 `suave_bajada` (desvío 1), s42 | 3M, final | 99 % (199/200 extra) | 3.7 cm / 60 % | 0.119 m/s |
+| v100 `c005`, s1 | 3M, final | 100 % (200/200 extra) | 3.3 cm / 71 % | 0.072 m/s |
+| v103 `c003`, s42 | best de 2.4M | 100 % | 4.0 cm / 61 % | 0.064 m/s |
+| v104 `c005`, s3 | best de 2.9M | 100 % | 4.5 cm / 54 % | 0.049 m/s |
+
+**Conclusión de la noche:** a 1.5M pasos, las diferencias entre recompensas son sobre todo de velocidad de
+aprendizaje. A 3M, todas las variantes con castigo a la acción y desvío 0.61 aterrizan en ~100 % y centran a ~4 cm.
+Para un vuelo suave, el castigo a la acción 0.05 (`c005`) es el más suave (Δv pedida ~0.05–0.07 contra ~0.12 de
+`suave_bajada` sola a 3M), pero necesita los 3M; `c003` es casi igual de suave y aprende a tiempo con todas las seeds.
+Una sola seed por variante a 3M. Nada de esto cambió los defaults (`DEFAULT_REWARD`, `log_std_init`): lo decide Lucio.
