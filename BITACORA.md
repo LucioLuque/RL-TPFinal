@@ -395,3 +395,17 @@ Las demás no (`suave_c005` y `suave_c01` ya se probaron sobre `suave_bajada`; `
 son familias descartadas; una quinta seed de `base`, `A2_k3` o `suave_c002` no cambia nada), ni las descartadas de
 esta noche (v85, v88: `suave_bajada_v01`; v89: `suave_bajada_flare`). Los números duplicados (v68, v70–v74) y los de
 pruebas descartadas quedan como huecos para siempre.
+
+## 2026-10-25 · lucio (sesión de Claude) · Menos ruido de exploración: 0.37 ayuda un poco más; y con 0.61 el término de bajada no suma
+
+Corridas con número reservado del 2026-10-15 (modelo final, 100 episodios):
+
+- **`base` con desvío inicial 0.37** (`--log_std_init -1.0`, v60/v61/v62, seeds 42/1/2): 78 / 91 / 87 % → **85 %**, contra
+  79 % con desvío 0.61 (v50–v52) y 49 % con desvío 1. Sigue mejorando con menos ruido, pero de 0.61 a 0.37 la mejora es
+  chica (mejor en 2 de 3 seeds, intervalos que se pisan) y aprende más tarde y de forma más irregular. Idea en `TODO.md`:
+  probar 0.37 con `suave_bajada_c003`.
+- **`suave_c002` + desvío 0.61, tercera seed** (v59, seed 2): 100 %. Con las 3 seeds (v57, v58, v59): 93 / 85 / 100 % →
+  **92.7 %, lo mismo que `suave_bajada` + desvío 0.61** con las mismas seeds (v65–v67: 92 / 97 / 89 → 92.7 %), con los
+  mismos choques contra el borde (16 contra 18 en 300 episodios), la misma suavidad y el mismo centrado. **Con desvío
+  0.61, el castigo por bajar estando afuera (`reward_descent_coef`) no suma**: hacía falta con desvío 1, porque sin él
+  `suave_c002` chocaba el borde (20–26 de 100). Tenerlo en cuenta al elegir la recompensa final.

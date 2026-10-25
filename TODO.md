@@ -14,8 +14,8 @@ a 3M llegan a 100 %). Detalle en `BITACORA.md`, 2026-10-25.
   antes del final y solo tienen el best.
 - [ ] **Decidir (Lucio)** si cambian `DEFAULT_REWARD` (`utils.py`) y el default de `log_std_init` (`train.py`). Hoy siguen
   `suave_bajada` y 0.
-- [ ] Corriendo (`cola_huecos.txt`): tercera seed de `suave_c002` + desvío 0.61 (v59), `base` con desvío 0.37 (v60–v62),
-  seeds 1 y 2 de `PBRS_k10` (v43, v48) y de `A2_k1` (v44, v49). Registrar y sacar de acá cuando terminen.
+- [ ] Corriendo (`cola_huecos.txt`): seeds 1 y 2 de `PBRS_k10` (v43, v48) y de `A2_k1` (v44, v49). Registrar, sacar de
+  acá y borrar `cola_huecos.txt` cuando terminen.
 
 ## 2. Ideas sin probar
 
@@ -24,6 +24,8 @@ a 3M llegan a 100 %). Detalle en `BITACORA.md`, 2026-10-25.
 - [ ] **Acción no bang-bang:** las políticas saturan `dz` en ~97 % de los pasos. Probar la acción como velocidad directa
   (`v = 0.6·a`, sin normalizar la dirección) o con `tanh` en el entorno. Cambia la acción: después de medir en el
   laboratorio, en corrida aparte, y revisar `SIM2REAL.md`.
+- [ ] **Desvío inicial 0.37 con las recompensas candidatas:** con `base`, bajar el desvío de 0.61 a 0.37 subió el éxito
+  de 79 a 85 % (3 seeds, v60–v62), aprendiendo más tarde. Probarlo con `suave_bajada_c003`.
 - [ ] **Yaw en la observación:** normalizado por π tiene un salto en ±π y casi no influye (la acción está en el marco del
   mundo). Sacarlo o reemplazarlo por sin/cos, en corrida aparte.
 
