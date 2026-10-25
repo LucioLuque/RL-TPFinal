@@ -237,3 +237,11 @@ al Crazyflie real, que corre el lazo de actitud a bordo a ~500 Hz, llegue el com
 **No se cambió nada** (Lucio prefiere medir primero las frecuencias reales en OptiTrack). Si se arregla, sería
 correr `_preprocessAction` en cada paso de física con la última velocidad pedida, manteniendo la política a 24 Hz.
 Cambia la dinámica: corrida aparte con su `base` de referencia. Anotado en `TODO_SIM2REAL.md`, punto 4.
+
+## 2026-10-25 · lucio (sesión de Claude) · Castigar el salto de la velocidad pedida deja al dron flotando (v82)
+
+`suave_bajada_v01` (`suave_bajada` + `0.1·|Δv_pedida/0.6|²`, seed 42): 0 %, flota los 100 episodios. La política pide
+`s = 0` siempre: con velocidad pedida nula el castigo desaparece aunque la dirección sea ruido puro, así que es la
+forma más barata de explorar. El castigo a la acción (`reward_action_coef`) no tiene esa salida porque también cobra
+los cambios de `s`. Se descartan `_v01` y `_v03` (no se corren más seeds). En su lugar, para suavidad:
+`suave_bajada_c005` (castigo a la acción 0.05) con `--log_std_init -0.5`, contra v65–v67.
