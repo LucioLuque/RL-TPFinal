@@ -1,0 +1,172 @@
+# Variantes de recompensa. Se elige con: python train.py --reward <nombre>.
+# Default (utils.DEFAULT_REWARD): suave_bajada desde 2026-10-15; antes, base. Al seguir una corrida con --load se usa
+# la de esa corrida (base si es vieja y no la tiene registrada).
+# Los valores quedan en run.json (env_kwargs). Por que existe cada una: BITACORA.md (2026-10-04 y 2026-10-15) y
+# docs/pruebas-recompensas-2026-10-15.md. Resultados con varias seeds: tabla de Conclusiones de ese documento.
+#
+#   reward_distance_coef: castigo por paso = coef * distancia al tope. Se acumula con el tiempo.
+#   reward_dxy_coef, reward_dz_coef: lo mismo, pero separando distancia horizontal y altura sobre el tope.
+#   reward_progress_coef: premio por paso = k * (d_anterior - d). En el episodio suma k * (d_inicial - d_final).
+#                         k = 10 da el mismo incentivo de acercarse que 0.1 * d acumulado con gamma 0.99 (0.1 / 0.01).
+#   crash_penalty: castigo al chocar.
+
+base:   # la de v16/v17
+  reward_distance_coef: 0.1
+  reward_progress_coef: 0.0
+  crash_penalty: 10.0
+
+A1:     # progreso EN VEZ de distancia: sin costo que se acumule, chocar no conviene
+  reward_distance_coef: 0.0
+  reward_progress_coef: 10.0
+  crash_penalty: 10.0
+
+A2:     # progreso ADEMAS de distancia: mas senal de acercarse, pero el costo acumulado sigue
+  reward_distance_coef: 0.1
+  reward_progress_coef: 10.0
+  crash_penalty: 10.0
+
+B:      # chocar mas caro que volar todo el episodio (~ -38 con 0.1 * d a ~0.8 m)
+  reward_distance_coef: 0.1
+  reward_progress_coef: 0.0
+  crash_penalty: 50.0
+
+XY:     # como base, pero alinearse en horizontal vale 3 veces mas que bajar (v17 chocaba el borde bajando en
+        # diagonal). Coeficientes elegidos para que el castigo total por paso quede parecido al de base.
+  reward_distance_coef: 0.0
+  reward_dxy_coef: 0.1
+  reward_dz_coef: 0.033
+  reward_progress_coef: 0.0
+  crash_penalty: 10.0
+
+# ---- Pruebas 2026-10-15 (reporte.md). Todas son base + un termino, salvo que se diga otra cosa. ----
+#   reward_progress_mode: "total" (como A1/A2) o "drone" (solo lo que se movio el dron, sin el ruido de la plataforma).
+#   reward_pbrs_coef: shaping por potencial gamma*Phi(s') - Phi(s), Phi = -k*d, Phi(terminal) = 0. No cambia la
+#                     politica optima (Ng et al. 1999). Ojo: el progreso k*(d_ant - d) de A1/A2 NO es esto: es
+#                     PBRS menos (1 - gamma)*k*d por paso, o sea que A2 con k=10 es base con el doble de castigo
+#                     por distancia mas PBRS.
+#   reward_action_coef: castigo c * sum((a - a_anterior)^2) para que la accion sea mas suave.
+#   reward_edge_coef: castigo por estar afuera del radio de la plataforma y a menos de 15 cm del tope.
+
+A2_k1:   # progreso chico ademas de distancia
+  reward_distance_coef: 0.1
+  reward_progress_coef: 1.0
+  crash_penalty: 10.0
+
+A2_k3:
+  reward_distance_coef: 0.1
+  reward_progress_coef: 3.0
+  crash_penalty: 10.0
+
+A2_k3_drone:   # como A2_k3, pero el progreso no cuenta lo que se movio la plataforma
+  reward_distance_coef: 0.1
+  reward_progress_coef: 3.0
+  reward_progress_mode: drone
+  crash_penalty: 10.0
+
+PBRS_k3:   # base + shaping por potencial bien hecho
+  reward_distance_coef: 0.1
+  reward_pbrs_coef: 3.0
+  crash_penalty: 10.0
+
+PBRS_k10:
+  reward_distance_coef: 0.1
+  reward_pbrs_coef: 10.0
+  crash_penalty: 10.0
+
+suave_c002:   # base + castigo por cambiar la accion (TODO.md punto 3)
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.02
+  crash_penalty: 10.0
+
+suave_c005:
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.005
+  crash_penalty: 10.0
+
+borde_k1:   # base + castigo por estar bajo y afuera (los choques contra el borde de v21)
+  reward_distance_coef: 0.1
+  reward_edge_coef: 1.0
+  crash_penalty: 10.0
+
+combo_k3_c002:   # A2_k3 + suave_c002: progreso chico y castigo por cambiar la accion
+  reward_distance_coef: 0.1
+  reward_progress_coef: 3.0
+  reward_action_coef: 0.02
+  crash_penalty: 10.0
+
+suave_c01:   # castigo por cambiar la accion 5 veces mas fuerte que suave_c002, para ver hasta donde se puede suavizar
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.1
+  crash_penalty: 10.0
+
+borde_k02:   # borde_k1 (v28) quedo flotando: lo mismo 5 veces mas suave
+  reward_distance_coef: 0.1
+  reward_edge_coef: 0.2
+  crash_penalty: 10.0
+
+bajada_k03:   # castigo por bajar estando afuera y a menos de 30 cm del tope (no por estar ahi, como borde_k1)
+  reward_distance_coef: 0.1
+  reward_descent_coef: 0.3
+  crash_penalty: 10.0
+
+suave_bajada:   # DEFAULT. suave_c002 + bajada_k03. 92 % de exito medio con 4 seeds a 1.5M (base: 54 %), v54/v56/v63/v64
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.02
+  reward_descent_coef: 0.3
+  crash_penalty: 10.0
+
+# ---- Pruebas 2026-10-24 (rama suavidad-y-centro, BITACORA.md). Todas son suave_bajada + un termino. ----
+#   reward_cmd_vel_coef: castigo c * |(v_pedida - v_pedida_anterior) / 0.6|^2. Como reward_action_coef, pero sobre la
+#                        velocidad que se le pide al dron (la accion tiene una dimension redundante: escalar la direccion
+#                        no cambia la velocidad). Es la suavidad que se transfiere al Crazyflie real.
+#   reward_ang_vel_coef: castigo c * (wx^2 + wy^2) (bamboleo). Ojo: a 24 Hz el PID del dron oscila solo (~1.5 rad/s
+#                        aun con velocidad pedida constante), asi que ese piso no se puede bajar con la recompensa.
+#   reward_flare_coef:   castigo por bajar a mas de 0.15 m/s alineado y a menos de 15 cm del tope (tocar suave).
+#   landing_dxy_coef:    pendiente del premio al aterrizar, 25 - coef * d_xy (base: 50).
+
+suave_bajada_v01:   # + castigo por saltos de la velocidad pedida. v82: FLOTA (pide s = 0 y el castigo desaparece), descartada
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.02
+  reward_descent_coef: 0.3
+  reward_cmd_vel_coef: 0.1
+  crash_penalty: 10.0
+
+suave_bajada_v03:   # lo mismo, 3 veces mas fuerte. Sin correr: descartada por v82
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.02
+  reward_descent_coef: 0.3
+  reward_cmd_vel_coef: 0.3
+  crash_penalty: 10.0
+
+suave_bajada_centro:   # premio al aterrizar mas exigente con el centro: 25 - 100 * d_xy (entre 5 y 25)
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.02
+  reward_descent_coef: 0.3
+  landing_dxy_coef: 100.0
+  crash_penalty: 10.0
+
+suave_bajada_flare:   # + castigo por tocar rapido. v83 y v86: FLOTAN (2 de 2 seeds), descartada
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.02
+  reward_descent_coef: 0.3
+  reward_flare_coef: 0.1
+  crash_penalty: 10.0
+
+suave_bajada_w:   # + castigo por bamboleo
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.02
+  reward_descent_coef: 0.3
+  reward_ang_vel_coef: 0.003
+  crash_penalty: 10.0
+
+suave_bajada_c005:   # castigo a la accion 2.5 veces mas fuerte (0.05). Pensada con --log_std_init -0.5 (v65-v67 son el control). v91: 100 %
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.05
+  reward_descent_coef: 0.3
+  crash_penalty: 10.0
+
+suave_bajada_c01:   # castigo a la accion 0.1 (5 veces suave_bajada). Con --log_std_init -0.5: hasta donde se puede suavizar
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.1
+  reward_descent_coef: 0.3
+  crash_penalty: 10.0

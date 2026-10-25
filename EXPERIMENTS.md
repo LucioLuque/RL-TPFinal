@@ -53,7 +53,7 @@ aterrizajes; Δv pedida = cambio medio por paso de la velocidad pedida; inclinac
 | [v90-lucio](runs/v90-lucio/) | lucio | 2026-10-25 | finished | 1,503,232 | 87% (79–92) | 64% (54–73) | 100% | 10.59 | 10.8 | 0.092 | 10.8 | _sin registrar_ |
 | [v91-lucio](runs/v91-lucio/) | lucio | 2026-10-25 | finished | 1,503,232 | 100% (96–100) | 97% (92–99) | 100% | 20.80 | 5.1 | 0.051 | 7.5 | castigo a la acción 0.05 en vez de 0.02 (`suave_bajada_c005`) con desvío inicial 0.61, seed 42 |
 | [v92-lucio](runs/v92-lucio/) | lucio | 2026-10-25 | finished | 1,503,232 | 61% (51–70) | 42% (33–52) | 62% | 8.84 | 12.3 | 0.044 | 8.6 | castigo a la acción 0.05 (`suave_bajada_c005`) con desvío inicial 0.61, seed 1 |
-| [v93-lucio](runs/v93-lucio/) | lucio | 2026-10-25 | finished | 1,503,232 | 97% (92–99) | 95% (89–98) | 100% | 21.14 | 6.3 | 0.059 | 7.6 | _sin registrar_ |
+| [v93-lucio](runs/v93-lucio/) | lucio | 2026-10-25 | finished | 1,503,232 | 97% (92–99) | 95% (89–98) | 100% | 21.14 | 6.3 | 0.059 | 7.6 | castigo a la acción 0.05 (`suave_bajada_c005`) con desvío inicial 0.61, seed 2 |
 | [v94-lucio](runs/v94-lucio/) | lucio | 2026-10-25 | finished | 1,503,232 | 92% (85–96) | 92% (85–96) | 100% | 13.07 | 7.4 | 0.051 | 8.2 | _sin registrar_ |
 | [v95-lucio](runs/v95-lucio/) | lucio | 2026-10-25 | finished | 1,503,232 | 94% (88–97) | 85% (77–91) | 100% | 12.89 | 7.5 | 0.117 | 8.1 | _sin registrar_ |
 | [v96-lucio](runs/v96-lucio/) | lucio | 2026-10-25 | finished | 1,503,232 | 0% (0–4) | 0% (0–4) | 0% | -63.64 | - | 0.000 | 0.0 | _sin registrar_ |
