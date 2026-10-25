@@ -33,3 +33,5 @@ v95-lucio suave_bajada_centro 1 1500000 --log_std_init -0.5
 v69-lucio suave_bajada 42 3000000
 # 7. Cuarta seed de c005 + desvio 0.61 (v92, seed 1, aprendio tarde: 61 %)
 v98-lucio suave_bajada_c005 3 1500000 --log_std_init -0.5
+# 8. Castigo intermedio (0.03) con la seed que aprende tarde con c005 (seed 1: v92 61 %, v66 con 0.02: 97 %)
+v99-lucio suave_bajada_c003 1 1500000 --log_std_init -0.5
