@@ -12,6 +12,8 @@ v67-lucio suave_bajada 2 1500000 --log_std_init -0.5
 v82-lucio suave_bajada_v01 42 1500000
 v83-lucio suave_bajada_flare 42 1500000
 v84-lucio suave_bajada_centro 42 1500000
+# 3. Mas largo: v17 (base, 5M) da 99 % con el modelo final; las curvas de suave_bajada siguen subiendo a 1.5M
+v69-lucio suave_bajada 42 3000000
 v85-lucio suave_bajada_v01 1 1500000
 v86-lucio suave_bajada_flare 1 1500000
 v87-lucio suave_bajada_centro 1 1500000
