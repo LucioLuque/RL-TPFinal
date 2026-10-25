@@ -296,3 +296,25 @@ curriculum (entrenar con `suave_bajada` y seguir con `--load` agregando el térm
   189/200. Es la más suave (Δv pedida 0.051 m/s) y la más centrada (5.1 cm, 49 % a menos de 5 cm) del proyecto, y
   aprende antes. **Una sola seed**: faltan v92 y v93. Para ver hasta dónde se puede subir el castigo: `suave_bajada_c01`
   (0.1) con desvío 0.61 (v96, v97).
+
+## 2026-10-25 · lucio (sesión de Claude) · Resultados con 2–3 seeds: `c005` es la más suave pero no siempre aprende a tiempo; `centro` y `c01` se descartan
+
+Modelo final en 100 episodios, 1.5M pasos:
+
+| Variante | Seeds 42 / 1 / 2 | Media | Δv pedida (las que aprenden) | Centro (mediana) |
+|---|---|---|---|---|
+| `suave_bajada` (control, desvío 1) | 92 / 88 / 93 % | 91 % | 0.114 m/s | 8.2 cm |
+| `suave_bajada` + desvío 0.61 | 92 / 97 / 89 % | 93 % | 0.083 m/s | 6.3 cm |
+| `suave_bajada_c005` + desvío 0.61 | **100 / 61 / 97 %** | 86 % | **0.051 m/s** | 5.1 / 12.3 / 6.3 cm |
+| `suave_bajada_c01` + desvío 0.61 | 0 / 42 % | 21 % | | |
+| `suave_bajada_centro` (desvío 1) | 96 / 83 / 87 % | 89 % | 0.087 m/s | 8.6 / 8.0 / 10.8 cm |
+| `suave_bajada_centro` + desvío 0.61 | 92 / 94 % | 93 % | 0.084 m/s | 7.4 / 7.5 cm |
+
+- **`c005` (castigo a la acción 0.05):** las seeds que aprenden son las más suaves y centradas del proyecto (v91: 100 %
+  y 200/200 en seeds nuevas; v93: 97 %), pero con la seed 1 (v92) aprende recién a 1.3M y a 1.5M da 61 %. **El castigo
+  más fuerte retrasa el aprendizaje según la seed.** Corre la seed 3 (v98) para ver qué tan seguido pasa.
+- **`c01` (0.1):** frena el aprendizaje (0 % flotando quieta, y 42 %). Descartada. El límite está entre 0.05 y 0.1.
+- **`centro` (premio terminal 25 − 100·d_xy):** no centra mejor ni con desvío 1 ni con 0.61, y el éxito queda igual.
+  Descartada. El centrado se decide antes de tocar y el premio llega tarde.
+- Recomendación (no se cambió ningún default): para un vuelo suave sin perder robustez, `suave_bajada` + desvío 0.61.
+  Si se acepta entrenar más pasos, `suave_bajada_c005` + desvío 0.61 promete más suavidad: probarla a 3M o con 0.03.
