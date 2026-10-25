@@ -33,7 +33,8 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
 - `tools/`: análisis (gifs, trayectorias, curvas, índice de experimentos).
 - `media/`: gifs y plots para el informe o la presentación.
 - `docs/`: consigna, informe, presentación y reportes de experimentos (`pruebas-recompensas-2026-10-15.md`).
-- `cola_pendiente.txt`: corridas planeadas que no se corrieron todavía (para `tools/run_queue.py`).
+- `cola_pendiente.txt`: corridas planeadas que no se corrieron todavía (para `tools/run_queue.py`). **Es la única cola:**
+  no crear otros archivos de cola; lo que se planea va ahí y, una vez registrado, se borra.
 - `logs/landing_level_1/`: TensorBoard de las corridas de curriculum viejas. `logs/` está en
   `.gitignore`; los logs de `version_N` van en `runs/version_N/tb/`.
 
