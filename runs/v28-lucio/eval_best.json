@@ -16,10 +16,23 @@
     "choque_inclinacion": 3
   },
   "landing_time_s": null,
+  "landing": null,
+  "touchdown": {
+    "n": 95,
+    "vz_median": 0.104,
+    "vz_p90": 0.284,
+    "tilt_deg_median": 2.76,
+    "tilt_deg_p90": 8.73,
+    "bounces_mean": 0.0
+  },
   "smoothness": {
     "action_change": 2.3733,
     "cmd_vel_change": 0.5089,
-    "drone_accel": 3.0556
+    "cmd_vel_change_p95": 0.9329,
+    "drone_accel": 3.0556,
+    "drone_jerk": 75.3414,
+    "tilt_rms_deg": 9.4391,
+    "ang_vel_rms": 1.7746
   },
   "obs_clipped_fraction": {
     "rel_px": 0.0,
@@ -84,608 +97,1283 @@
     "prev_a2": 1.0,
     "prev_a3": 1.0
   },
-  "git_commit": "86fd63a44589eb82f09eafdb075c22d4c5e152ac",
-  "evaluated_at": "2026-10-15T10:26:14",
+  "git_commit": "d731a46f646b8a3c59e26353b0fe53bcd6b3461a",
+  "evaluated_at": "2026-10-24T23:03:43",
   "per_episode": [
     {
       "seed": 42,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.143
+      "d_xy": 0.143,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.119,
+        "tilt_deg": 2.43,
+        "d_xy": 0.099
+      },
+      "bounces": 1
     },
     {
       "seed": 43,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.114
+      "d_xy": 0.114,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.09,
+        "tilt_deg": 0.91,
+        "d_xy": 0.089
+      },
+      "bounces": 1
     },
     {
       "seed": 44,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.064
+      "d_xy": 0.064,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.13,
+        "tilt_deg": 7.93,
+        "d_xy": 0.152
+      },
+      "bounces": 5
     },
     {
       "seed": 45,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.022
+      "d_xy": 0.022,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.148,
+        "tilt_deg": 1.39,
+        "d_xy": 0.08
+      },
+      "bounces": 7
     },
     {
       "seed": 46,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.136
+      "d_xy": 0.136,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.052,
+        "tilt_deg": 1.31,
+        "d_xy": 0.039
+      },
+      "bounces": 4
     },
     {
       "seed": 47,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.064
+      "d_xy": 0.064,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.438,
+        "tilt_deg": 8.4,
+        "d_xy": 0.07
+      },
+      "bounces": 4
     },
     {
       "seed": 48,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.082
+      "d_xy": 0.082,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.017,
+        "tilt_deg": 1.19,
+        "d_xy": 0.02
+      },
+      "bounces": 3
     },
     {
       "seed": 49,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.095
+      "d_xy": 0.095,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.275,
+        "tilt_deg": 2.74,
+        "d_xy": 0.025
+      },
+      "bounces": 3
     },
     {
       "seed": 50,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.071
+      "d_xy": 0.071,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.084,
+        "tilt_deg": 2.7,
+        "d_xy": 0.09
+      },
+      "bounces": 1
     },
     {
       "seed": 51,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.063
+      "d_xy": 0.063,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.046,
+        "tilt_deg": 3.62,
+        "d_xy": 0.061
+      },
+      "bounces": 1
     },
     {
       "seed": 52,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.09
+      "d_xy": 0.09,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.249,
+        "tilt_deg": 2.34,
+        "d_xy": 0.086
+      },
+      "bounces": 2
     },
     {
       "seed": 53,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.029
+      "d_xy": 0.029,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.318,
+        "tilt_deg": 6.05,
+        "d_xy": 0.103
+      },
+      "bounces": 3
     },
     {
       "seed": 54,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.08
+      "d_xy": 0.08,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.034,
+        "tilt_deg": 0.92,
+        "d_xy": 0.076
+      },
+      "bounces": 3
     },
     {
       "seed": 55,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.072
+      "d_xy": 0.072,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.136,
+        "tilt_deg": 5.84,
+        "d_xy": 0.088
+      },
+      "bounces": 1
     },
     {
       "seed": 56,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.105
+      "d_xy": 0.105,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.242,
+        "tilt_deg": 0.18,
+        "d_xy": 0.039
+      },
+      "bounces": 7
     },
     {
       "seed": 57,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.044
+      "d_xy": 0.044,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.011,
+        "tilt_deg": 2.03,
+        "d_xy": 0.089
+      },
+      "bounces": 6
     },
     {
       "seed": 58,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.107
+      "d_xy": 0.107,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.378,
+        "tilt_deg": 3.49,
+        "d_xy": 0.126
+      },
+      "bounces": 2
     },
     {
       "seed": 59,
       "outcome": "choque_inclinacion",
       "steps": 258,
-      "d_xy": 0.559
+      "d_xy": 0.559,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.263,
+        "tilt_deg": 5.28,
+        "d_xy": 0.05
+      },
+      "bounces": 1
     },
     {
       "seed": 60,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.055
+      "d_xy": 0.055,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.002,
+        "tilt_deg": 1.04,
+        "d_xy": 0.112
+      },
+      "bounces": 5
     },
     {
       "seed": 61,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.067
+      "d_xy": 0.067,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 62,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.07
+      "d_xy": 0.07,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.269,
+        "tilt_deg": 3.6,
+        "d_xy": 0.072
+      },
+      "bounces": 4
     },
     {
       "seed": 63,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.063
+      "d_xy": 0.063,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.019,
+        "tilt_deg": 4.92,
+        "d_xy": 0.15
+      },
+      "bounces": 2
     },
     {
       "seed": 64,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.058
+      "d_xy": 0.058,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.196,
+        "tilt_deg": 1.56,
+        "d_xy": 0.09
+      },
+      "bounces": 5
     },
     {
       "seed": 65,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.325
+      "d_xy": 0.325,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.108,
+        "tilt_deg": 0.68,
+        "d_xy": 0.071
+      },
+      "bounces": 7
     },
     {
       "seed": 66,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.05
+      "d_xy": 0.05,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.009,
+        "tilt_deg": 10.84,
+        "d_xy": 0.069
+      },
+      "bounces": 9
     },
     {
       "seed": 67,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.172
+      "d_xy": 0.172,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.149,
+        "tilt_deg": 2.66,
+        "d_xy": 0.103
+      },
+      "bounces": 1
     },
     {
       "seed": 68,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.019
+      "d_xy": 0.019,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.069,
+        "tilt_deg": 5.51,
+        "d_xy": 0.069
+      },
+      "bounces": 2
     },
     {
       "seed": 69,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.082
+      "d_xy": 0.082,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.293,
+        "tilt_deg": 4.15,
+        "d_xy": 0.045
+      },
+      "bounces": 2
     },
     {
       "seed": 70,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.002
+      "d_xy": 0.002,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.209,
+        "tilt_deg": 0.61,
+        "d_xy": 0.01
+      },
+      "bounces": 5
     },
     {
       "seed": 71,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.024
+      "d_xy": 0.024,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.031,
+        "tilt_deg": 0.9,
+        "d_xy": 0.034
+      },
+      "bounces": 5
     },
     {
       "seed": 72,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.048
+      "d_xy": 0.048,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 73,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.09
+      "d_xy": 0.09,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.188,
+        "tilt_deg": 5.58,
+        "d_xy": 0.042
+      },
+      "bounces": 8
     },
     {
       "seed": 74,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.123
+      "d_xy": 0.123,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.067,
+        "tilt_deg": 0.94,
+        "d_xy": 0.069
+      },
+      "bounces": 5
     },
     {
       "seed": 75,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.05
+      "d_xy": 0.05,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.182,
+        "tilt_deg": 4.22,
+        "d_xy": 0.13
+      },
+      "bounces": 3
     },
     {
       "seed": 76,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.069
+      "d_xy": 0.069,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.036,
+        "tilt_deg": 4.23,
+        "d_xy": 0.052
+      },
+      "bounces": 4
     },
     {
       "seed": 77,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.074
+      "d_xy": 0.074,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.224,
+        "tilt_deg": 1.62,
+        "d_xy": 0.022
+      },
+      "bounces": 1
     },
     {
       "seed": 78,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.054
+      "d_xy": 0.054,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.27,
+        "tilt_deg": 1.24,
+        "d_xy": 0.025
+      },
+      "bounces": 4
     },
     {
       "seed": 79,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.118
+      "d_xy": 0.118,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.111,
+        "tilt_deg": 10.4,
+        "d_xy": 0.099
+      },
+      "bounces": 5
     },
     {
       "seed": 80,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.091
+      "d_xy": 0.091,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.205,
+        "tilt_deg": 2.76,
+        "d_xy": 0.006
+      },
+      "bounces": 3
     },
     {
       "seed": 81,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.111
+      "d_xy": 0.111,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.175,
+        "tilt_deg": 1.74,
+        "d_xy": 0.066
+      },
+      "bounces": 4
     },
     {
       "seed": 82,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.176
+      "d_xy": 0.176,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.143,
+        "tilt_deg": 2.73,
+        "d_xy": 0.095
+      },
+      "bounces": 5
     },
     {
       "seed": 83,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.08
+      "d_xy": 0.08,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.196,
+        "tilt_deg": 4.94,
+        "d_xy": 0.041
+      },
+      "bounces": 1
     },
     {
       "seed": 84,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.067
+      "d_xy": 0.067,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.001,
+        "tilt_deg": 14.73,
+        "d_xy": 0.142
+      },
+      "bounces": 3
     },
     {
       "seed": 85,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.047
+      "d_xy": 0.047,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.285,
+        "tilt_deg": 2.19,
+        "d_xy": 0.206
+      },
+      "bounces": 8
     },
     {
       "seed": 86,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.104
+      "d_xy": 0.104,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.026,
+        "tilt_deg": 1.67,
+        "d_xy": 0.038
+      },
+      "bounces": 5
     },
     {
       "seed": 87,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.137
+      "d_xy": 0.137,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.212,
+        "tilt_deg": 0.83,
+        "d_xy": 0.034
+      },
+      "bounces": 5
     },
     {
       "seed": 88,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.165
+      "d_xy": 0.165,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 89,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.12
+      "d_xy": 0.12,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.204,
+        "tilt_deg": 6.83,
+        "d_xy": 0.064
+      },
+      "bounces": 10
     },
     {
       "seed": 90,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.09
+      "d_xy": 0.09,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.187,
+        "tilt_deg": 5.79,
+        "d_xy": 0.073
+      },
+      "bounces": 5
     },
     {
       "seed": 91,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.089
+      "d_xy": 0.089,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.444,
+        "tilt_deg": 3.96,
+        "d_xy": 0.086
+      },
+      "bounces": 1
     },
     {
       "seed": 92,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.172
+      "d_xy": 0.172,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.059,
+        "tilt_deg": 0.79,
+        "d_xy": 0.094
+      },
+      "bounces": 10
     },
     {
       "seed": 93,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.093
+      "d_xy": 0.093,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.055,
+        "tilt_deg": 1.05,
+        "d_xy": 0.061
+      },
+      "bounces": 5
     },
     {
       "seed": 94,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.083
+      "d_xy": 0.083,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.123,
+        "tilt_deg": 2.29,
+        "d_xy": 0.025
+      },
+      "bounces": 3
     },
     {
       "seed": 95,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.072
+      "d_xy": 0.072,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.185,
+        "tilt_deg": 0.21,
+        "d_xy": 0.081
+      },
+      "bounces": 2
     },
     {
       "seed": 96,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.02
+      "d_xy": 0.02,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.047,
+        "tilt_deg": 0.93,
+        "d_xy": 0.04
+      },
+      "bounces": 3
     },
     {
       "seed": 97,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.104
+      "d_xy": 0.104,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.023,
+        "tilt_deg": 8.34,
+        "d_xy": 0.054
+      },
+      "bounces": 1
     },
     {
       "seed": 98,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.103
+      "d_xy": 0.103,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.022,
+        "tilt_deg": 1.06,
+        "d_xy": 0.075
+      },
+      "bounces": 8
     },
     {
       "seed": 99,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.057
+      "d_xy": 0.057,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.004,
+        "tilt_deg": 0.58,
+        "d_xy": 0.108
+      },
+      "bounces": 5
     },
     {
       "seed": 100,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.139
+      "d_xy": 0.139,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.054,
+        "tilt_deg": 4.68,
+        "d_xy": 0.009
+      },
+      "bounces": 4
     },
     {
       "seed": 101,
       "outcome": "choque_inclinacion",
       "steps": 399,
-      "d_xy": 0.518
+      "d_xy": 0.518,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.067,
+        "tilt_deg": 1.28,
+        "d_xy": 0.038
+      },
+      "bounces": 4
     },
     {
       "seed": 102,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.104
+      "d_xy": 0.104,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.178,
+        "tilt_deg": 7.54,
+        "d_xy": 0.209
+      },
+      "bounces": 9
     },
     {
       "seed": 103,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.094
+      "d_xy": 0.094,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.159,
+        "tilt_deg": 1.55,
+        "d_xy": 0.135
+      },
+      "bounces": 2
     },
     {
       "seed": 104,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.023
+      "d_xy": 0.023,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.055,
+        "tilt_deg": 4.86,
+        "d_xy": 0.059
+      },
+      "bounces": 3
     },
     {
       "seed": 105,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.129
+      "d_xy": 0.129,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.38,
+        "tilt_deg": 1.07,
+        "d_xy": 0.046
+      },
+      "bounces": 4
     },
     {
       "seed": 106,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.117
+      "d_xy": 0.117,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.35,
+        "tilt_deg": 2.13,
+        "d_xy": 0.065
+      },
+      "bounces": 8
     },
     {
       "seed": 107,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.092
+      "d_xy": 0.092,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.178,
+        "tilt_deg": 2.34,
+        "d_xy": 0.057
+      },
+      "bounces": 6
     },
     {
       "seed": 108,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.06
+      "d_xy": 0.06,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.174,
+        "tilt_deg": 9.43,
+        "d_xy": 0.028
+      },
+      "bounces": 1
     },
     {
       "seed": 109,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.12
+      "d_xy": 0.12,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.113,
+        "tilt_deg": 3.99,
+        "d_xy": 0.032
+      },
+      "bounces": 5
     },
     {
       "seed": 110,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.089
+      "d_xy": 0.089,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.033,
+        "tilt_deg": 2.24,
+        "d_xy": 0.024
+      },
+      "bounces": 4
     },
     {
       "seed": 111,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.199
+      "d_xy": 0.199,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.066,
+        "tilt_deg": 1.63,
+        "d_xy": 0.082
+      },
+      "bounces": 2
     },
     {
       "seed": 112,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.067
+      "d_xy": 0.067,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.002,
+        "tilt_deg": 12.65,
+        "d_xy": 0.135
+      },
+      "bounces": 3
     },
     {
       "seed": 113,
       "outcome": "choque_inclinacion",
       "steps": 283,
-      "d_xy": 0.446
+      "d_xy": 0.446,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.367,
+        "tilt_deg": 8.77,
+        "d_xy": 0.055
+      },
+      "bounces": 1
     },
     {
       "seed": 114,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.147
+      "d_xy": 0.147,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.229,
+        "tilt_deg": 2.78,
+        "d_xy": 0.163
+      },
+      "bounces": 7
     },
     {
       "seed": 115,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.169
+      "d_xy": 0.169,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 116,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.042
+      "d_xy": 0.042,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.019,
+        "tilt_deg": 16.38,
+        "d_xy": 0.258
+      },
+      "bounces": 2
     },
     {
       "seed": 117,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.13
+      "d_xy": 0.13,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.28,
+        "tilt_deg": 3.23,
+        "d_xy": 0.133
+      },
+      "bounces": 5
     },
     {
       "seed": 118,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.07
+      "d_xy": 0.07,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.236,
+        "tilt_deg": 3.96,
+        "d_xy": 0.077
+      },
+      "bounces": 2
     },
     {
       "seed": 119,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.109
+      "d_xy": 0.109,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.364,
+        "tilt_deg": 10.54,
+        "d_xy": 0.024
+      },
+      "bounces": 6
     },
     {
       "seed": 120,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.077
+      "d_xy": 0.077,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.127,
+        "tilt_deg": 1.04,
+        "d_xy": 0.061
+      },
+      "bounces": 2
     },
     {
       "seed": 121,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.072
+      "d_xy": 0.072,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.02,
+        "tilt_deg": 7.74,
+        "d_xy": 0.104
+      },
+      "bounces": 3
     },
     {
       "seed": 122,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.063
+      "d_xy": 0.063,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.248,
+        "tilt_deg": 10.88,
+        "d_xy": 0.161
+      },
+      "bounces": 3
     },
     {
       "seed": 123,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.024
+      "d_xy": 0.024,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.001,
+        "tilt_deg": 0.51,
+        "d_xy": 0.092
+      },
+      "bounces": 3
     },
     {
       "seed": 124,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.207
+      "d_xy": 0.207,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.149,
+        "tilt_deg": 0.34,
+        "d_xy": 0.032
+      },
+      "bounces": 3
     },
     {
       "seed": 125,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.016
+      "d_xy": 0.016,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.036,
+        "tilt_deg": 8.49,
+        "d_xy": 0.048
+      },
+      "bounces": 7
     },
     {
       "seed": 126,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.08
+      "d_xy": 0.08,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.019,
+        "tilt_deg": 0.27,
+        "d_xy": 0.063
+      },
+      "bounces": 6
     },
     {
       "seed": 127,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.08
+      "d_xy": 0.08,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.0,
+        "tilt_deg": 8.58,
+        "d_xy": 0.032
+      },
+      "bounces": 4
     },
     {
       "seed": 128,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.045
+      "d_xy": 0.045,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.137,
+        "tilt_deg": 5.15,
+        "d_xy": 0.036
+      },
+      "bounces": 5
     },
     {
       "seed": 129,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.027
+      "d_xy": 0.027,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 130,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.174
+      "d_xy": 0.174,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.06,
+        "tilt_deg": 3.35,
+        "d_xy": 0.026
+      },
+      "bounces": 4
     },
     {
       "seed": 131,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.057
+      "d_xy": 0.057,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.206,
+        "tilt_deg": 7.72,
+        "d_xy": 0.098
+      },
+      "bounces": 5
     },
     {
       "seed": 132,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.049
+      "d_xy": 0.049,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.079,
+        "tilt_deg": 8.68,
+        "d_xy": 0.093
+      },
+      "bounces": 2
     },
     {
       "seed": 133,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.06
+      "d_xy": 0.06,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.282,
+        "tilt_deg": 1.68,
+        "d_xy": 0.066
+      },
+      "bounces": 5
     },
     {
       "seed": 134,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.327
+      "d_xy": 0.327,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.104,
+        "tilt_deg": 2.78,
+        "d_xy": 0.058
+      },
+      "bounces": 3
     },
     {
       "seed": 135,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.054
+      "d_xy": 0.054,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.025,
+        "tilt_deg": 1.09,
+        "d_xy": 0.045
+      },
+      "bounces": 1
     },
     {
       "seed": 136,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.08
+      "d_xy": 0.08,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.073,
+        "tilt_deg": 0.57,
+        "d_xy": 0.03
+      },
+      "bounces": 4
     },
     {
       "seed": 137,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.046
+      "d_xy": 0.046,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.084,
+        "tilt_deg": 4.94,
+        "d_xy": 0.078
+      },
+      "bounces": 2
     },
     {
       "seed": 138,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.065
+      "d_xy": 0.065,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.032,
+        "tilt_deg": 0.61,
+        "d_xy": 0.048
+      },
+      "bounces": 5
     },
     {
       "seed": 139,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.31
+      "d_xy": 0.31,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.26,
+        "tilt_deg": 5.74,
+        "d_xy": 0.06
+      },
+      "bounces": 12
     },
     {
       "seed": 140,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.105
+      "d_xy": 0.105,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.019,
+        "tilt_deg": 11.71,
+        "d_xy": 0.091
+      },
+      "bounces": 9
     },
     {
       "seed": 141,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.1
+      "d_xy": 0.1,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.243,
+        "tilt_deg": 4.81,
+        "d_xy": 0.141
+      },
+      "bounces": 4
     }
   ]
 }

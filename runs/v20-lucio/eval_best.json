@@ -15,6 +15,24 @@
     "tiempo": 100
   },
   "landing_time_s": null,
+  "landing": null,
+  "touchdown": {
+    "n": 1,
+    "vz_median": -0.045,
+    "vz_p90": -0.045,
+    "tilt_deg_median": 16.55,
+    "tilt_deg_p90": 16.55,
+    "bounces_mean": 0.0
+  },
+  "smoothness": {
+    "action_change": 1.235,
+    "cmd_vel_change": 0.3081,
+    "cmd_vel_change_p95": 0.5994,
+    "drone_accel": 2.2496,
+    "drone_jerk": 75.1268,
+    "tilt_rms_deg": 7.6001,
+    "ang_vel_rms": 1.8209
+  },
   "obs_clipped_fraction": {
     "rel_px": 0.001,
     "rel_py": 0.0052,
@@ -78,608 +96,813 @@
     "prev_a2": 1.0,
     "prev_a3": 1.0
   },
-  "git_commit": "c28c288d1b7a455dbe535b1ae5bd5e36e483433b",
-  "evaluated_at": "2026-10-04T17:48:18",
+  "git_commit": "b26accee82dfb6592a1d561f5d323fbbabd040b9",
+  "evaluated_at": "2026-10-24T22:54:49",
   "per_episode": [
     {
       "seed": 42,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.964
+      "d_xy": 0.964,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 43,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.324
+      "d_xy": 0.324,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 44,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.259
+      "d_xy": 0.259,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 45,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.127
+      "d_xy": 0.127,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 46,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.378
+      "d_xy": 0.378,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 47,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 1.099
+      "d_xy": 1.099,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 48,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.457
+      "d_xy": 0.457,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 49,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.412
+      "d_xy": 0.412,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 50,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.221
+      "d_xy": 0.221,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 51,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 1.383
+      "d_xy": 1.383,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 52,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.264
+      "d_xy": 0.264,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 53,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.396
+      "d_xy": 0.396,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 54,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.347
+      "d_xy": 0.347,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 55,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.503
+      "d_xy": 0.503,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 56,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.302
+      "d_xy": 0.302,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 57,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.414
+      "d_xy": 0.414,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 58,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.672
+      "d_xy": 0.672,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 59,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.906
+      "d_xy": 0.906,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 60,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.841
+      "d_xy": 0.841,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 61,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.268
+      "d_xy": 0.268,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 62,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.278
+      "d_xy": 0.278,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 63,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.353
+      "d_xy": 0.353,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 64,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.572
+      "d_xy": 0.572,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 65,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 1.157
+      "d_xy": 1.157,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 66,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.443
+      "d_xy": 0.443,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 67,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 1.246
+      "d_xy": 1.246,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 68,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.105
+      "d_xy": 0.105,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 69,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.694
+      "d_xy": 0.694,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 70,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.279
+      "d_xy": 0.279,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 71,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 1.577
+      "d_xy": 1.577,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 72,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.865
+      "d_xy": 0.865,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 73,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 1.07
+      "d_xy": 1.07,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 74,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.303
+      "d_xy": 0.303,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 75,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.546
+      "d_xy": 0.546,
+      "touchdown": {
+        "contact": "top",
+        "vz": -0.045,
+        "tilt_deg": 16.55,
+        "d_xy": 0.081
+      },
+      "bounces": 1
     },
     {
       "seed": 76,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.717
+      "d_xy": 0.717,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 77,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.213
+      "d_xy": 0.213,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 78,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 1.152
+      "d_xy": 1.152,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 79,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.224
+      "d_xy": 0.224,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 80,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.312
+      "d_xy": 0.312,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 81,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.309
+      "d_xy": 0.309,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 82,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.668
+      "d_xy": 0.668,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 83,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.992
+      "d_xy": 0.992,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 84,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.7
+      "d_xy": 0.7,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 85,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 1.05
+      "d_xy": 1.05,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 86,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.467
+      "d_xy": 0.467,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 87,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.227
+      "d_xy": 0.227,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 88,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.143
+      "d_xy": 0.143,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 89,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.232
+      "d_xy": 0.232,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 90,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.376
+      "d_xy": 0.376,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 91,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.025
+      "d_xy": 0.025,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 92,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.311
+      "d_xy": 0.311,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 93,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.35
+      "d_xy": 0.35,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 94,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.721
+      "d_xy": 0.721,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 95,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.546
+      "d_xy": 0.546,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 96,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 1.158
+      "d_xy": 1.158,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 97,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 1.472
+      "d_xy": 1.472,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 98,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.932
+      "d_xy": 0.932,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 99,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.641
+      "d_xy": 0.641,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 100,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.924
+      "d_xy": 0.924,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 101,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.593
+      "d_xy": 0.593,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 102,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.501
+      "d_xy": 0.501,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 103,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.78
+      "d_xy": 0.78,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 104,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.372
+      "d_xy": 0.372,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 105,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.864
+      "d_xy": 0.864,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 106,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.374
+      "d_xy": 0.374,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 107,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.482
+      "d_xy": 0.482,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 108,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.378
+      "d_xy": 0.378,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 109,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.405
+      "d_xy": 0.405,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 110,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.424
+      "d_xy": 0.424,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 111,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.643
+      "d_xy": 0.643,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 112,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.145
+      "d_xy": 0.145,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 113,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.619
+      "d_xy": 0.619,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 114,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.345
+      "d_xy": 0.345,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 115,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 1.173
+      "d_xy": 1.173,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 116,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.15
+      "d_xy": 0.15,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 117,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.205
+      "d_xy": 0.205,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 118,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.725
+      "d_xy": 0.725,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 119,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.321
+      "d_xy": 0.321,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 120,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.478
+      "d_xy": 0.478,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 121,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.435
+      "d_xy": 0.435,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 122,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.578
+      "d_xy": 0.578,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 123,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.136
+      "d_xy": 0.136,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 124,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.558
+      "d_xy": 0.558,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 125,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.608
+      "d_xy": 0.608,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 126,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.667
+      "d_xy": 0.667,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 127,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.51
+      "d_xy": 0.51,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 128,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.121
+      "d_xy": 0.121,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 129,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 1.09
+      "d_xy": 1.09,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 130,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 1.1
+      "d_xy": 1.1,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 131,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.352
+      "d_xy": 0.352,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 132,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.783
+      "d_xy": 0.783,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 133,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.316
+      "d_xy": 0.316,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 134,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.409
+      "d_xy": 0.409,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 135,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.646
+      "d_xy": 0.646,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 136,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 1.749
+      "d_xy": 1.749,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 137,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.764
+      "d_xy": 0.764,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 138,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 1.015
+      "d_xy": 1.015,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 139,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.216
+      "d_xy": 0.216,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 140,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 2.287
+      "d_xy": 2.287,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 141,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.632
+      "d_xy": 0.632,
+      "touchdown": null,
+      "bounces": 0
     }
   ]
 }
