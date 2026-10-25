@@ -327,3 +327,21 @@ a **3.7 cm del centro contra 8.1** (60 % contra 24 % a menos de 5 cm). La suavid
 entrenar más, no de la recompensa** (el premio terminal al centro no centró). Una sola seed. Para la combinación
 suave + exitosa + centrada, lo siguiente sería entrenar a 3M `suave_bajada` + desvío 0.61 y `c005` + desvío 0.61
 (sus seeds lentas no terminan de aprender a 1.5M).
+
+## 2026-10-25 · lucio (sesión de Claude) · Castigo a la acción 0.03 con desvío 0.61: la más robusta (v99, v101, v102)
+
+`suave_bajada_c003` (castigo a la acción 0.03 en vez de 0.02) + `--log_std_init -0.5`, modelo final en 100 episodios:
+
+| Castigo a la acción (+ desvío 0.61) | Seeds 42 / 1 / 2 | Media | Choques contra el borde (300 ep.) | Δv pedida | Centro |
+|---|---|---|---|---|---|
+| 0.02 (`suave_bajada`, v65–v67) | 92 / 97 / 89 % | 92.7 % | 18 | 0.083 m/s | 6.3 cm |
+| **0.03 (`c003`, v101, v99, v102)** | **95 / 99 / 99 %** | **97.7 %** | **4** | 0.081 m/s | 6.2 cm |
+| 0.05 (`c005`, v91–v93; s3 v98: 72 %) | 100 / 61 / 97 % | 86 % | 33 | 0.051 m/s | |
+| 0.1 (`c01`, v96, v97) | 0 / 42 % | | | | |
+
+- Con 0.03 aprenden las 3 seeds a tiempo (100 % en los evals de 8 episodios desde ~1.0M) y fallan menos que con 0.02.
+  La suavidad es la misma que con 0.02; la diferencia está en el éxito. Los intervalos de cada seed se pisan, pero la
+  mejora va en el mismo sentido en las 3.
+- 0.05 es más suave (Δv pedida ~0.05) pero con la mitad de las seeds aprende tarde; 0.1 no aprende.
+- **Recomendación (no se cambió ningún default):** `suave_bajada_c003` + `--log_std_init -0.5`. Y entrenar más (3M):
+  con `suave_bajada`, pasar de 1.5M a 3M subió el éxito de 92 a 99 % y centró de 8.1 a 3.7 cm (v69).
