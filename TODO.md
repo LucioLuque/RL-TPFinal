@@ -95,13 +95,16 @@ porque la plataforma se mueve y cambia `d` aunque el dron no haga nada.
   y es la nueva recompensa por defecto.
 
 **Pendiente** (la lista para correr está en `cola_pendiente.txt`: `python -m tools.run_queue cola_pendiente.txt --parallel 2`):
-- [ ] **`suave_bajada` + `--log_std_init -0.5`** (3 seeds). Si mejora, cambiar el default de `log_std_init` en
-  `train.py` y anotarlo en `BITACORA.md`.
+- [x] **`suave_bajada` + `--log_std_init -0.5`** (3 seeds, v65–v67, 2026-10-25): mismo éxito (93 % contra 92 %),
+  más suave (Δv pedida 0.083 contra 0.137 m/s) y más centrada (6.3 contra 8.2 cm). **Falta decidir** si cambiar el
+  default de `log_std_init` en `train.py` (Lucio).
 - [ ] Tercera seed de `suave_c002` + `--log_std_init -0.5`.
 - [ ] `suave_bajada` con 3M pasos (las curvas siguen subiendo a 1.5M).
 - [ ] `base` con `--log_std_init -1.0` (desvío 0.37).
 - [ ] Menos prioritario: más seeds de `PBRS_k10` y `A2_k1`; `suave_c005` y `suave_c01` (curva éxito contra
   suavidad); `combo_k3_c002`; `PBRS_k3`; `borde_k02`.
+- [x] Métricas de centrado y suavidad del vuelo en `tools/evaluate.py` y reevaluar las corridas viejas: hecho
+  2026-10-24 (ver `BITACORA.md`).
 - [ ] **Acción no bang-bang:** las políticas saturan `dz` en ~97 % de los pasos. Probar la acción como velocidad
   directa (`v = 0.6·a`, sin normalizar la dirección) o con `tanh` en el entorno. Cambia la acción: corrida aparte y
   revisar `TODO_SIM2REAL.md`.

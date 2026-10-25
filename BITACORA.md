@@ -245,3 +245,28 @@ Cambia la dinámica: corrida aparte con su `base` de referencia. Anotado en `TOD
 forma más barata de explorar. El castigo a la acción (`reward_action_coef`) no tiene esa salida porque también cobra
 los cambios de `s`. Se descartan `_v01` y `_v03` (no se corren más seeds). En su lugar, para suavidad:
 `suave_bajada_c005` (castigo a la acción 0.05) con `--log_std_init -0.5`, contra v65–v67.
+
+## 2026-10-25 · lucio (sesión de Claude) · `suave_bajada` + desvío inicial 0.61: mismo éxito, más suave y más centrada
+
+v65 / v66 / v67 (seeds 42 / 1 / 2, 1.5M, `--log_std_init -0.5`), modelo final en 100 episodios, contra `suave_bajada`
+con el desvío por defecto (v54 / v56 / v63 / v64):
+
+| | `suave_bajada` (4 seeds) | + desvío 0.61 (3 seeds) |
+|---|---|---|
+| Éxito final medio | 92 % (88–95) | 93 % (89 / 92 / 97) |
+| Δv pedida por paso | 0.137 m/s | 0.083 m/s |
+| Δacción por paso | 0.27 | 0.08 |
+| Centro (mediana) / a menos de 5 cm | 8.2 cm / 21 % | 6.3 cm / 36 % |
+| Velocidad al tocar (mediana) | 0.28 m/s | 0.18 m/s |
+| Cruza 50 % en el entrenamiento | ~0.7M | ~1.0M |
+
+- En éxito no hay diferencia. En suavidad y centrado sí, aunque no en todas las seeds: comparando seed por seed, la
+  velocidad pedida es más suave en 2 de 3 (seed 1: 0.100 contra 0.091).
+- Aprende más tarde (~0.3M pasos después) y sigue subiendo a 1.5M.
+- No se cambió el default de `log_std_init` (queda anotado para que Lucio decida). Las variantes nuevas de suavidad
+  se prueban con este desvío (`suave_bajada_c005`, v91–v93).
+
+Otra cosa que mostraron las métricas nuevas: **el castigo a la acción hace que toque más rápido y menos centrado**
+cuando el desvío es 1 (`suave_c002`: 0.30 m/s y 8.5 cm; `base`: 0.15 m/s y 6.8 cm; `suave_bajada`: 0.28 m/s y 8.2 cm).
+Hipótesis: para no pagar el cambio de acción se queda en `dz = −1` hasta tocar. Con desvío 0.61 no pasa (`suave_c002`:
+0.14 m/s y 6.5 cm). Por eso se prueban `suave_bajada_flare` y `suave_bajada_centro` (v83–v90).

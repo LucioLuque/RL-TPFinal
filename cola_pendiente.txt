@@ -4,7 +4,7 @@
 # runs/. OJO: los numeros estan reservados aca; si alguien entrena a mano mientras tanto, cambiar los numeros
 # (train.py sin --run_id toma el mayor + 1 y podria chocar con uno de esta lista).
 
-# 1. Las dos mejoras juntas: suave_bajada (recompensa) + menos ruido de exploracion
+# 1. Las dos mejoras juntas: suave_bajada (recompensa) + menos ruido de exploracion. HECHO 2026-10-25 (cola_noche_2026-10-24.txt)
 v65-lucio suave_bajada 42 1500000 --log_std_init -0.5
 v66-lucio suave_bajada 1 1500000 --log_std_init -0.5
 v67-lucio suave_bajada 2 1500000 --log_std_init -0.5
