@@ -124,14 +124,14 @@ suave_bajada:   # DEFAULT. suave_c002 + bajada_k03. 92 % de exito medio con 4 se
 #   reward_flare_coef:   castigo por bajar a mas de 0.15 m/s alineado y a menos de 15 cm del tope (tocar suave).
 #   landing_dxy_coef:    pendiente del premio al aterrizar, 25 - coef * d_xy (base: 50).
 
-suave_bajada_v01:   # + castigo por saltos de la velocidad pedida
+suave_bajada_v01:   # + castigo por saltos de la velocidad pedida. v82: FLOTA (pide s = 0 y el castigo desaparece), descartada
   reward_distance_coef: 0.1
   reward_action_coef: 0.02
   reward_descent_coef: 0.3
   reward_cmd_vel_coef: 0.1
   crash_penalty: 10.0
 
-suave_bajada_v03:   # lo mismo, 3 veces mas fuerte
+suave_bajada_v03:   # lo mismo, 3 veces mas fuerte. Sin correr: descartada por v82
   reward_distance_coef: 0.1
   reward_action_coef: 0.02
   reward_descent_coef: 0.3
@@ -157,4 +157,10 @@ suave_bajada_w:   # + castigo por bamboleo
   reward_action_coef: 0.02
   reward_descent_coef: 0.3
   reward_ang_vel_coef: 0.003
+  crash_penalty: 10.0
+
+suave_bajada_c005:   # castigo a la accion 2.5 veces mas fuerte (0.05). Pensada con --log_std_init -0.5 (v65-v67 son el control)
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.05
+  reward_descent_coef: 0.3
   crash_penalty: 10.0
