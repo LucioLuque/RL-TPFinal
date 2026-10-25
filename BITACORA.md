@@ -381,3 +381,17 @@ Reservar números en `cola_pendiente.txt` dejaba huecos (v31, v32, v37–v39, v4
 v89 no existen) y obligaba a saltearlos. Ahora `tools/run_queue.py` asigna el siguiente número libre al lanzar cada
 corrida y marca la línea como `# lanzada como v<N>-<autor>`. `cola_pendiente.txt` se reescribió sin números, con lo que
 sigue teniendo sentido.
+
+## 2026-10-25 · lucio (sesión de Claude) · Huecos de numeración: qué eran y cuáles se corren
+
+Del registro de la sesión del 2026-10-15 se recuperó para qué se habían reservado los números que nunca se usaron:
+v31 `suave_c005` s42, v32 `PBRS_k3` s42, v37 `combo_k3_c002` s42, v38 `suave_c01` s42, v39 `borde_k02` s42,
+v43/v48 `PBRS_k10` s1/s2, v44/v49 `A2_k1` s1/s2, v45/v46/v47 seed 4 de `base`/`A2_k3`/`suave_c002`, v59 `suave_c002`
++ desvío 0.61 s2, v60–v62 `base` + desvío 0.37 (s42, 1, 2). Muchas se volvieron a reservar después con otro número
+(v68, v70–v81), y por eso había tantos huecos.
+
+Se corren con su número original las que siguen teniendo sentido (`cola_huecos.txt`): v59, v60–v62, v43, v48, v44 y v49.
+Las demás no (`suave_c005` y `suave_c01` ya se probaron sobre `suave_bajada`; `PBRS_k3`, `combo_k3_c002` y `borde_k02`
+son familias descartadas; una quinta seed de `base`, `A2_k3` o `suave_c002` no cambia nada), ni las descartadas de
+esta noche (v85, v88: `suave_bajada_v01`; v89: `suave_bajada_flare`). Los números duplicados (v68, v70–v74) y los de
+pruebas descartadas quedan como huecos para siempre.

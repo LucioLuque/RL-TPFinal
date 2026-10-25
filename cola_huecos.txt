@@ -1,0 +1,16 @@
+# Corridas que tenian numero reservado desde la sesion del 2026-10-15 y siguen teniendo sentido (2026-10-25).
+# Se corren con su numero original para cerrar huecos. Formato viejo (con run_id adelante), que run_queue sigue aceptando.
+# Las demas reservadas ya no tienen sentido: ver BITACORA.md, 2026-10-25 ("Huecos de numeracion").
+# Correr con: setsid nohup python -m tools.run_queue cola_huecos.txt --parallel 2 > logs/queue_huecos.log 2>&1 &
+
+# Tercera seed de suave_c002 + desvio 0.61 (v57: 93 %, v58: 85 %). Despues se reservo de nuevo como v68.
+v59-lucio suave_c002 2 1500000 --log_std_init -0.5
+# Desvio todavia mas bajo (0.37) sobre base. Despues se reservaron de nuevo como v70-v72.
+v60-lucio base 42 1500000 --log_std_init -1.0
+v61-lucio base 1 1500000 --log_std_init -1.0
+v62-lucio base 2 1500000 --log_std_init -1.0
+# Seeds 1 y 2 de PBRS_k10 (v25, seed 42: 72 %) y de A2_k1 (v26, seed 42: 74 %). Despues: v73 y v74.
+v43-lucio PBRS_k10 1 1500000
+v48-lucio PBRS_k10 2 1500000
+v44-lucio A2_k1 1 1500000
+v49-lucio A2_k1 2 1500000
