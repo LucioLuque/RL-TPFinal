@@ -35,3 +35,5 @@ v69-lucio suave_bajada 42 3000000
 v98-lucio suave_bajada_c005 3 1500000 --log_std_init -0.5
 # 8. Castigo intermedio (0.03) con la seed que aprende tarde con c005 (seed 1: v92 61 %, v66 con 0.02: 97 %)
 v99-lucio suave_bajada_c003 1 1500000 --log_std_init -0.5
+# 9. ¿Las seeds lentas de c005 terminan de aprender con mas pasos? (v92, seed 1, a 1.5M: 61 %)
+v100-lucio suave_bajada_c005 1 3000000 --log_std_init -0.5
