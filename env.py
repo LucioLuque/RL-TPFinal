@@ -44,6 +44,10 @@ class MovingPlatformLandingAviary(VelocityAviary):
         reward_action_coef: float = 0.0,    # castigo por cambiar la accion: c * sum((a - a_anterior)^2)
         reward_edge_coef: float = 0.0,      # castigo por estar bajo y afuera de la plataforma (modo de fallo de base)
         reward_descent_coef: float = 0.0,   # castigo por bajar mientras esta afuera de la plataforma y cerca en altura
+        reward_cmd_vel_coef: float = 0.0,   # castigo por cambiar la velocidad pedida: c * |(v_cmd - v_cmd_anterior) / SPEED_LIMIT|^2
+        reward_ang_vel_coef: float = 0.0,   # castigo por bamboleo: c * (wx^2 + wy^2), velocidad angular de roll y pitch
+        reward_flare_coef: float = 0.0,     # castigo por bajar rapido justo encima del tope (alineado y a < 15 cm)
+        landing_dxy_coef: float = 50.0,     # premio al aterrizar = 25 - landing_dxy_coef * d_xy (mas grande = premia mas el centro)
         crash_penalty: float = 10.0,        # castigo al chocar
     ):
         self.platform_radius = 0.25
@@ -64,6 +68,10 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self.reward_action_coef = reward_action_coef
         self.reward_edge_coef = reward_edge_coef
         self.reward_descent_coef = reward_descent_coef
+        self.reward_cmd_vel_coef = reward_cmd_vel_coef
+        self.reward_ang_vel_coef = reward_ang_vel_coef
+        self.reward_flare_coef = reward_flare_coef
+        self.landing_dxy_coef = landing_dxy_coef
         self.crash_penalty = crash_penalty
 
         self.max_episode_steps = int(max_episode_seconds * ctrl_freq)
@@ -397,16 +405,39 @@ class MovingPlatformLandingAviary(VelocityAviary):
             if rel_pos[2] < 0.3:
                 reward -= self.reward_descent_coef * outside * descending / 0.1
 
+        if self.reward_cmd_vel_coef and self.episode_step_counter > 1:
+            # Como reward_action_coef, pero sobre la velocidad que se le pide al dron: la accion tiene una dimension
+            # redundante (escalar la direccion no cambia la velocidad), y lo que siente el dron es el salto de velocidad.
+            dv = (self._commanded_velocity(self._current_action) - self._commanded_velocity(self.prev_action)) / self.SPEED_LIMIT
+            reward -= self.reward_cmd_vel_coef * float(np.sum(dv ** 2))
+
+        if self.reward_ang_vel_coef:
+            # Bamboleo del dron: velocidad angular de roll y pitch (rad/s). Moverse no cuesta; cambiar de inclinacion si.
+            reward -= self.reward_ang_vel_coef * float(np.sum(state[13:15] ** 2))
+
+        if self.reward_flare_coef:
+            # Tocar suave: castiga bajar a mas de 0.15 m/s estando alineado (adentro del radio) y a menos de 15 cm del
+            # tope. Las politicas tocan a ~0.3 m/s (eval_*.json, touchdown.vz_median).
+            if d_xy < self.platform_radius and 0.0 < rel_pos[2] < 0.15:
+                reward -= self.reward_flare_coef * max(0.0, -rel_vel[2] - 0.15) / 0.1
+
         if self._is_touching_platform():
             reward += 0.1
 
         #terminales
         if self.has_landed:
-            reward += 25.0 - d_xy * 50.0
+            reward += 25.0 - d_xy * self.landing_dxy_coef
         elif self.has_crashed:
             reward -= self.crash_penalty
 
         return float(reward)
+
+    def _commanded_velocity(self, action):
+        """Velocidad que se le pide al dron (m/s), con la misma cuenta que VelocityAviary._preprocessAction."""
+        norm = np.linalg.norm(action[0:3])
+        if norm == 0:
+            return np.zeros(3)
+        return self.SPEED_LIMIT * abs(action[3]) * action[0:3] / norm
 
     # Antes se usaba para velocity tracking, se puede borrar
     # def _get_target_velocity(self, rel_pos):

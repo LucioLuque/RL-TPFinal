@@ -16,8 +16,11 @@ HEADER = """# Experimentos
 Indice generado por `python -m tools.experiments_index` (no editar a mano). El detalle de cada corrida
 esta en `runs/<run_id>/NOTES.md` (escrito con `/registrar-corrida`) y `runs/<run_id>/run.json`.
 
-| Run | Autor | Fecha | Estado | Timesteps | Éxito final (100 ep.) | Éxito best (100 ep.) | Best éxito (8 ep.) | Best reward | Cambio |
-|---|---|---|---|---|---|---|---|---|---|
+Columnas del modelo final (100 ep.): centro = mediana de la distancia al centro de la plataforma en los
+aterrizajes; Δv pedida = cambio medio por paso de la velocidad pedida; inclinación = RMS de roll y pitch en vuelo.
+
+| Run | Autor | Fecha | Estado | Timesteps | Éxito final (100 ep.) | Éxito best (100 ep.) | Best éxito (8 ep.) | Best reward | Centro final (cm) | Δv pedida final (m/s) | Inclinación final (°) | Cambio |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
 """
 
 
@@ -54,6 +57,21 @@ def _eval_cell(run_dir: str, which: str = "best") -> str:
     return f"{100 * ev['success_rate']:.0f}% ({100 * low:.0f}–{100 * high:.0f})"
 
 
+def _flight_cells(run_dir: str) -> list[str]:
+    """Centrado, suavidad de la velocidad pedida e inclinacion del modelo final (eval_final.json)."""
+    path = os.path.join(run_dir, "eval_final.json")
+    if not os.path.exists(path):
+        return ["-"] * 3
+    with open(path) as f:
+        ev = json.load(f)
+    landing, smooth = ev.get("landing") or {}, ev.get("smoothness") or {}
+    return [
+        f"{100 * landing['d_xy_median']:.1f}" if "d_xy_median" in landing else "-",
+        f"{smooth['cmd_vel_change']:.3f}" if "cmd_vel_change" in smooth else "-",
+        f"{smooth['tilt_rms_deg']:.1f}" if "tilt_rms_deg" in smooth else "-",
+    ]
+
+
 def _row(run_dir: str) -> tuple[int, str, str]:
     with open(os.path.join(run_dir, "run.json")) as f:
         data = json.load(f)
@@ -67,7 +85,7 @@ def _row(run_dir: str) -> tuple[int, str, str]:
     run_id = data["run_id"]
     status = last["status"] + (f" ({len(sessions)} sesiones)" if len(sessions) > 1 else "")
 
-    row = "| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |".format(
+    row = "| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |".format(
         f"[{run_id}]({run_dir}/)",
         last.get("author", ""),
         sessions[0]["started_at"][:10],
@@ -77,6 +95,7 @@ def _row(run_dir: str) -> tuple[int, str, str]:
         _eval_cell(run_dir, "best"),
         f"{100 * success:.0f}%" if success is not None else "-",
         f"{reward:.2f}" if reward is not None else "-",
+        *_flight_cells(run_dir),
         _change_line(run_dir),
     )
     return _run_number(run_id), sessions[0]["started_at"], row

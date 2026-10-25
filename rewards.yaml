@@ -114,3 +114,47 @@ suave_bajada:   # DEFAULT. suave_c002 + bajada_k03. 92 % de exito medio con 4 se
   reward_action_coef: 0.02
   reward_descent_coef: 0.3
   crash_penalty: 10.0
+
+# ---- Pruebas 2026-10-24 (rama suavidad-y-centro, BITACORA.md). Todas son suave_bajada + un termino. ----
+#   reward_cmd_vel_coef: castigo c * |(v_pedida - v_pedida_anterior) / 0.6|^2. Como reward_action_coef, pero sobre la
+#                        velocidad que se le pide al dron (la accion tiene una dimension redundante: escalar la direccion
+#                        no cambia la velocidad). Es la suavidad que se transfiere al Crazyflie real.
+#   reward_ang_vel_coef: castigo c * (wx^2 + wy^2) (bamboleo). Ojo: a 24 Hz el PID del dron oscila solo (~1.5 rad/s
+#                        aun con velocidad pedida constante), asi que ese piso no se puede bajar con la recompensa.
+#   reward_flare_coef:   castigo por bajar a mas de 0.15 m/s alineado y a menos de 15 cm del tope (tocar suave).
+#   landing_dxy_coef:    pendiente del premio al aterrizar, 25 - coef * d_xy (base: 50).
+
+suave_bajada_v01:   # + castigo por saltos de la velocidad pedida
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.02
+  reward_descent_coef: 0.3
+  reward_cmd_vel_coef: 0.1
+  crash_penalty: 10.0
+
+suave_bajada_v03:   # lo mismo, 3 veces mas fuerte
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.02
+  reward_descent_coef: 0.3
+  reward_cmd_vel_coef: 0.3
+  crash_penalty: 10.0
+
+suave_bajada_centro:   # premio al aterrizar mas exigente con el centro: 25 - 100 * d_xy (entre 5 y 25)
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.02
+  reward_descent_coef: 0.3
+  landing_dxy_coef: 100.0
+  crash_penalty: 10.0
+
+suave_bajada_flare:   # + castigo por tocar rapido
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.02
+  reward_descent_coef: 0.3
+  reward_flare_coef: 0.1
+  crash_penalty: 10.0
+
+suave_bajada_w:   # + castigo por bamboleo
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.02
+  reward_descent_coef: 0.3
+  reward_ang_vel_coef: 0.003
+  crash_penalty: 10.0
