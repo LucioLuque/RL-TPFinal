@@ -43,6 +43,7 @@ aterrizajes; Δv pedida = cambio medio por paso de la velocidad pedida; inclinac
 | [v64-lucio](runs/v64-lucio/) | lucio | 2026-10-15 | finished | 1,503,232 | 95% (89–98) | 88% (80–93) | 100% | 18.26 | 8.3 | 0.204 | 8.9 | castigo a la acción + castigo por bajar estando afuera (`suave_bajada`), seed 3 |
 | [v65-lucio](runs/v65-lucio/) | lucio | 2026-10-24 | finished | 1,503,232 | 92% (85–96) | 89% (81–94) | 100% | 18.73 | 5.2 | 0.059 | 7.7 | `suave_bajada` con `--log_std_init -0.5` (desvío inicial 0.61), seed 42 |
 | [v66-lucio](runs/v66-lucio/) | lucio | 2026-10-24 | finished | 1,503,232 | 97% (92–99) | 96% (90–98) | 100% | 18.13 | 7.1 | 0.100 | 7.8 | `suave_bajada` con `--log_std_init -0.5` (desvío inicial 0.61), seed 1 |
-| [v67-lucio](runs/v67-lucio/) | lucio | 2026-10-24 | running | - | - | - | - | - | - | - | - | _sin registrar_ |
+| [v67-lucio](runs/v67-lucio/) | lucio | 2026-10-24 | finished | 1,503,232 | 89% (81–94) | 87% (79–92) | 100% | 19.10 | 6.5 | 0.090 | 7.7 | `suave_bajada` con `--log_std_init -0.5` (desvío inicial 0.61), seed 2 |
 | [v82-lucio](runs/v82-lucio/) | lucio | 2026-10-24 | finished | 1,503,232 | 0% (0–4) | 0% (0–4) | 0% | -63.62 | - | 0.000 | 0.0 | `suave_bajada` + castigo 0.1·\|Δv pedida/0.6\|² (`suave_bajada_v01`), seed 42: flota |
 | [v83-lucio](runs/v83-lucio/) | lucio | 2026-10-25 | running | - | - | - | - | - | - | - | - | _sin registrar_ |
+| [v84-lucio](runs/v84-lucio/) | lucio | 2026-10-25 | running | - | - | - | - | - | - | - | - | _sin registrar_ |
