@@ -63,9 +63,11 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
 - **`BITACORA.md`**: ideas, decisiones y observaciones que no son de una sola corrida, con fecha y autor.
   Leerla junto con `EXPERIMENTS.md` antes de proponer cambios. Agregar entradas solo cuando lo pidan.
 - **`TODO.md`**: pendientes generales, en orden. Marcar las tareas a medida que se hacen.
-- **`TODO_SIM2REAL.md`**: pendientes para pasar la política al turtlebot real (giro de la plataforma,
-  efecto suelo, observación de OptiTrack, frecuencias de la cadena real, aceleración del turtlebot y
-  domain randomization). La meta final es el robot real: tenerlo en cuenta al proponer cambios al entorno.
+- **Robot real y laboratorio: `~/Documents/Tesis/Laboratorio`** (carpeta local de Lucio, no está en este repo). Ahí está todo lo de
+  pasar la política al Crazyflie y al turtlebot reales (`SIM2REAL.md`: giro de la plataforma, efecto suelo, observación
+  de OptiTrack, frecuencias de la cadena real y el PID a 24 Hz, aceleración del turtlebot, domain randomization) y la
+  guía y los scripts del día de laboratorio. La meta final es el robot real: tenerlo en cuenta al proponer cambios al
+  entorno. No duplicar esa información en este repo.
 - `EXPERIMENTS.md` es generado: no editarlo a mano. Si tiene un conflicto de merge, regenerarlo.
 - Las corridas `version_1` a `version_15` y `landing_level_1/2` son anteriores al registro: en `runs/`
   solo tienen `model.zip` y `vecnormalize.pkl`. No se pueden cargar con el código actual (otra

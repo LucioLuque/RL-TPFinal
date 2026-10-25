@@ -1,6 +1,6 @@
 # TODO
 
-Pendientes generales del proyecto, en orden. Los de pasar al robot real están en `TODO_SIM2REAL.md`.
+Pendientes generales del proyecto, en orden. Los de pasar al robot real están en `SIM2REAL.md`, en `~/Documents/Tesis/Laboratorio`.
 
 ## 1. Reemplazar VecNormalize por una normalización fija
 
@@ -116,7 +116,7 @@ porque la plataforma se mueve y cambia `d` aunque el dron no haga nada.
   2026-10-24 (ver `BITACORA.md`).
 - [ ] **Acción no bang-bang:** las políticas saturan `dz` en ~97 % de los pasos. Probar la acción como velocidad
   directa (`v = 0.6·a`, sin normalizar la dirección) o con `tanh` en el entorno. Cambia la acción: corrida aparte y
-  revisar `TODO_SIM2REAL.md`.
+  revisar `SIM2REAL.md` (`~/Documents/Tesis/Laboratorio`).
 
 Para comparar: ≥ 3 seeds por variante y el modelo final evaluado en 100 episodios (`eval_final.json`), no solo el
 best (que se elige con 8 episodios).
@@ -168,4 +168,4 @@ checkpoint (`best/best_model.zip`) solo se puede usar a mano.
 
 ## 6. Sim2real
 
-- [ ] Resolver lo de `TODO_SIM2REAL.md`.
+- [ ] Resolver lo de `SIM2REAL.md` (`~/Documents/Tesis/Laboratorio`; ahí también está la guía del laboratorio).

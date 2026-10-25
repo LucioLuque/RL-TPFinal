@@ -7,7 +7,7 @@ from gym_pybullet_drones.utils.enums import DroneModel, Physics
 
 # Velocidad maxima que se le pide al dron (m/s): accion = SPEED_LIMIT * s * direccion.
 # VelocityAviary trae 0.25 m/s (3% de 30 km/h), menos que la plataforma (hasta 0.3 m/s), y el dron
-# no podia alcanzarla. Tiene que ser el mismo limite que se use en el Crazyflie real (ver TODO_SIM2REAL.md).
+# no podia alcanzarla. Tiene que ser el mismo limite que se use en el Crazyflie real (ver SIM2REAL.md en ~/Documents/Tesis/Laboratorio).
 DRONE_SPEED_LIMIT = 0.6
 
 # Escalas para normalizar la observacion a [-1, 1] (ver TODO.md, punto 1).

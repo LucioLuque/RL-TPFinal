@@ -29,7 +29,7 @@ comparables directamente y hay que reentrenar.
 
 **Hay que validarlo en el robot real:** el firmware del Crazyflie, en modo velocidad, no tiene tope de
 velocidad (limita la inclinación a 20°). El límite de 0.6 m/s lo tiene que aplicar el código que manda
-los comandos, con la misma fórmula que la simulación. Ver `TODO_SIM2REAL.md`, punto 4.
+los comandos, con la misma fórmula que la simulación. Ver `TODO_SIM2REAL.md`, punto 4 (desde el 2026-10-25, `SIM2REAL.md` en `~/Documents/Tesis/Laboratorio`).
 
 ## 2026-10-04 · lucio · Normalización fija en vez de VecNormalize
 
@@ -236,7 +236,7 @@ al Crazyflie real, que corre el lazo de actitud a bordo a ~500 Hz, llegue el com
 
 **No se cambió nada** (Lucio prefiere medir primero las frecuencias reales en OptiTrack). Si se arregla, sería
 correr `_preprocessAction` en cada paso de física con la última velocidad pedida, manteniendo la política a 24 Hz.
-Cambia la dinámica: corrida aparte con su `base` de referencia. Anotado en `TODO_SIM2REAL.md`, punto 4.
+Cambia la dinámica: corrida aparte con su `base` de referencia. Anotado en `TODO_SIM2REAL.md`, punto 4 (desde el 2026-10-25, `SIM2REAL.md` en `~/Documents/Tesis/Laboratorio`).
 
 ## 2026-10-25 · lucio (sesión de Claude) · Castigar el salto de la velocidad pedida deja al dron flotando (v82)
 

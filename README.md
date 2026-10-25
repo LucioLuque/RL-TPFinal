@@ -26,6 +26,9 @@ conda env config vars set PYTHONPATH="" -n drone-landing
 **Todos los comandos se corren desde la raíz del repo**, con el entorno activado. Los scripts de
 `tools/` se corren con `python -m tools.<script>`, no con `python tools/<script>.py`.
 
+Lo de pasar la política al dron y al turtlebot reales (sim2real, guía del laboratorio de OptiTrack y scripts de
+medición) está en `~/Documents/Tesis/Laboratorio`, fuera de este repo.
+
 ## Estructura
 
 ```
@@ -48,7 +51,6 @@ RL-TPFinal/
 ├── EXPERIMENTS.md      Índice de todas las corridas (generado, no editar a mano)
 ├── BITACORA.md         Decisiones e ideas, con fecha y autor
 ├── TODO.md             Pendientes generales, en orden
-├── TODO_SIM2REAL.md    Pendientes para pasar al robot real
 ├── cola_pendiente.txt  Corridas planeadas sin correr (para tools/run_queue.py)
 ├── CLAUDE.md           Contexto del proyecto para Claude Code
 └── .claude/skills/     Skill /registrar-corrida de Claude Code
