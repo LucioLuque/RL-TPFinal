@@ -31,7 +31,7 @@ aterrizajes; Δv pedida = cambio medio por paso de la velocidad pedida; inclinac
 | [v41-lucio](runs/v41-lucio/) | lucio | 2026-10-15 | finished | 1,503,232 | 55% (45–64) | 32% (24–42) | 38% | -9.13 | 11.8 | 0.265 | 8.4 | progreso k=3 además de la distancia (`A2_k3`), seed 3 |
 | [v42-lucio](runs/v42-lucio/) | lucio | 2026-10-15 | finished | 1,503,232 | 71% (62–79) | 74% (65–82) | 88% | 15.95 | 8.9 | 0.093 | 7.8 | castigo 0.02·Σ(Δa)² por cambiar la acción (`suave_c002`), seed 3 |
 | [v43-lucio](runs/v43-lucio/) | lucio | 2026-10-25 | finished | 1,503,232 | 1% (0–5) | 20% (13–29) | 25% | 2.25 | 9.1 | 0.305 | 9.6 | shaping por potencial k=10 sumado a `base` (`PBRS_k10`), seed 1: flota |
-| [v44-lucio](runs/v44-lucio/) | lucio | 2026-10-25 | running | - | - | - | - | - | - | - | - | _sin registrar_ |
+| [v44-lucio](runs/v44-lucio/) | lucio | 2026-10-25 | finished | 1,503,232 | 0% (0–4) | 16% (10–24) | 25% | -10.76 | - | 0.456 | 8.7 | progreso k=1 además de la distancia (`A2_k1`), seed 1: flota |
 | [v48-lucio](runs/v48-lucio/) | lucio | 2026-10-25 | finished | 1,503,232 | 3% (1–8) | 0% (0–4) | 12% | 3.73 | 13.4 | 0.269 | 10.2 | shaping por potencial k=10 sumado a `base` (`PBRS_k10`), seed 2: flota |
 | [v49-lucio](runs/v49-lucio/) | lucio | 2026-10-25 | running | - | - | - | - | - | - | - | - | _sin registrar_ |
 | [v50-lucio](runs/v50-lucio/) | lucio | 2026-10-15 | finished | 1,503,232 | 79% (70–86) | 70% (60–78) | 100% | 17.15 | 6.5 | 0.216 | 6.9 | recompensa `base`, `--log_std_init -0.5` (desvío inicial 0.61), seed 1 |
