@@ -345,3 +345,14 @@ suave + exitosa + centrada, lo siguiente sería entrenar a 3M `suave_bajada` + d
 - 0.05 es más suave (Δv pedida ~0.05) pero con la mitad de las seeds aprende tarde; 0.1 no aprende.
 - **Recomendación (no se cambió ningún default):** `suave_bajada_c003` + `--log_std_init -0.5`. Y entrenar más (3M):
   con `suave_bajada`, pasar de 1.5M a 3M subió el éxito de 92 a 99 % y centró de 8.1 a 3.7 cm (v69).
+
+## 2026-10-25 · lucio (sesión de Claude) · A las seeds lentas de `c005` les faltaban pasos (v100)
+
+`suave_bajada_c005` + desvío 0.61 con la seed 1 a 3M (v100): **100 %** (200/200 en seeds nuevas), contra 61 % de la
+misma corrida a 1.5M (v92). Termina de aprender entre 1.5M y 1.8M. Es la más centrada del proyecto (3.3 cm de mediana,
+71 % a menos de 5 cm) y, ya aprendida, la suavidad queda en Δv pedida 0.072 m/s (`suave_bajada` a 3M, v69: 0.119).
+
+Con v69 (`suave_bajada` a 3M: 99 %, 3.7 cm), el patrón de la noche es: **a 1.5M pasos las comparaciones de recompensa
+están contaminadas por la velocidad de aprendizaje.** Un castigo a la acción más fuerte da un vuelo más suave pero
+aprende más lento; a 3M las dos dan ~100 % y centran mucho mejor. Para elegir la recompensa final conviene comparar a
+3M (corre `c003` + desvío 0.61 a 3M, v103).

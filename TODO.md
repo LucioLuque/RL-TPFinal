@@ -101,7 +101,7 @@ porque la plataforma se mueve y cambia `d` aunque el dron no haga nada.
 - [ ] Tercera seed de `suave_c002` + `--log_std_init -0.5`.
 - [x] Variantes de suavidad y centrado sobre `suave_bajada` (2026-10-25, `BITACORA.md`): castigo a la velocidad pedida y
   a la llegada rápida (flotan), premio terminal al centro (no centra), castigo a la acción 0.1 (no aprende).
-- [ ] **`suave_bajada_c005` + `--log_std_init -0.5`:** la más suave y centrada (v91 100 %, v93 97 %), pero con la seed 1
+- [ ] **`suave_bajada_c005` + `--log_std_init -0.5`:** la más suave y centrada (v91 100 %, v93 97 %); a 3M la seed 1 llega a 100 % (v100). Con la seed 1
   aprende tarde con 2 de 4 seeds (v92 61 %, v98 72 % a 1.5M). Probar 3M pasos y un castigo intermedio (0.03).
 - [ ] **Decidir (Lucio) la recompensa y la exploración por defecto:** la más robusta es `suave_bajada_c003` +
   `--log_std_init -0.5` (97.7 % con 3 seeds, v99/v101/v102; `BITACORA.md` 2026-10-25). Hoy siguen `suave_bajada` y 0.
