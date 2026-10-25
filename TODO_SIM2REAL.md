@@ -98,6 +98,18 @@ otra cosa. Además, la frecuencia real queda limitada por la más lenta de la ca
 - [ ] Completar la tabla.
 - [ ] Ajustar `DEFAULT_CTRL_FREQ` si hace falta.
 
+### ⚠️ El PID del dron simulado corre a la frecuencia de la política (24 Hz), y oscila
+
+**Hoy** (medido el 2026-10-24, `BITACORA.md`): `BaseAviary.step` calcula las RPM una vez por paso de control, así que
+el PID de `DSLPIDControl`, incluido el lazo de actitud, corre a 24 Hz. Con una velocidad pedida constante en
+horizontal, el dron oscila solo: ±8° de inclinación y 1.5 rad/s RMS. Con el PID a 120–240 Hz queda quieto.
+
+**En el real**, el Crazyflie corre el lazo de actitud a bordo a ~500 Hz, y la PC solo le manda la velocidad pedida.
+La simulación tendría que hacer lo mismo: la política a 24 Hz (o la que salga de la tabla de arriba) y el PID en cada
+paso de física, con la última velocidad pedida.
+
+- [ ] Decidir junto con la tabla de frecuencias. Cambia la dinámica: corrida aparte, con su `base` de referencia.
+
 ### Límite de velocidad del dron: tiene que coincidir con el real
 
 **Hoy:** `DRONE_SPEED_LIMIT = 0.6` m/s en `env.py` (antes era 0.25, el valor de la librería; ver

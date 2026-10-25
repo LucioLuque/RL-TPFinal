@@ -194,3 +194,46 @@ propia recompensa (`utils.run_reward`; `base` si son viejas).
 
 Idea no probada: que la acción sea la velocidad directa (`v = 0.6·a`) o pasarla por `tanh`, para que los valores
 intermedios sean naturales.
+
+## 2026-10-24 · lucio (sesión de Claude) · Métricas de centrado, toque y suavidad del vuelo
+
+`tools/evaluate.py` guarda ahora, en cada `eval_*.json`:
+- **`landing`**: distancia horizontal al centro de la plataforma en los aterrizajes (`d_xy_mean`, `d_xy_median`,
+  `d_xy_p90`) y fracción a menos de 5 y 10 cm (`within_5cm`, `within_10cm`).
+- **`touchdown`**: en el primer contacto con el tope, velocidad de bajada relativa (`vz_*`, m/s), inclinación
+  (`tilt_deg_*`) y rebotes por episodio (`bounces_mean`).
+- **`smoothness`**, además de lo que ya tenía: `cmd_vel_change_p95` (los saltos grandes de la velocidad pedida),
+  `drone_jerk` (m/s³), `tilt_rms_deg` (inclinación RMS en vuelo) y `ang_vel_rms` (velocidad angular de roll y pitch).
+
+Se reevaluaron best y final de todas las corridas con `eval_*.json` (v16–v64) y se evaluó el final de v16–v22, que no
+lo tenía. Antes de pisar cada archivo se comprobó que el éxito, los `outcomes` y la suavidad vieja dieran igual.
+`compare_runs` y `EXPERIMENTS.md` muestran las columnas nuevas.
+
+Ejemplo, v54 (`suave_bajada`, final): aterriza a 8.1 cm del centro (mediana), solo 24 % a menos de 5 cm; toca bajando
+a 0.31 m/s (mediana) y vuela con 8° de inclinación RMS.
+
+## 2026-10-24 · lucio (sesión de Claude) · A 24 Hz, el PID del dron oscila solo (limitación del modelo, no error de código)
+
+`BaseAviary.step` calcula las RPM una vez por paso de control (`_preprocessAction`) y las deja fijas los 10 pasos de
+física. Con `ctrl_freq = 24`, el PID completo de `DSLPIDControl` (también el lazo de actitud) corre a 24 Hz. Medido con
+una velocidad pedida **constante** de 0.3 o 0.6 m/s en +x, entre los segundos 2 y 4:
+
+| Frecuencia del PID | Velocidad angular roll/pitch (RMS) | Inclinación máxima | vx |
+|---|---|---|---|
+| 24 Hz (la de hoy) | 1.50 rad/s | 8° | 0.61 ± 0.05 m/s |
+| 48 Hz | 0.60 rad/s | 1.5° | 0.60 ± 0.01 |
+| 120 y 240 Hz | 0.00 rad/s | 0.1° | 0.595 ± 0.000 |
+
+Quieto en el lugar (hover) no oscila: aparece cuando se mueve en horizontal. Una política bang-bang (+x/−x cada 0.5 s)
+llega a 4.5 rad/s RMS, y v54 vuela con ~2.2.
+
+**No es un error del código**: la librería permite `ctrl_freq` < `pyb_freq` y hace exactamente eso. Pero no representa
+al Crazyflie real, que corre el lazo de actitud a bordo a ~500 Hz, llegue el comando cada cuanto llegue. Consecuencias:
+- Parte del bamboleo y de la inclinación que se mide en simulación (`tilt_rms_deg`, `ang_vel_rms`, `drone_jerk`) es
+  un artefacto del modelo y **no se puede bajar con la recompensa**. Para comparar suavidad entre recompensas, la
+  métrica que se transfiere al real es la de la **velocidad pedida** (`cmd_vel_change`, `cmd_vel_change_p95`).
+- Probablemente vuelve más difícil la condición de aterrizaje (roll y pitch < 0.1 rad, 10 pasos seguidos).
+
+**No se cambió nada** (Lucio prefiere medir primero las frecuencias reales en OptiTrack). Si se arregla, sería
+correr `_preprocessAction` en cada paso de física con la última velocidad pedida, manteniendo la política a 24 Hz.
+Cambia la dinámica: corrida aparte con su `base` de referencia. Anotado en `TODO_SIM2REAL.md`, punto 4.
