@@ -6,3 +6,15 @@
 v65-lucio suave_bajada 42 1500000 --log_std_init -0.5
 v66-lucio suave_bajada 1 1500000 --log_std_init -0.5
 v67-lucio suave_bajada 2 1500000 --log_std_init -0.5
+
+# 2. Variantes nuevas sobre suave_bajada (log_std_init por defecto, 0). Control: v54 (s42), v56 (s1), v63 (s2).
+#    Ordenadas por seed, para que si no alcanza la noche cada variante tenga al menos una.
+v82-lucio suave_bajada_v01 42 1500000
+v83-lucio suave_bajada_flare 42 1500000
+v84-lucio suave_bajada_centro 42 1500000
+v85-lucio suave_bajada_v01 1 1500000
+v86-lucio suave_bajada_flare 1 1500000
+v87-lucio suave_bajada_centro 1 1500000
+v88-lucio suave_bajada_v01 2 1500000
+v89-lucio suave_bajada_flare 2 1500000
+v90-lucio suave_bajada_centro 2 1500000
