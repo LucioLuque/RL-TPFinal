@@ -1,0 +1,8 @@
+# Cola de la noche del 2026-10-24 (rama suavidad-y-centro). Correr con:
+#   setsid nohup python -m tools.run_queue cola_noche_2026-10-24.txt --parallel 2 > logs/queue_noche.log 2>&1 &
+# Formato: <run_id> <recompensa> <seed> <timesteps> [args extra de train.py]. Se agregan lineas a medida que avanza.
+
+# 1. suave_bajada + desvio inicial 0.61 (prioridad 1 de cola_pendiente.txt)
+v65-lucio suave_bajada 42 1500000 --log_std_init -0.5
+v66-lucio suave_bajada 1 1500000 --log_std_init -0.5
+v67-lucio suave_bajada 2 1500000 --log_std_init -0.5
