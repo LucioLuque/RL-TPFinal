@@ -49,4 +49,5 @@ aterrizajes; Δv pedida = cambio medio por paso de la velocidad pedida; inclinac
 | [v84-lucio](runs/v84-lucio/) | lucio | 2026-10-25 | finished | 1,503,232 | 96% (90–98) | 83% (74–89) | 100% | 12.82 | 8.6 | 0.060 | 8.4 | premio al aterrizar 25 − 100·d_xy en vez de 25 − 50·d_xy (`suave_bajada_centro`), seed 42 |
 | [v86-lucio](runs/v86-lucio/) | lucio | 2026-10-25 | finished | 1,503,232 | 0% (0–4) | 0% (0–4) | 0% | -13.50 | - | 0.030 | 7.7 | `suave_bajada` + castigo por llegar rápido al tope (`suave_bajada_flare`), seed 1: flota |
 | [v87-lucio](runs/v87-lucio/) | lucio | 2026-10-25 | running | - | - | - | - | - | - | - | - | _sin registrar_ |
-| [v91-lucio](runs/v91-lucio/) | lucio | 2026-10-25 | running | - | - | - | - | - | - | - | - | _sin registrar_ |
+| [v91-lucio](runs/v91-lucio/) | lucio | 2026-10-25 | finished | 1,503,232 | 100% (96–100) | 97% (92–99) | 100% | 20.80 | 5.1 | 0.051 | 7.5 | castigo a la acción 0.05 en vez de 0.02 (`suave_bajada_c005`) con desvío inicial 0.61, seed 42 |
+| [v92-lucio](runs/v92-lucio/) | lucio | 2026-10-25 | running | - | - | - | - | - | - | - | - | _sin registrar_ |
