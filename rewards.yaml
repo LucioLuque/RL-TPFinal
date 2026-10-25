@@ -145,7 +145,7 @@ suave_bajada_centro:   # premio al aterrizar mas exigente con el centro: 25 - 10
   landing_dxy_coef: 100.0
   crash_penalty: 10.0
 
-suave_bajada_flare:   # + castigo por tocar rapido
+suave_bajada_flare:   # + castigo por tocar rapido. v83 y v86: FLOTAN (2 de 2 seeds), descartada
   reward_distance_coef: 0.1
   reward_action_coef: 0.02
   reward_descent_coef: 0.3

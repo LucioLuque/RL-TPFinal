@@ -273,3 +273,13 @@ del contacto) y reevaluadas todas las corridas: **todas llegan a tocar bajando a
 velocidad máxima de bajada, sin diferencia entre recompensas. El centrado sí cambia (no dependía de esa métrica):
 `base` 6.8 cm, `suave_c002` 8.5, `suave_bajada` 8.2, `suave_bajada` + desvío 0.61 6.3. `suave_bajada_flare` (v83, v86,
 v89) ataca justamente la velocidad de llegada.
+
+## 2026-10-25 · lucio (sesión de Claude) · Castigar la llegada rápida también deja al dron flotando (v83, v86)
+
+`suave_bajada_flare` (castigo por bajar a más de 0.15 m/s alineado y a menos de 15 cm del tope): 0 % con las seeds 42 y
+1; flota a 5–19 cm del tope, cerca del borde. Junto con el castigo por bajar afuera, bajar cerca del tope cuesta en
+todas partes. Se descarta. Con esta ya son seis variantes que caen en la trampa de flotar (A1, B, XY, `borde_k1`,
+`suave_bajada_v01` y `_flare`): **cualquier término que encarezca acercarse o bajar cerca de la plataforma desde el
+principio del entrenamiento la provoca.** Lo que sí funcionó fue tocar solo el premio terminal (`suave_bajada_centro`,
+v84: 96 %) y la exploración (`--log_std_init -0.5`). Idea para cuando se quiera atacar la velocidad de llegada: un
+curriculum (entrenar con `suave_bajada` y seguir con `--load` agregando el término una vez que ya aterriza).
