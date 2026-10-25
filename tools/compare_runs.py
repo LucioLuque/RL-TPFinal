@@ -4,7 +4,8 @@
 
 Por corrida: variante de recompensa, seed, rollout/success_rate (promedio en una ventana alrededor de 0.5M,
 1.0M y 1.5M pasos), primer paso con >= 50 %, y la evaluacion de 100 episodios del best (eval_best.json):
-exito, como terminan, tiempo hasta aterrizar y suavidad; y la del modelo final (eval_final.json) si existe.
+exito, como terminan, tiempo hasta aterrizar y suavidad; y la del modelo final (eval_final.json) si existe, con
+que tan centrado aterriza (`landing`), la velocidad al tocar (`touchdown`) y la suavidad del vuelo (inclinacion, jerk).
 """
 import argparse
 import glob
@@ -70,6 +71,8 @@ def summarize(run_id):
             fin = json.load(f)
         row["final"] = fin["success_rate"]
         row["final_smooth"] = fin.get("smoothness")
+        row["final_landing"] = fin.get("landing")
+        row["final_touchdown"] = fin.get("touchdown")
     row["best_at"] = session["results"].get("best_at_timesteps") if session.get("results") else None
     return row
 
@@ -81,8 +84,9 @@ def pct(x):
 def to_markdown(rows):
     head = ("| Run | Recompensa | Seed | Éxito entr. 0.5M / 1M / 1.5M | Cruza 50 % | Best a | Éxito best (100 ep.) "
             "| Choque plat. / piso / tiempo | Aterriza (s) | Δacción | Δv pedida (m/s) "
-            "| Éxito final (100 ep.) | Δacción final | Δv pedida final |")
-    lines = [head, "|---" * 14 + "|"]
+            "| Éxito final (100 ep.) | Δacción final | Δv pedida final | Centro final: mediana (cm) / < 5 cm "
+            "| Toca a (m/s) | Inclinación RMS (°) | Jerk (m/s³) |")
+    lines = [head, "|---" * 18 + "|"]
     for r in rows:
         sr = " / ".join(pct(r[f"sr_{t // 1000}k"]) for t in CHECKPOINTS)
         first = f"{r['first_50'] / 1e6:.2f}M" if r["first_50"] else "nunca"
@@ -102,8 +106,23 @@ def to_markdown(rows):
         fda = f"{fsm['action_change']:.2f}" if fsm else "–"
         fdv = f"{fsm['cmd_vel_change']:.3f}" if fsm else "–"
         lines.append(f"| {r['run']} | `{r['reward']}` | {r['seed']} | {sr} | {first} | {best_at} | {ev} | {fails} "
-                     f"| {land} | {da} | {dv} | {fin} | {fda} | {fdv} |")
+                     f"| {land} | {da} | {dv} | {fin} | {fda} | {fdv} | {flight_cells(r)} |")
     return "\n".join(lines)
+
+
+def flight_cells(r) -> str:
+    """Centrado, velocidad al tocar, inclinacion RMS y jerk del modelo final (eval_final.json nuevo)."""
+    lan, td, sm = r.get("final_landing"), r.get("final_touchdown"), r.get("final_smooth") or {}
+    center = f"{100 * lan['d_xy_median']:.1f} / {pct(lan['within_5cm'])}" if lan else "–"
+    vz = f"{td['vz_median']:.2f}" if td else "–"
+    tilt = f"{sm['tilt_rms_deg']:.1f}" if "tilt_rms_deg" in sm else "–"
+    jerk = f"{sm['drone_jerk']:.0f}" if "drone_jerk" in sm else "–"
+    return f"{center} | {vz} | {tilt} | {jerk}"
+
+
+def _mean(rows, get):
+    vals = [v for v in (get(r) for r in rows) if v is not None]
+    return float(np.mean(vals)) if vals else None
 
 
 LEARNED = 0.3  # una seed "aprendio" si el modelo final aterriza en al menos 30 % de los 100 episodios
@@ -116,8 +135,9 @@ def by_reward(rows):
         groups.setdefault(r["reward"], []).append(r)
     head = ("| Recompensa | Seeds | Aprendieron (final ≥ 30 %) | Éxito final por seed | Éxito final medio "
             "| Éxito final medio de las que aprendieron | Δacción final (las que aprendieron) "
-            "| Δv pedida final (las que aprendieron) |")
-    lines = [head, "|---" * 8 + "|"]
+            "| Δv pedida final (las que aprendieron) | Centro: mediana (cm) | < 5 cm | Toca a (m/s) "
+            "| Inclinación RMS (°) | Jerk (m/s³) |")
+    lines = [head, "|---" * 13 + "|"]
     for reward, rs in groups.items():
         rs = [r for r in rs if r.get("final") is not None]
         if not rs:
@@ -129,8 +149,15 @@ def by_reward(rows):
         sm = [r["final_smooth"] for r in learned if r.get("final_smooth")]
         da = f"{np.mean([x['action_change'] for x in sm]):.2f}" if sm else "–"
         dv = f"{np.mean([x['cmd_vel_change'] for x in sm]):.3f}" if sm else "–"
+        fmt = lambda x, f: "–" if x is None else f.format(x)
+        center = _mean(learned, lambda r: (r.get("final_landing") or {}).get("d_xy_median"))
+        w5 = _mean(learned, lambda r: (r.get("final_landing") or {}).get("within_5cm"))
+        vz = _mean(learned, lambda r: (r.get("final_touchdown") or {}).get("vz_median"))
+        tilt = _mean(learned, lambda r: (r.get("final_smooth") or {}).get("tilt_rms_deg"))
+        jerk = _mean(learned, lambda r: (r.get("final_smooth") or {}).get("drone_jerk"))
         lines.append(f"| `{reward}` | {len(rs)} | {len(learned)}/{len(rs)} | {per_seed} | {pct(mean)} | {mean_l} "
-                     f"| {da} | {dv} |")
+                     f"| {da} | {dv} | {fmt(center and 100 * center, '{:.1f}')} | {pct(w5)} | {fmt(vz, '{:.2f}')} "
+                     f"| {fmt(tilt, '{:.1f}')} | {fmt(jerk, '{:.0f}')} |")
     return "\n".join(lines)
 
 

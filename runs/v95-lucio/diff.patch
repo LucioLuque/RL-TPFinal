@@ -1,0 +1,21 @@
+diff --git a/BITACORA.md b/BITACORA.md
+index c6f8073..1f57ca0 100644
+--- a/BITACORA.md
++++ b/BITACORA.md
+@@ -283,3 +283,16 @@ todas partes. Se descarta. Con esta ya son seis variantes que caen en la trampa
+ principio del entrenamiento la provoca.** Lo que sí funcionó fue tocar solo el premio terminal (`suave_bajada_centro`,
+ v84: 96 %) y la exploración (`--log_std_init -0.5`). Idea para cuando se quiera atacar la velocidad de llegada: un
+ curriculum (entrenar con `suave_bajada` y seguir con `--load` agregando el término una vez que ya aterriza).
++
++## 2026-10-25 · lucio (sesión de Claude) · Premio al centro (v84, v87) y castigo a la acción 0.05 con desvío 0.61 (v91)
++
++- **`suave_bajada_centro`** (premio al aterrizar `25 − 100·d_xy` en vez de `25 − 50·d_xy`), desvío 1: 96 % (s42, v84)
++  y 83 % (s1, v87), contra 92 % y 88 % de `suave_bajada` con las mismas seeds. **No centra mejor** (8.6 y 8.0 cm de
++  mediana, contra 8.1 y 9.6). Hipótesis: el premio llega 10 pasos después de tocar y apoyado ya casi no se desplaza;
++  el centrado se decide antes de tocar. Sin mejora clara con dos seeds; falta la seed 2 (v90) y la versión con
++  desvío 0.61 (v94, v95).
++- **`suave_bajada_c005`** (castigo a la acción 0.05 en vez de 0.02) + desvío 0.61, seed 42 (v91): **100 % en el modelo
++  final, y 200/200 en 200 episodios extra con seeds distintas (1000–1199)**; v65 (misma seed, castigo 0.02): 92 % y
++  189/200. Es la más suave (Δv pedida 0.051 m/s) y la más centrada (5.1 cm, 49 % a menos de 5 cm) del proyecto, y
++  aprende antes. **Una sola seed**: faltan v92 y v93. Para ver hasta dónde se puede subir el castigo: `suave_bajada_c01`
++  (0.1) con desvío 0.61 (v96, v97).

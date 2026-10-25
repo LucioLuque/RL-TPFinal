@@ -33,7 +33,8 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
 - `tools/`: análisis (gifs, trayectorias, curvas, índice de experimentos).
 - `media/`: gifs y plots para el informe o la presentación.
 - `docs/`: consigna, informe, presentación y reportes de experimentos (`pruebas-recompensas-2026-10-15.md`).
-- `cola_pendiente.txt`: corridas planeadas que no se corrieron todavía (para `tools/run_queue.py`).
+- `cola_pendiente.txt`: corridas planeadas que no se corrieron todavía (para `tools/run_queue.py`). **Es la única cola:**
+  no crear otros archivos de cola; lo que se planea va ahí y, una vez registrado, se borra.
 - `logs/landing_level_1/`: TensorBoard de las corridas de curriculum viejas. `logs/` está en
   `.gitignore`; los logs de `version_N` van en `runs/version_N/tb/`.
 
@@ -44,6 +45,8 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
 - **Id**: `v<N>-<autor>`. N es global entre los dos autores (el mayor existente + 1). El autor es la
   primera palabra de `git config user.name`. Hacer `git pull` antes de entrenar.
 - `train.py --run_id <id>` fija el nombre (hace falta para lanzar varias en paralelo; `tools/run_queue.py` lo usa).
+- Las colas (`tools/run_queue.py`) no llevan número: se asigna al lanzar cada corrida. No reservar números de
+  antemano (dejaba huecos: v31, v32, v37–v39, v43–v49, v59–v62, v68, v70–v81, v85, v88, v89 no existen).
 - **Memoria:** cada corrida usa ~3.5 GB de RAM (8 entornos de entrenamiento + 8 de evaluación). En la máquina de
   Lucio (13 GB), no más de 2 corridas a la vez: con 3 se llenó la RAM y se trabó todo.
 - **`runs/<id>/`** tiene todo lo de una corrida, y lo escribe `train.py` solo:
@@ -60,10 +63,13 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
   repetir algo que ya se probó.
 - **`BITACORA.md`**: ideas, decisiones y observaciones que no son de una sola corrida, con fecha y autor.
   Leerla junto con `EXPERIMENTS.md` antes de proponer cambios. Agregar entradas solo cuando lo pidan.
-- **`TODO.md`**: pendientes generales, en orden. Marcar las tareas a medida que se hacen.
-- **`TODO_SIM2REAL.md`**: pendientes para pasar la política al turtlebot real (giro de la plataforma,
-  efecto suelo, observación de OptiTrack, frecuencias de la cadena real, aceleración del turtlebot y
-  domain randomization). La meta final es el robot real: tenerlo en cuenta al proponer cambios al entorno.
+- **`TODO.md`**: pendientes generales, en orden. **Solo lo que falta:** al terminar una tarea, borrarla (no tacharla);
+  antes, comprobar que quede registrada en `BITACORA.md`, `EXPERIMENTS.md`, una `NOTES.md` o `docs/`.
+- **Robot real y laboratorio: `~/Documents/Tesis/Laboratorio`** (carpeta local de Lucio, no está en este repo). Ahí está todo lo de
+  pasar la política al Crazyflie y al turtlebot reales (`SIM2REAL.md`: giro de la plataforma, efecto suelo, observación
+  de OptiTrack, frecuencias de la cadena real y el PID a 24 Hz, aceleración del turtlebot, domain randomization) y la
+  guía y los scripts del día de laboratorio. La meta final es el robot real: tenerlo en cuenta al proponer cambios al
+  entorno. No duplicar esa información en este repo.
 - `EXPERIMENTS.md` es generado: no editarlo a mano. Si tiene un conflicto de merge, regenerarlo.
 - Las corridas `version_1` a `version_15` y `landing_level_1/2` son anteriores al registro: en `runs/`
   solo tienen `model.zip` y `vecnormalize.pkl`. No se pueden cargar con el código actual (otra
@@ -92,6 +98,16 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
     +0.1 tocando el tope, +25 − 50·d_xy al aterrizar, −10 al chocar) + `0.02·Σ(a − a_anterior)²` de castigo por
     cambiar la acción + `0.3·(d_xy − 0.25)₊·(velocidad de bajada)₊/0.1` de castigo por bajar estando afuera y a
     menos de 30 cm del tope. 92 % de éxito medio con 4 seeds a 1.5M, contra 54 % de `base`.
+  - **Candidatas a reemplazarla** (2026-10-25, no se cambió el default: falta correrlas a 3M con 3 seeds,
+    `cola_pendiente.txt`): `suave_bajada_c003` (castigo a la acción 0.03) y `suave_bajada_c005` (0.05), las dos con
+    `--log_std_init -0.5`. Ventajas y desventajas de cada una en el README ("Mejores políticas hasta ahora") y en
+    `docs/pruebas-suavidad-2026-10-25.md`.
+  - Más castigo a la acción da un vuelo más suave pero aprende más lento (0.05: la mitad de las seeds tarda; 0.1 no
+    aprende). Entrenar 3M en vez de 1.5M centra mucho más (3–4 cm contra 6–8 cm). Con desvío 0.61, el término de
+    bajada no suma (`suave_c002` da lo mismo que `suave_bajada`).
+  - **Trampa de flotar:** cualquier término que encarezca acercarse o bajar cerca de la plataforma desde el principio
+    del entrenamiento deja al dron flotando sin aterrizar (A1, B, XY, `borde_k1`, `suave_bajada_v01`, `_flare`). El
+    castigo a la velocidad pedida además tiene una salida: pedir `s = 0`.
   - Con `--load`, se usa la recompensa de esa corrida (`utils.run_reward`; `base` si es vieja y no la tiene).
     Las herramientas que cargan una corrida (`eval.py`, `tools/evaluate.py`, gifs, trayectorias) también.
   - Otros términos: progreso (`reward_progress_coef`, `reward_progress_mode`), PBRS (`reward_pbrs_coef`),
@@ -101,6 +117,13 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
     movimiento de la plataforma (`mode: drone`) se puede explotar persiguiéndola.
 - **Las políticas son casi bang-bang**: `dz` saturado en ~97 % de los pasos (bajan siempre a máxima velocidad) y
   la media de la gaussiana muy afuera de [−1, 1]. Ver `tools/action_saturation.py`.
+- **El PID del dron corre a 24 Hz** (la frecuencia de la política: `BaseAviary.step` calcula las RPM una vez por paso de
+  control) y **oscila solo**, aun con velocidad pedida constante (±8°); a 120–240 Hz queda quieto. No es un error de
+  código, pero el Crazyflie real controla a bordo a ~500 Hz. No se cambia hasta medir el dron real en el laboratorio.
+- **Métricas de la evaluación** (`tools/evaluate.py`, `eval_*.json`): además de éxito y `outcomes`, `landing` (qué tan
+  centrado aterriza), `touchdown` (cómo llega a tocar) y `smoothness`. La suavidad que importa es `cmd_vel_change` (la
+  velocidad pedida, lo que se manda al dron real); inclinación, jerk y velocidad angular están contaminados por el
+  bamboleo del PID a 24 Hz.
 
 ## Convenciones
 
@@ -112,5 +135,8 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
   no aprende; el best (elegido con 8 episodios) puede estar 20 puntos lejos del final. `tools/compare_runs.py
   --by-reward` junta las seeds. Ver `BITACORA.md`, 2026-10-15.
 - **Exploración:** el desvío inicial de la acción (`--log_std_init`, default 0 → desvío 1) pesa tanto como la
-  recompensa: con desvío 0.61 (`-0.5`) `base` aprende en todas las seeds. Tenerlo en cuenta al comparar.
+  recompensa: con desvío 0.61 (`-0.5`) `base` aprende en todas las seeds, y `suave_bajada` vuela más suave y centrada.
+  Con 0.37 (`-1.0`) `base` mejora un poco más pero aprende más tarde. Tenerlo en cuenta al comparar.
+- A 1.5M pasos, las diferencias entre recompensas son sobre todo de velocidad de aprendizaje: para elegir la final,
+  comparar también a 3M.
 - Todo `runs/` se commitea (modelos y TensorBoard), porque es chico y el otro los necesita para evaluar. Los gifs se commitean solo si van al informe.

@@ -21,10 +21,29 @@
     "median": 2.42,
     "p90": 3.17
   },
+  "landing": {
+    "d_xy_mean": 0.057,
+    "d_xy_median": 0.041,
+    "d_xy_p90": 0.102,
+    "within_5cm": 0.625,
+    "within_10cm": 0.891
+  },
+  "touchdown": {
+    "n": 78,
+    "vz_median": 0.42,
+    "vz_p90": 0.524,
+    "tilt_deg_median": 3.55,
+    "tilt_deg_p90": 7.95,
+    "bounces_mean": 0.0
+  },
   "smoothness": {
     "action_change": 0.834,
     "cmd_vel_change": 0.2665,
-    "drone_accel": 1.7005
+    "cmd_vel_change_p95": 0.6183,
+    "drone_accel": 1.7005,
+    "drone_jerk": 42.0231,
+    "tilt_rms_deg": 7.1756,
+    "ang_vel_rms": 1.7864
   },
   "obs_clipped_fraction": {
     "rel_px": 0.0,
@@ -89,608 +108,1303 @@
     "prev_a2": 1.0,
     "prev_a3": 1.0
   },
-  "git_commit": "b72fbbdf7ae0d77917964685ca8c45d78b733617",
-  "evaluated_at": "2026-10-15T09:25:03",
+  "git_commit": "9f9e2059f623c509fbbd48d4344493d364cfd7e3",
+  "evaluated_at": "2026-10-25T00:54:36",
   "per_episode": [
     {
       "seed": 42,
       "outcome": "choque_plataforma",
       "steps": 33,
-      "d_xy": 0.306
+      "d_xy": 0.306,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.346,
+        "tilt_deg": 2.92,
+        "d_xy": 0.306
+      },
+      "bounces": 0
     },
     {
       "seed": 43,
       "outcome": "choque_plataforma",
       "steps": 37,
-      "d_xy": 0.304
+      "d_xy": 0.304,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.164,
+        "tilt_deg": 6.93,
+        "d_xy": 0.304
+      },
+      "bounces": 0
     },
     {
       "seed": 44,
       "outcome": "choque_plataforma",
       "steps": 36,
-      "d_xy": 0.312
+      "d_xy": 0.312,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.402,
+        "tilt_deg": 5.19,
+        "d_xy": 0.312
+      },
+      "bounces": 0
     },
     {
       "seed": 45,
       "outcome": "choque_plataforma",
       "steps": 332,
-      "d_xy": 0.255
+      "d_xy": 0.255,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.358,
+        "tilt_deg": 1.87,
+        "d_xy": 0.252
+      },
+      "bounces": 0
     },
     {
       "seed": 46,
       "outcome": "exito",
       "steps": 63,
-      "d_xy": 0.019
+      "d_xy": 0.019,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.385,
+        "tilt_deg": 5.04,
+        "d_xy": 0.019
+      },
+      "bounces": 0
     },
     {
       "seed": 47,
       "outcome": "exito",
       "steps": 63,
-      "d_xy": 0.021
+      "d_xy": 0.021,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.431,
+        "tilt_deg": 8.39,
+        "d_xy": 0.04
+      },
+      "bounces": 0
     },
     {
       "seed": 48,
       "outcome": "exito",
       "steps": 43,
-      "d_xy": 0.165
+      "d_xy": 0.165,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.418,
+        "tilt_deg": 3.28,
+        "d_xy": 0.174
+      },
+      "bounces": 0
     },
     {
       "seed": 49,
       "outcome": "exito",
       "steps": 53,
-      "d_xy": 0.037
+      "d_xy": 0.037,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.422,
+        "tilt_deg": 7.1,
+        "d_xy": 0.036
+      },
+      "bounces": 0
     },
     {
       "seed": 50,
       "outcome": "exito",
       "steps": 78,
-      "d_xy": 0.026
+      "d_xy": 0.026,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.548,
+        "tilt_deg": 0.64,
+        "d_xy": 0.026
+      },
+      "bounces": 0
     },
     {
       "seed": 51,
       "outcome": "exito",
       "steps": 80,
-      "d_xy": 0.029
+      "d_xy": 0.029,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.431,
+        "tilt_deg": 3.36,
+        "d_xy": 0.033
+      },
+      "bounces": 0
     },
     {
       "seed": 52,
       "outcome": "choque_plataforma",
       "steps": 19,
-      "d_xy": 0.317
+      "d_xy": 0.317,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.357,
+        "tilt_deg": 3.33,
+        "d_xy": 0.317
+      },
+      "bounces": 0
     },
     {
       "seed": 53,
       "outcome": "exito",
       "steps": 60,
-      "d_xy": 0.065
+      "d_xy": 0.065,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.425,
+        "tilt_deg": 1.73,
+        "d_xy": 0.067
+      },
+      "bounces": 0
     },
     {
       "seed": 54,
       "outcome": "choque_plataforma",
       "steps": 40,
-      "d_xy": 0.304
+      "d_xy": 0.304,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.423,
+        "tilt_deg": 6.68,
+        "d_xy": 0.304
+      },
+      "bounces": 0
     },
     {
       "seed": 55,
       "outcome": "exito",
       "steps": 76,
-      "d_xy": 0.023
+      "d_xy": 0.023,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.471,
+        "tilt_deg": 4.4,
+        "d_xy": 0.022
+      },
+      "bounces": 0
     },
     {
       "seed": 56,
       "outcome": "exito",
       "steps": 71,
-      "d_xy": 0.048
+      "d_xy": 0.048,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.442,
+        "tilt_deg": 3.15,
+        "d_xy": 0.048
+      },
+      "bounces": 0
     },
     {
       "seed": 57,
       "outcome": "exito",
       "steps": 54,
-      "d_xy": 0.032
+      "d_xy": 0.032,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.464,
+        "tilt_deg": 3.41,
+        "d_xy": 0.037
+      },
+      "bounces": 0
     },
     {
       "seed": 58,
       "outcome": "exito",
       "steps": 50,
-      "d_xy": 0.05
+      "d_xy": 0.05,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.477,
+        "tilt_deg": 7.62,
+        "d_xy": 0.051
+      },
+      "bounces": 0
     },
     {
       "seed": 59,
       "outcome": "exito",
       "steps": 28,
-      "d_xy": 0.036
+      "d_xy": 0.036,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.446,
+        "tilt_deg": 4.77,
+        "d_xy": 0.195
+      },
+      "bounces": 0
     },
     {
       "seed": 60,
       "outcome": "exito",
       "steps": 58,
-      "d_xy": 0.067
+      "d_xy": 0.067,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.366,
+        "tilt_deg": 2.51,
+        "d_xy": 0.068
+      },
+      "bounces": 0
     },
     {
       "seed": 61,
       "outcome": "exito",
       "steps": 69,
-      "d_xy": 0.032
+      "d_xy": 0.032,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.542,
+        "tilt_deg": 1.0,
+        "d_xy": 0.023
+      },
+      "bounces": 0
     },
     {
       "seed": 62,
       "outcome": "exito",
       "steps": 44,
-      "d_xy": 0.044
+      "d_xy": 0.044,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.392,
+        "tilt_deg": 2.46,
+        "d_xy": 0.042
+      },
+      "bounces": 0
     },
     {
       "seed": 63,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.229
+      "d_xy": 0.229,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.372,
+        "tilt_deg": 2.42,
+        "d_xy": 0.217
+      },
+      "bounces": 0
     },
     {
       "seed": 64,
       "outcome": "exito",
       "steps": 53,
-      "d_xy": 0.054
+      "d_xy": 0.054,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.422,
+        "tilt_deg": 5.25,
+        "d_xy": 0.064
+      },
+      "bounces": 0
     },
     {
       "seed": 65,
       "outcome": "exito",
       "steps": 42,
-      "d_xy": 0.016
+      "d_xy": 0.016,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.432,
+        "tilt_deg": 5.75,
+        "d_xy": 0.021
+      },
+      "bounces": 0
     },
     {
       "seed": 66,
       "outcome": "choque_plataforma",
       "steps": 23,
-      "d_xy": 0.308
+      "d_xy": 0.308,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.348,
+        "tilt_deg": 3.27,
+        "d_xy": 0.308
+      },
+      "bounces": 0
     },
     {
       "seed": 67,
       "outcome": "exito",
       "steps": 60,
-      "d_xy": 0.031
+      "d_xy": 0.031,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.386,
+        "tilt_deg": 3.46,
+        "d_xy": 0.03
+      },
+      "bounces": 0
     },
     {
       "seed": 68,
       "outcome": "choque_plataforma",
       "steps": 14,
-      "d_xy": 0.319
+      "d_xy": 0.319,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.406,
+        "tilt_deg": 7.15,
+        "d_xy": 0.319
+      },
+      "bounces": 0
     },
     {
       "seed": 69,
       "outcome": "exito",
       "steps": 76,
-      "d_xy": 0.029
+      "d_xy": 0.029,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.352,
+        "tilt_deg": 3.56,
+        "d_xy": 0.032
+      },
+      "bounces": 0
     },
     {
       "seed": 70,
       "outcome": "exito",
       "steps": 37,
-      "d_xy": 0.041
+      "d_xy": 0.041,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.558,
+        "tilt_deg": 1.78,
+        "d_xy": 0.147
+      },
+      "bounces": 0
     },
     {
       "seed": 71,
       "outcome": "exito",
       "steps": 45,
-      "d_xy": 0.02
+      "d_xy": 0.02,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.449,
+        "tilt_deg": 5.8,
+        "d_xy": 0.029
+      },
+      "bounces": 0
     },
     {
       "seed": 72,
       "outcome": "exito",
       "steps": 56,
-      "d_xy": 0.181
+      "d_xy": 0.181,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.368,
+        "tilt_deg": 7.35,
+        "d_xy": 0.194
+      },
+      "bounces": 0
     },
     {
       "seed": 73,
       "outcome": "exito",
       "steps": 67,
-      "d_xy": 0.041
+      "d_xy": 0.041,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.361,
+        "tilt_deg": 5.73,
+        "d_xy": 0.039
+      },
+      "bounces": 0
     },
     {
       "seed": 74,
       "outcome": "exito",
       "steps": 72,
-      "d_xy": 0.044
+      "d_xy": 0.044,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.445,
+        "tilt_deg": 0.88,
+        "d_xy": 0.04
+      },
+      "bounces": 0
     },
     {
       "seed": 75,
       "outcome": "exito",
       "steps": 76,
-      "d_xy": 0.039
+      "d_xy": 0.039,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.408,
+        "tilt_deg": 1.14,
+        "d_xy": 0.039
+      },
+      "bounces": 0
     },
     {
       "seed": 76,
       "outcome": "choque_plataforma",
       "steps": 28,
-      "d_xy": 0.306
+      "d_xy": 0.306,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.414,
+        "tilt_deg": 2.84,
+        "d_xy": 0.306
+      },
+      "bounces": 0
     },
     {
       "seed": 77,
       "outcome": "exito",
       "steps": 74,
-      "d_xy": 0.034
+      "d_xy": 0.034,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.503,
+        "tilt_deg": 2.34,
+        "d_xy": 0.034
+      },
+      "bounces": 0
     },
     {
       "seed": 78,
       "outcome": "choque_plataforma",
       "steps": 33,
-      "d_xy": 0.309
+      "d_xy": 0.309,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.388,
+        "tilt_deg": 4.19,
+        "d_xy": 0.309
+      },
+      "bounces": 0
     },
     {
       "seed": 79,
       "outcome": "exito",
       "steps": 33,
-      "d_xy": 0.04
+      "d_xy": 0.04,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.56,
+        "tilt_deg": 6.77,
+        "d_xy": 0.066
+      },
+      "bounces": 0
     },
     {
       "seed": 80,
       "outcome": "exito",
       "steps": 38,
-      "d_xy": 0.037
+      "d_xy": 0.037,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.548,
+        "tilt_deg": 3.37,
+        "d_xy": 0.034
+      },
+      "bounces": 0
     },
     {
       "seed": 81,
       "outcome": "exito",
       "steps": 59,
-      "d_xy": 0.087
+      "d_xy": 0.087,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.429,
+        "tilt_deg": 8.29,
+        "d_xy": 0.079
+      },
+      "bounces": 0
     },
     {
       "seed": 82,
       "outcome": "exito",
       "steps": 46,
-      "d_xy": 0.059
+      "d_xy": 0.059,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.398,
+        "tilt_deg": 9.95,
+        "d_xy": 0.056
+      },
+      "bounces": 0
     },
     {
       "seed": 83,
       "outcome": "exito",
       "steps": 43,
-      "d_xy": 0.003
+      "d_xy": 0.003,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.475,
+        "tilt_deg": 3.68,
+        "d_xy": 0.002
+      },
+      "bounces": 0
     },
     {
       "seed": 84,
       "outcome": "choque_plataforma",
       "steps": 58,
-      "d_xy": 0.303
+      "d_xy": 0.303,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.412,
+        "tilt_deg": 4.26,
+        "d_xy": 0.303
+      },
+      "bounces": 0
     },
     {
       "seed": 85,
       "outcome": "choque_plataforma",
       "steps": 26,
-      "d_xy": 0.254
+      "d_xy": 0.254,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.321,
+        "tilt_deg": 4.17,
+        "d_xy": 0.268
+      },
+      "bounces": 0
     },
     {
       "seed": 86,
       "outcome": "exito",
       "steps": 57,
-      "d_xy": 0.075
+      "d_xy": 0.075,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.409,
+        "tilt_deg": 2.63,
+        "d_xy": 0.072
+      },
+      "bounces": 0
     },
     {
       "seed": 87,
       "outcome": "exito",
       "steps": 61,
-      "d_xy": 0.032
+      "d_xy": 0.032,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.454,
+        "tilt_deg": 7.38,
+        "d_xy": 0.033
+      },
+      "bounces": 0
     },
     {
       "seed": 88,
       "outcome": "exito",
       "steps": 44,
-      "d_xy": 0.077
+      "d_xy": 0.077,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.415,
+        "tilt_deg": 2.0,
+        "d_xy": 0.091
+      },
+      "bounces": 0
     },
     {
       "seed": 89,
       "outcome": "choque_plataforma",
       "steps": 36,
-      "d_xy": 0.31
+      "d_xy": 0.31,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.192,
+        "tilt_deg": 3.33,
+        "d_xy": 0.31
+      },
+      "bounces": 0
     },
     {
       "seed": 90,
       "outcome": "choque_plataforma",
       "steps": 28,
-      "d_xy": 0.289
+      "d_xy": 0.289,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.417,
+        "tilt_deg": 1.73,
+        "d_xy": 0.294
+      },
+      "bounces": 0
     },
     {
       "seed": 91,
       "outcome": "choque_plataforma",
       "steps": 29,
-      "d_xy": 0.27
+      "d_xy": 0.27,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.343,
+        "tilt_deg": 2.87,
+        "d_xy": 0.283
+      },
+      "bounces": 0
     },
     {
       "seed": 92,
       "outcome": "exito",
       "steps": 54,
-      "d_xy": 0.035
+      "d_xy": 0.035,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.46,
+        "tilt_deg": 0.36,
+        "d_xy": 0.035
+      },
+      "bounces": 0
     },
     {
       "seed": 93,
       "outcome": "choque_plataforma",
       "steps": 32,
-      "d_xy": 0.308
+      "d_xy": 0.308,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.392,
+        "tilt_deg": 6.87,
+        "d_xy": 0.308
+      },
+      "bounces": 0
     },
     {
       "seed": 94,
       "outcome": "choque_plataforma",
       "steps": 34,
-      "d_xy": 0.25
+      "d_xy": 0.25,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.389,
+        "tilt_deg": 1.77,
+        "d_xy": 0.258
+      },
+      "bounces": 0
     },
     {
       "seed": 95,
       "outcome": "exito",
       "steps": 64,
-      "d_xy": 0.03
+      "d_xy": 0.03,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.415,
+        "tilt_deg": 3.77,
+        "d_xy": 0.032
+      },
+      "bounces": 0
     },
     {
       "seed": 96,
       "outcome": "exito",
       "steps": 56,
-      "d_xy": 0.074
+      "d_xy": 0.074,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.492,
+        "tilt_deg": 1.97,
+        "d_xy": 0.07
+      },
+      "bounces": 0
     },
     {
       "seed": 97,
       "outcome": "exito",
       "steps": 73,
-      "d_xy": 0.049
+      "d_xy": 0.049,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.521,
+        "tilt_deg": 4.23,
+        "d_xy": 0.05
+      },
+      "bounces": 0
     },
     {
       "seed": 98,
       "outcome": "exito",
       "steps": 73,
-      "d_xy": 0.027
+      "d_xy": 0.027,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.446,
+        "tilt_deg": 1.07,
+        "d_xy": 0.025
+      },
+      "bounces": 0
     },
     {
       "seed": 99,
       "outcome": "exito",
       "steps": 38,
-      "d_xy": 0.054
+      "d_xy": 0.054,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.372,
+        "tilt_deg": 5.24,
+        "d_xy": 0.059
+      },
+      "bounces": 0
     },
     {
       "seed": 100,
       "outcome": "choque_plataforma",
       "steps": 46,
-      "d_xy": 0.244
+      "d_xy": 0.244,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.387,
+        "tilt_deg": 4.41,
+        "d_xy": 0.237
+      },
+      "bounces": 0
     },
     {
       "seed": 101,
       "outcome": "exito",
       "steps": 52,
-      "d_xy": 0.031
+      "d_xy": 0.031,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.429,
+        "tilt_deg": 2.07,
+        "d_xy": 0.029
+      },
+      "bounces": 0
     },
     {
       "seed": 102,
       "outcome": "exito",
       "steps": 74,
-      "d_xy": 0.004
+      "d_xy": 0.004,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.568,
+        "tilt_deg": 3.68,
+        "d_xy": 0.007
+      },
+      "bounces": 0
     },
     {
       "seed": 103,
       "outcome": "choque_plataforma",
       "steps": 18,
-      "d_xy": 0.259
+      "d_xy": 0.259,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.416,
+        "tilt_deg": 2.82,
+        "d_xy": 0.26
+      },
+      "bounces": 0
     },
     {
       "seed": 104,
       "outcome": "choque_plataforma",
       "steps": 50,
-      "d_xy": 0.302
+      "d_xy": 0.302,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.423,
+        "tilt_deg": 4.76,
+        "d_xy": 0.302
+      },
+      "bounces": 0
     },
     {
       "seed": 105,
       "outcome": "exito",
       "steps": 48,
-      "d_xy": 0.057
+      "d_xy": 0.057,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.414,
+        "tilt_deg": 8.4,
+        "d_xy": 0.047
+      },
+      "bounces": 0
     },
     {
       "seed": 106,
       "outcome": "exito",
       "steps": 43,
-      "d_xy": 0.039
+      "d_xy": 0.039,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.441,
+        "tilt_deg": 8.89,
+        "d_xy": 0.036
+      },
+      "bounces": 0
     },
     {
       "seed": 107,
       "outcome": "exito",
       "steps": 73,
-      "d_xy": 0.063
+      "d_xy": 0.063,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.516,
+        "tilt_deg": 9.39,
+        "d_xy": 0.06
+      },
+      "bounces": 0
     },
     {
       "seed": 108,
       "outcome": "choque_plataforma",
       "steps": 30,
-      "d_xy": 0.309
+      "d_xy": 0.309,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.396,
+        "tilt_deg": 6.49,
+        "d_xy": 0.309
+      },
+      "bounces": 0
     },
     {
       "seed": 109,
       "outcome": "exito",
       "steps": 62,
-      "d_xy": 0.032
+      "d_xy": 0.032,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.505,
+        "tilt_deg": 6.14,
+        "d_xy": 0.032
+      },
+      "bounces": 0
     },
     {
       "seed": 110,
       "outcome": "exito",
       "steps": 60,
-      "d_xy": 0.15
+      "d_xy": 0.15,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.384,
+        "tilt_deg": 4.39,
+        "d_xy": 0.159
+      },
+      "bounces": 0
     },
     {
       "seed": 111,
       "outcome": "exito",
       "steps": 82,
-      "d_xy": 0.107
+      "d_xy": 0.107,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.351,
+        "tilt_deg": 4.55,
+        "d_xy": 0.113
+      },
+      "bounces": 0
     },
     {
       "seed": 112,
       "outcome": "choque_plataforma",
       "steps": 43,
-      "d_xy": 0.245
+      "d_xy": 0.245,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.409,
+        "tilt_deg": 7.84,
+        "d_xy": 0.26
+      },
+      "bounces": 0
     },
     {
       "seed": 113,
       "outcome": "exito",
       "steps": 56,
-      "d_xy": 0.038
+      "d_xy": 0.038,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.498,
+        "tilt_deg": 2.49,
+        "d_xy": 0.038
+      },
+      "bounces": 0
     },
     {
       "seed": 114,
       "outcome": "exito",
       "steps": 76,
-      "d_xy": 0.048
+      "d_xy": 0.048,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.399,
+        "tilt_deg": 3.03,
+        "d_xy": 0.046
+      },
+      "bounces": 0
     },
     {
       "seed": 115,
       "outcome": "exito",
       "steps": 60,
-      "d_xy": 0.036
+      "d_xy": 0.036,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.53,
+        "tilt_deg": 2.84,
+        "d_xy": 0.034
+      },
+      "bounces": 0
     },
     {
       "seed": 116,
       "outcome": "choque_plataforma",
       "steps": 31,
-      "d_xy": 0.262
+      "d_xy": 0.262,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.354,
+        "tilt_deg": 3.68,
+        "d_xy": 0.252
+      },
+      "bounces": 0
     },
     {
       "seed": 117,
       "outcome": "exito",
       "steps": 65,
-      "d_xy": 0.042
+      "d_xy": 0.042,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.547,
+        "tilt_deg": 2.06,
+        "d_xy": 0.043
+      },
+      "bounces": 0
     },
     {
       "seed": 118,
       "outcome": "exito",
       "steps": 58,
-      "d_xy": 0.039
+      "d_xy": 0.039,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.376,
+        "tilt_deg": 8.2,
+        "d_xy": 0.044
+      },
+      "bounces": 0
     },
     {
       "seed": 119,
       "outcome": "choque_plataforma",
       "steps": 46,
-      "d_xy": 0.305
+      "d_xy": 0.305,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.416,
+        "tilt_deg": 4.63,
+        "d_xy": 0.305
+      },
+      "bounces": 0
     },
     {
       "seed": 120,
       "outcome": "choque_plataforma",
       "steps": 35,
-      "d_xy": 0.262
+      "d_xy": 0.262,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.383,
+        "tilt_deg": 6.91,
+        "d_xy": 0.258
+      },
+      "bounces": 0
     },
     {
       "seed": 121,
       "outcome": "exito",
       "steps": 59,
-      "d_xy": 0.049
+      "d_xy": 0.049,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.391,
+        "tilt_deg": 3.23,
+        "d_xy": 0.072
+      },
+      "bounces": 0
     },
     {
       "seed": 122,
       "outcome": "exito",
       "steps": 49,
-      "d_xy": 0.062
+      "d_xy": 0.062,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.465,
+        "tilt_deg": 4.55,
+        "d_xy": 0.066
+      },
+      "bounces": 0
     },
     {
       "seed": 123,
       "outcome": "exito",
       "steps": 53,
-      "d_xy": 0.05
+      "d_xy": 0.05,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.482,
+        "tilt_deg": 3.36,
+        "d_xy": 0.048
+      },
+      "bounces": 0
     },
     {
       "seed": 124,
       "outcome": "exito",
       "steps": 48,
-      "d_xy": 0.041
+      "d_xy": 0.041,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.439,
+        "tilt_deg": 2.86,
+        "d_xy": 0.039
+      },
+      "bounces": 0
     },
     {
       "seed": 125,
       "outcome": "choque_plataforma",
       "steps": 31,
-      "d_xy": 0.312
+      "d_xy": 0.312,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.371,
+        "tilt_deg": 4.27,
+        "d_xy": 0.312
+      },
+      "bounces": 0
     },
     {
       "seed": 126,
       "outcome": "exito",
       "steps": 26,
-      "d_xy": 0.081
+      "d_xy": 0.081,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.39,
+        "tilt_deg": 5.39,
+        "d_xy": 0.146
+      },
+      "bounces": 0
     },
     {
       "seed": 127,
       "outcome": "exito",
       "steps": 42,
-      "d_xy": 0.063
+      "d_xy": 0.063,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.436,
+        "tilt_deg": 0.99,
+        "d_xy": 0.096
+      },
+      "bounces": 0
     },
     {
       "seed": 128,
       "outcome": "choque_plataforma",
       "steps": 33,
-      "d_xy": 0.305
+      "d_xy": 0.305,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.37,
+        "tilt_deg": 3.7,
+        "d_xy": 0.305
+      },
+      "bounces": 0
     },
     {
       "seed": 129,
       "outcome": "tiempo",
       "steps": 480,
-      "d_xy": 0.225
+      "d_xy": 0.225,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.359,
+        "tilt_deg": 6.73,
+        "d_xy": 0.245
+      },
+      "bounces": 0
     },
     {
       "seed": 130,
       "outcome": "choque_plataforma",
       "steps": 57,
-      "d_xy": 0.304
+      "d_xy": 0.304,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.359,
+        "tilt_deg": 1.61,
+        "d_xy": 0.304
+      },
+      "bounces": 0
     },
     {
       "seed": 131,
       "outcome": "choque_plataforma",
       "steps": 14,
-      "d_xy": 0.258
+      "d_xy": 0.258,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.348,
+        "tilt_deg": 13.09,
+        "d_xy": 0.289
+      },
+      "bounces": 0
     },
     {
       "seed": 132,
       "outcome": "choque_plataforma",
       "steps": 41,
-      "d_xy": 0.267
+      "d_xy": 0.267,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.371,
+        "tilt_deg": 3.55,
+        "d_xy": 0.278
+      },
+      "bounces": 0
     },
     {
       "seed": 133,
       "outcome": "exito",
       "steps": 242,
-      "d_xy": 0.188
+      "d_xy": 0.188,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.368,
+        "tilt_deg": 2.35,
+        "d_xy": 0.222
+      },
+      "bounces": 0
     },
     {
       "seed": 134,
       "outcome": "choque_inclinacion",
       "steps": 7,
-      "d_xy": 0.554
+      "d_xy": 0.554,
+      "touchdown": null,
+      "bounces": 0
     },
     {
       "seed": 135,
       "outcome": "choque_plataforma",
       "steps": 49,
-      "d_xy": 0.305
+      "d_xy": 0.305,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.394,
+        "tilt_deg": 3.42,
+        "d_xy": 0.305
+      },
+      "bounces": 0
     },
     {
       "seed": 136,
       "outcome": "exito",
       "steps": 62,
-      "d_xy": 0.089
+      "d_xy": 0.089,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.431,
+        "tilt_deg": 4.05,
+        "d_xy": 0.095
+      },
+      "bounces": 0
     },
     {
       "seed": 137,
       "outcome": "exito",
       "steps": 204,
-      "d_xy": 0.199
+      "d_xy": 0.199,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.399,
+        "tilt_deg": 1.93,
+        "d_xy": 0.223
+      },
+      "bounces": 0
     },
     {
       "seed": 138,
       "outcome": "exito",
       "steps": 31,
-      "d_xy": 0.04
+      "d_xy": 0.04,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.408,
+        "tilt_deg": 6.31,
+        "d_xy": 0.066
+      },
+      "bounces": 0
     },
     {
       "seed": 139,
       "outcome": "choque_plataforma",
       "steps": 43,
-      "d_xy": 0.303
+      "d_xy": 0.303,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.394,
+        "tilt_deg": 2.31,
+        "d_xy": 0.303
+      },
+      "bounces": 0
     },
     {
       "seed": 140,
       "outcome": "choque_plataforma",
       "steps": 36,
-      "d_xy": 0.307
+      "d_xy": 0.307,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.349,
+        "tilt_deg": 3.65,
+        "d_xy": 0.307
+      },
+      "bounces": 0
     },
     {
       "seed": 141,
       "outcome": "exito",
       "steps": 36,
-      "d_xy": 0.188
+      "d_xy": 0.188,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.349,
+        "tilt_deg": 2.7,
+        "d_xy": 0.221
+      },
+      "bounces": 0
     }
   ]
 }

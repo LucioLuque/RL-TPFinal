@@ -29,7 +29,7 @@ comparables directamente y hay que reentrenar.
 
 **Hay que validarlo en el robot real:** el firmware del Crazyflie, en modo velocidad, no tiene tope de
 velocidad (limita la inclinación a 20°). El límite de 0.6 m/s lo tiene que aplicar el código que manda
-los comandos, con la misma fórmula que la simulación. Ver `TODO_SIM2REAL.md`, punto 4.
+los comandos, con la misma fórmula que la simulación. Ver `TODO_SIM2REAL.md`, punto 4 (desde el 2026-10-25, `SIM2REAL.md` en `~/Documents/Tesis/Laboratorio`).
 
 ## 2026-10-04 · lucio · Normalización fija en vez de VecNormalize
 
@@ -37,7 +37,7 @@ Lo sugirió el profe: `VecNormalize` no conviene cuando la distribución es cono
 normalizar con eso. Ahora `env.py` divide cada valor de la observación por una escala fija y recorta a
 [-1, 1]. Las escalas salen de límites del entorno (aparición, choque, límites de velocidad, con 25 % de
 margen), salvo la de la velocidad angular, que es provisoria y sale de datos de v10. Detalle y motivo de
-cada valor en `TODO.md`, punto 1.
+cada valor en `docs/normalizacion-fija.md` (antes `TODO.md`, punto 1).
 
 Ventajas: la misma cuenta sirve para el robot real (sin `.pkl` de estadísticas de simulación), la
 normalización no cambia mientras la política aprende, y el código es más simple.
@@ -194,3 +194,232 @@ propia recompensa (`utils.run_reward`; `base` si son viejas).
 
 Idea no probada: que la acción sea la velocidad directa (`v = 0.6·a`) o pasarla por `tanh`, para que los valores
 intermedios sean naturales.
+
+## 2026-10-24 · lucio (sesión de Claude) · Métricas de centrado, toque y suavidad del vuelo
+
+`tools/evaluate.py` guarda ahora, en cada `eval_*.json`:
+- **`landing`**: distancia horizontal al centro de la plataforma en los aterrizajes (`d_xy_mean`, `d_xy_median`,
+  `d_xy_p90`) y fracción a menos de 5 y 10 cm (`within_5cm`, `within_10cm`).
+- **`touchdown`**: en el último paso antes del primer contacto con el tope, velocidad de bajada relativa (`vz_*`,
+  m/s) e inclinación (`tilt_deg_*`) y rebotes por episodio (`bounces_mean`).
+- **`smoothness`**, además de lo que ya tenía: `cmd_vel_change_p95` (los saltos grandes de la velocidad pedida),
+  `drone_jerk` (m/s³), `tilt_rms_deg` (inclinación RMS en vuelo) y `ang_vel_rms` (velocidad angular de roll y pitch).
+
+Se reevaluaron best y final de todas las corridas con `eval_*.json` (v16–v64) y se evaluó el final de v16–v22, que no
+lo tenía. Antes de pisar cada archivo se comprobó que el éxito, los `outcomes` y la suavidad vieja dieran igual.
+`compare_runs` y `EXPERIMENTS.md` muestran las columnas nuevas.
+
+Ejemplo, v54 (`suave_bajada`, final): aterriza a 8.1 cm del centro (mediana), solo 24 % a menos de 5 cm; llega a tocar
+bajando a 0.45 m/s (mediana) y vuela con 8° de inclinación RMS.
+
+## 2026-10-24 · lucio (sesión de Claude) · A 24 Hz, el PID del dron oscila solo (limitación del modelo, no error de código)
+
+`BaseAviary.step` calcula las RPM una vez por paso de control (`_preprocessAction`) y las deja fijas los 10 pasos de
+física. Con `ctrl_freq = 24`, el PID completo de `DSLPIDControl` (también el lazo de actitud) corre a 24 Hz. Medido con
+una velocidad pedida **constante** de 0.3 o 0.6 m/s en +x, entre los segundos 2 y 4:
+
+| Frecuencia del PID | Velocidad angular roll/pitch (RMS) | Inclinación máxima | vx |
+|---|---|---|---|
+| 24 Hz (la de hoy) | 1.50 rad/s | 8° | 0.61 ± 0.05 m/s |
+| 48 Hz | 0.60 rad/s | 1.5° | 0.60 ± 0.01 |
+| 120 y 240 Hz | 0.00 rad/s | 0.1° | 0.595 ± 0.000 |
+
+Quieto en el lugar (hover) no oscila: aparece cuando se mueve en horizontal. Una política bang-bang (+x/−x cada 0.5 s)
+llega a 4.5 rad/s RMS, y v54 vuela con ~2.2.
+
+**No es un error del código**: la librería permite `ctrl_freq` < `pyb_freq` y hace exactamente eso. Pero no representa
+al Crazyflie real, que corre el lazo de actitud a bordo a ~500 Hz, llegue el comando cada cuanto llegue. Consecuencias:
+- Parte del bamboleo y de la inclinación que se mide en simulación (`tilt_rms_deg`, `ang_vel_rms`, `drone_jerk`) es
+  un artefacto del modelo y **no se puede bajar con la recompensa**. Para comparar suavidad entre recompensas, la
+  métrica que se transfiere al real es la de la **velocidad pedida** (`cmd_vel_change`, `cmd_vel_change_p95`).
+- Probablemente vuelve más difícil la condición de aterrizaje (roll y pitch < 0.1 rad, 10 pasos seguidos).
+
+**No se cambió nada** (Lucio prefiere medir primero las frecuencias reales en OptiTrack). Si se arregla, sería
+correr `_preprocessAction` en cada paso de física con la última velocidad pedida, manteniendo la política a 24 Hz.
+Cambia la dinámica: corrida aparte con su `base` de referencia. Anotado en `TODO_SIM2REAL.md`, punto 4 (desde el 2026-10-25, `SIM2REAL.md` en `~/Documents/Tesis/Laboratorio`).
+
+## 2026-10-25 · lucio (sesión de Claude) · Castigar el salto de la velocidad pedida deja al dron flotando (v82)
+
+`suave_bajada_v01` (`suave_bajada` + `0.1·|Δv_pedida/0.6|²`, seed 42): 0 %, flota los 100 episodios. La política pide
+`s = 0` siempre: con velocidad pedida nula el castigo desaparece aunque la dirección sea ruido puro, así que es la
+forma más barata de explorar. El castigo a la acción (`reward_action_coef`) no tiene esa salida porque también cobra
+los cambios de `s`. Se descartan `_v01` y `_v03` (no se corren más seeds). En su lugar, para suavidad:
+`suave_bajada_c005` (castigo a la acción 0.05) con `--log_std_init -0.5`, contra v65–v67.
+
+## 2026-10-25 · lucio (sesión de Claude) · `suave_bajada` + desvío inicial 0.61: mismo éxito, más suave y más centrada
+
+v65 / v66 / v67 (seeds 42 / 1 / 2, 1.5M, `--log_std_init -0.5`), modelo final en 100 episodios, contra `suave_bajada`
+con el desvío por defecto (v54 / v56 / v63 / v64):
+
+| | `suave_bajada` (4 seeds) | + desvío 0.61 (3 seeds) |
+|---|---|---|
+| Éxito final medio | 92 % (88–95) | 93 % (89 / 92 / 97) |
+| Δv pedida por paso | 0.137 m/s | 0.083 m/s |
+| Δacción por paso | 0.27 | 0.08 |
+| Centro (mediana) / a menos de 5 cm | 8.2 cm / 21 % | 6.3 cm / 36 % |
+| Velocidad al llegar a tocar (mediana) | 0.43 m/s | 0.48 m/s |
+| Cruza 50 % en el entrenamiento | ~0.7M | ~1.0M |
+
+- En éxito no hay diferencia. En suavidad y centrado sí, aunque no en todas las seeds: comparando seed por seed, la
+  velocidad pedida es más suave en 2 de 3 (seed 1: 0.100 contra 0.091).
+- Aprende más tarde (~0.3M pasos después) y sigue subiendo a 1.5M.
+- No se cambió el default de `log_std_init` (queda anotado para que Lucio decida). Las variantes nuevas de suavidad
+  se prueban con este desvío (`suave_bajada_c005`, v91–v93).
+
+~~Otra cosa que mostraron las métricas nuevas: el castigo a la acción hace que toque más rápido.~~ **Falso, error
+de la métrica:** `touchdown.vz` se medía al final del paso con contacto, cuando el choque ya había frenado al dron
+(v67 marcaba 0.03 m/s y en realidad llega a 0.51). Arreglado en `tools/evaluate.py` (se mide en el último paso antes
+del contacto) y reevaluadas todas las corridas: **todas llegan a tocar bajando a 0.41–0.48 m/s** (mediana), casi a la
+velocidad máxima de bajada, sin diferencia entre recompensas. El centrado sí cambia (no dependía de esa métrica):
+`base` 6.8 cm, `suave_c002` 8.5, `suave_bajada` 8.2, `suave_bajada` + desvío 0.61 6.3. `suave_bajada_flare` (v83, v86,
+v89) ataca justamente la velocidad de llegada.
+
+## 2026-10-25 · lucio (sesión de Claude) · Castigar la llegada rápida también deja al dron flotando (v83, v86)
+
+`suave_bajada_flare` (castigo por bajar a más de 0.15 m/s alineado y a menos de 15 cm del tope): 0 % con las seeds 42 y
+1; flota a 5–19 cm del tope, cerca del borde. Junto con el castigo por bajar afuera, bajar cerca del tope cuesta en
+todas partes. Se descarta. Con esta ya son seis variantes que caen en la trampa de flotar (A1, B, XY, `borde_k1`,
+`suave_bajada_v01` y `_flare`): **cualquier término que encarezca acercarse o bajar cerca de la plataforma desde el
+principio del entrenamiento la provoca.** Lo que sí funcionó fue tocar solo el premio terminal (`suave_bajada_centro`,
+v84: 96 %) y la exploración (`--log_std_init -0.5`). Idea para cuando se quiera atacar la velocidad de llegada: un
+curriculum (entrenar con `suave_bajada` y seguir con `--load` agregando el término una vez que ya aterriza).
+
+## 2026-10-25 · lucio (sesión de Claude) · Premio al centro (v84, v87) y castigo a la acción 0.05 con desvío 0.61 (v91)
+
+- **`suave_bajada_centro`** (premio al aterrizar `25 − 100·d_xy` en vez de `25 − 50·d_xy`), desvío 1: 96 % (s42, v84)
+  y 83 % (s1, v87), contra 92 % y 88 % de `suave_bajada` con las mismas seeds. **No centra mejor** (8.6 y 8.0 cm de
+  mediana, contra 8.1 y 9.6). Hipótesis: el premio llega 10 pasos después de tocar y apoyado ya casi no se desplaza;
+  el centrado se decide antes de tocar. Sin mejora clara con dos seeds; falta la seed 2 (v90) y la versión con
+  desvío 0.61 (v94, v95).
+- **`suave_bajada_c005`** (castigo a la acción 0.05 en vez de 0.02) + desvío 0.61, seed 42 (v91): **100 % en el modelo
+  final, y 200/200 en 200 episodios extra con seeds distintas (1000–1199)**; v65 (misma seed, castigo 0.02): 92 % y
+  189/200. Es la más suave (Δv pedida 0.051 m/s) y la más centrada (5.1 cm, 49 % a menos de 5 cm) del proyecto, y
+  aprende antes. **Una sola seed**: faltan v92 y v93. Para ver hasta dónde se puede subir el castigo: `suave_bajada_c01`
+  (0.1) con desvío 0.61 (v96, v97).
+
+## 2026-10-25 · lucio (sesión de Claude) · Resultados con 2–3 seeds: `c005` es la más suave pero no siempre aprende a tiempo; `centro` y `c01` se descartan
+
+Modelo final en 100 episodios, 1.5M pasos:
+
+| Variante | Seeds 42 / 1 / 2 | Media | Δv pedida (las que aprenden) | Centro (mediana) |
+|---|---|---|---|---|
+| `suave_bajada` (control, desvío 1) | 92 / 88 / 93 % | 91 % | 0.114 m/s | 8.2 cm |
+| `suave_bajada` + desvío 0.61 | 92 / 97 / 89 % | 93 % | 0.083 m/s | 6.3 cm |
+| `suave_bajada_c005` + desvío 0.61 | **100 / 61 / 97 %** (s3: 72 %) | 82.5 % (4 seeds) | **0.049 m/s** | 5.1 / 12.3 / 6.3 cm |
+| `suave_bajada_c01` + desvío 0.61 | 0 / 42 % | 21 % | | |
+| `suave_bajada_centro` (desvío 1) | 96 / 83 / 87 % | 89 % | 0.087 m/s | 8.6 / 8.0 / 10.8 cm |
+| `suave_bajada_centro` + desvío 0.61 | 92 / 94 % | 93 % | 0.084 m/s | 7.4 / 7.5 cm |
+
+- **`c005` (castigo a la acción 0.05):** las seeds que aprenden son las más suaves y centradas del proyecto (v91: 100 %
+  y 200/200 en seeds nuevas; v93: 97 %), pero con la seed 1 (v92) aprende recién a 1.3M y a 1.5M da 61 %. **El castigo
+  más fuerte retrasa el aprendizaje según la seed.** La seed 3 (v98) también aprende tarde (72 %): 2 de 4 seeds.
+- **`c01` (0.1):** frena el aprendizaje (0 % flotando quieta, y 42 %). Descartada. El límite está entre 0.05 y 0.1.
+- **`centro` (premio terminal 25 − 100·d_xy):** no centra mejor ni con desvío 1 ni con 0.61, y el éxito queda igual.
+  Descartada. El centrado se decide antes de tocar y el premio llega tarde.
+- Recomendación (no se cambió ningún default): para un vuelo suave sin perder robustez, `suave_bajada` + desvío 0.61.
+  Si se acepta entrenar más pasos, `suave_bajada_c005` + desvío 0.61 promete más suavidad: probarla a 3M o con 0.03.
+
+## 2026-10-25 · lucio (sesión de Claude) · Entrenar más centra más: `suave_bajada` a 3M (v69)
+
+`suave_bajada`, seed 42, 3M pasos (v69) contra 1.5M (v54): **99 % contra 92 %** (199/200 en seeds nuevas), y aterriza
+a **3.7 cm del centro contra 8.1** (60 % contra 24 % a menos de 5 cm). La suavidad no cambia (Δv pedida 0.119 contra
+0.100 m/s). Lo mismo se veía en v17 (`base`, 5M): 99 % y 6.5 cm. **El centrado y el último tramo de éxito vienen de
+entrenar más, no de la recompensa** (el premio terminal al centro no centró). Una sola seed. Para la combinación
+suave + exitosa + centrada, lo siguiente sería entrenar a 3M `suave_bajada` + desvío 0.61 y `c005` + desvío 0.61
+(sus seeds lentas no terminan de aprender a 1.5M).
+
+## 2026-10-25 · lucio (sesión de Claude) · Castigo a la acción 0.03 con desvío 0.61: la más robusta (v99, v101, v102)
+
+`suave_bajada_c003` (castigo a la acción 0.03 en vez de 0.02) + `--log_std_init -0.5`, modelo final en 100 episodios:
+
+| Castigo a la acción (+ desvío 0.61) | Seeds 42 / 1 / 2 | Media | Choques contra el borde (300 ep.) | Δv pedida | Centro |
+|---|---|---|---|---|---|
+| 0.02 (`suave_bajada`, v65–v67) | 92 / 97 / 89 % | 92.7 % | 18 | 0.083 m/s | 6.3 cm |
+| **0.03 (`c003`, v101, v99, v102)** | **95 / 99 / 99 %** | **97.7 %** | **4** | 0.081 m/s | 6.2 cm |
+| 0.05 (`c005`, v91–v93; s3 v98: 72 %) | 100 / 61 / 97 % | 86 % | 31 | 0.051 m/s | |
+| 0.1 (`c01`, v96, v97) | 0 / 42 % | | | | |
+
+- Con 0.03 aprenden las 3 seeds a tiempo (100 % en los evals de 8 episodios desde ~1.0M) y fallan menos que con 0.02.
+  La suavidad es la misma que con 0.02; la diferencia está en el éxito. Los intervalos de cada seed se pisan, pero la
+  mejora va en el mismo sentido en las 3.
+- 0.05 es más suave (Δv pedida ~0.05) pero con la mitad de las seeds aprende tarde; 0.1 no aprende.
+- **Recomendación (no se cambió ningún default):** `suave_bajada_c003` + `--log_std_init -0.5`. Y entrenar más (3M):
+  con `suave_bajada`, pasar de 1.5M a 3M subió el éxito de 92 a 99 % y centró de 8.1 a 3.7 cm (v69).
+
+## 2026-10-25 · lucio (sesión de Claude) · A las seeds lentas de `c005` les faltaban pasos (v100)
+
+`suave_bajada_c005` + desvío 0.61 con la seed 1 a 3M (v100): **100 %** (200/200 en seeds nuevas), contra 61 % de la
+misma corrida a 1.5M (v92). Termina de aprender entre 1.5M y 1.8M. Es la más centrada del proyecto (3.3 cm de mediana,
+71 % a menos de 5 cm) y, ya aprendida, la suavidad queda en Δv pedida 0.072 m/s (`suave_bajada` a 3M, v69: 0.119).
+
+Con v69 (`suave_bajada` a 3M: 99 %, 3.7 cm), el patrón de la noche es: **a 1.5M pasos las comparaciones de recompensa
+están contaminadas por la velocidad de aprendizaje.** Un castigo a la acción más fuerte da un vuelo más suave pero
+aprende más lento; a 3M las dos dan ~100 % y centran mucho mejor. Para elegir la recompensa final conviene comparar a
+3M (corre `c003` + desvío 0.61 a 3M, v103).
+
+## 2026-10-25 · lucio (sesión de Claude) · A 3M pasos, `c003` y `c005` (con desvío 0.61) aterrizan siempre; cierre de la noche
+
+v103 (`c003`, seed 42) y v104 (`c005`, seed 3) a 3M se cortaron por un apagado de la notebook (~11:00), en 2.81M y
+2.95M: no hay modelo final. Se evaluó el best (`eval_best.json`; estado en `run.json` cambiado a mano a `interrupted`).
+
+| Corrida (desvío 0.61, salvo v69) | Pasos | Éxito (100 ep.) | Centro / < 5 cm | Δv pedida |
+|---|---|---|---|---|
+| v69 `suave_bajada` (desvío 1), s42 | 3M, final | 99 % (199/200 extra) | 3.7 cm / 60 % | 0.119 m/s |
+| v100 `c005`, s1 | 3M, final | 100 % (200/200 extra) | 3.3 cm / 71 % | 0.072 m/s |
+| v103 `c003`, s42 | best de 2.4M | 100 % | 4.0 cm / 61 % | 0.064 m/s |
+| v104 `c005`, s3 | best de 2.9M | 100 % | 4.5 cm / 54 % | 0.049 m/s |
+
+**Conclusión de la noche:** a 1.5M pasos, las diferencias entre recompensas son sobre todo de velocidad de
+aprendizaje. A 3M, todas las variantes con castigo a la acción y desvío 0.61 aterrizan en ~100 % y centran a ~4 cm.
+Para un vuelo suave, el castigo a la acción 0.05 (`c005`) es el más suave (Δv pedida ~0.05–0.07 contra ~0.12 de
+`suave_bajada` sola a 3M), pero necesita los 3M; `c003` es casi igual de suave y aprende a tiempo con todas las seeds.
+Una sola seed por variante a 3M. Nada de esto cambió los defaults (`DEFAULT_REWARD`, `log_std_init`): lo decide Lucio.
+
+## 2026-10-25 · lucio · Las colas ya no reservan números de corrida
+
+Reservar números en `cola_pendiente.txt` dejaba huecos (v31, v32, v37–v39, v43–v49, v59–v62, v68, v70–v81, v85, v88,
+v89 no existen) y obligaba a saltearlos. Ahora `tools/run_queue.py` asigna el siguiente número libre al lanzar cada
+corrida y marca la línea como `# lanzada como v<N>-<autor>`. `cola_pendiente.txt` se reescribió sin números, con lo que
+sigue teniendo sentido.
+
+## 2026-10-25 · lucio (sesión de Claude) · Huecos de numeración: qué eran y cuáles se corren
+
+Del registro de la sesión del 2026-10-15 se recuperó para qué se habían reservado los números que nunca se usaron:
+v31 `suave_c005` s42, v32 `PBRS_k3` s42, v37 `combo_k3_c002` s42, v38 `suave_c01` s42, v39 `borde_k02` s42,
+v43/v48 `PBRS_k10` s1/s2, v44/v49 `A2_k1` s1/s2, v45/v46/v47 seed 4 de `base`/`A2_k3`/`suave_c002`, v59 `suave_c002`
++ desvío 0.61 s2, v60–v62 `base` + desvío 0.37 (s42, 1, 2). Muchas se volvieron a reservar después con otro número
+(v68, v70–v81), y por eso había tantos huecos.
+
+Se corren con su número original las que siguen teniendo sentido (`cola_huecos.txt`, borrada al terminar): v59, v60–v62, v43, v48, v44 y v49.
+Las demás no (`suave_c005` y `suave_c01` ya se probaron sobre `suave_bajada`; `PBRS_k3`, `combo_k3_c002` y `borde_k02`
+son familias descartadas; una quinta seed de `base`, `A2_k3` o `suave_c002` no cambia nada), ni las descartadas de
+esta noche (v85, v88: `suave_bajada_v01`; v89: `suave_bajada_flare`). Los números duplicados (v68, v70–v74) y los de
+pruebas descartadas quedan como huecos para siempre.
+
+## 2026-10-25 · lucio (sesión de Claude) · Menos ruido de exploración: 0.37 ayuda un poco más; y con 0.61 el término de bajada no suma
+
+Corridas con número reservado del 2026-10-15 (modelo final, 100 episodios):
+
+- **`base` con desvío inicial 0.37** (`--log_std_init -1.0`, v60/v61/v62, seeds 42/1/2): 78 / 91 / 87 % → **85 %**, contra
+  79 % con desvío 0.61 (v50–v52) y 49 % con desvío 1. Sigue mejorando con menos ruido, pero de 0.61 a 0.37 la mejora es
+  chica (mejor en 2 de 3 seeds, intervalos que se pisan) y aprende más tarde y de forma más irregular. Idea en `TODO.md`:
+  probar 0.37 con `suave_bajada_c003`.
+- **`suave_c002` + desvío 0.61, tercera seed** (v59, seed 2): 100 %. Con las 3 seeds (v57, v58, v59): 93 / 85 / 100 % →
+  **92.7 %, lo mismo que `suave_bajada` + desvío 0.61** con las mismas seeds (v65–v67: 92 / 97 / 89 → 92.7 %), con los
+  mismos choques contra el borde (16 contra 18 en 300 episodios), la misma suavidad y el mismo centrado. **Con desvío
+  0.61, el castigo por bajar estando afuera (`reward_descent_coef`) no suma**: hacía falta con desvío 1, porque sin él
+  `suave_c002` chocaba el borde (20–26 de 100). Tenerlo en cuenta al elegir la recompensa final.
+
+## 2026-10-25 · lucio (sesión de Claude) · `PBRS_k10` y `A2_k1` con 3 seeds: no sirven
+
+Las otras dos seeds (números reservados del 2026-10-15), modelo final en 100 episodios:
+
+- **`PBRS_k10`** (v25, v43, v48; seeds 42 / 1 / 2): **72 / 1 / 3 % → 25 %**. Con las seeds 1 y 2 queda flotando. Solo la 42
+  salió de la trampa (a 1.2M). La conclusión del 2026-10-15 ("aprende tarde, pero llega a lo mismo que `base`") era
+  optimista por usar una sola seed.
+- **`A2_k1`** (v26, v44, v49): **74 / 0 / 72 % → 49 %**, el mismo patrón que `base` con desvío 1 (72 / 0 / 76 %): con la seed 1
+  flota. El progreso con k = 1 no cambia nada.
+
+Con desvío 1, la seed 1 es la que separa las recompensas robustas de las que no: flotan `base`, `PBRS_k10` y `A2_k1`;
+aprenden `A2_k3` (tarde), `suave_c002`, `suave_bajada` y todas las de desvío 0.61. Con esto se terminaron las corridas
+que tenían número reservado y seguían teniendo sentido (`cola_huecos.txt`, ya borrada).

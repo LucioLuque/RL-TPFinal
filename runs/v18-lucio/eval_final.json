@@ -1,0 +1,1405 @@
+{
+  "run_id": "v18-lucio",
+  "model": "final",
+  "episodes": 100,
+  "seeds": [
+    42,
+    141
+  ],
+  "success_rate": 0.0,
+  "success_ci95": [
+    0.0,
+    0.037
+  ],
+  "outcomes": {
+    "choque_plataforma": 16,
+    "tiempo": 82,
+    "choque_inclinacion": 2
+  },
+  "landing_time_s": null,
+  "landing": null,
+  "touchdown": {
+    "n": 89,
+    "vz_median": 0.39,
+    "vz_p90": 0.461,
+    "tilt_deg_median": 4.1,
+    "tilt_deg_p90": 8.74,
+    "bounces_mean": 0.0
+  },
+  "smoothness": {
+    "action_change": 2.0146,
+    "cmd_vel_change": 0.418,
+    "cmd_vel_change_p95": 0.837,
+    "drone_accel": 2.6042,
+    "drone_jerk": 59.5542,
+    "tilt_rms_deg": 9.1244,
+    "ang_vel_rms": 1.8779
+  },
+  "obs_clipped_fraction": {
+    "rel_px": 0.0,
+    "rel_py": 0.0,
+    "rel_pz": 0.0,
+    "rel_vx": 0.0001,
+    "rel_vy": 0.001,
+    "rel_vz": 0.0,
+    "roll": 0.0,
+    "pitch": 0.0,
+    "yaw": 0.0,
+    "wx": 0.0038,
+    "wy": 0.0047,
+    "wz": 0.0,
+    "vx": 0.0029,
+    "vy": 0.0051,
+    "vz": 0.0001,
+    "prev_a0": 0.0,
+    "prev_a1": 0.0,
+    "prev_a2": 0.0,
+    "prev_a3": 0.0
+  },
+  "obs_abs_p999": {
+    "rel_px": 0.803,
+    "rel_py": 0.742,
+    "rel_pz": 1.076,
+    "rel_vx": 0.84,
+    "rel_vy": 1.122,
+    "rel_vz": 0.603,
+    "roll": 0.563,
+    "pitch": 0.517,
+    "yaw": 2.949,
+    "wx": 6.396,
+    "wy": 7.007,
+    "wz": 2.75,
+    "vx": 0.904,
+    "vy": 1.077,
+    "vz": 0.603,
+    "prev_a0": 1.0,
+    "prev_a1": 1.0,
+    "prev_a2": 1.0,
+    "prev_a3": 1.0
+  },
+  "obs_scale": {
+    "rel_px": 1.5,
+    "rel_py": 1.5,
+    "rel_pz": 1.5,
+    "rel_vx": 1.125,
+    "rel_vy": 1.125,
+    "rel_vz": 1.125,
+    "roll": 0.7,
+    "pitch": 0.7,
+    "yaw": 3.142,
+    "wx": 5.0,
+    "wy": 5.0,
+    "wz": 5.0,
+    "vx": 0.75,
+    "vy": 0.75,
+    "vz": 0.75,
+    "prev_a0": 1.0,
+    "prev_a1": 1.0,
+    "prev_a2": 1.0,
+    "prev_a3": 1.0
+  },
+  "git_commit": "9f9e2059f623c509fbbd48d4344493d364cfd7e3",
+  "evaluated_at": "2026-10-25T00:45:08",
+  "per_episode": [
+    {
+      "seed": 42,
+      "outcome": "choque_plataforma",
+      "steps": 31,
+      "d_xy": 0.308,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.129,
+        "tilt_deg": 4.47,
+        "d_xy": 0.308
+      },
+      "bounces": 0
+    },
+    {
+      "seed": 43,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.136,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.252,
+        "tilt_deg": 7.86,
+        "d_xy": 0.173
+      },
+      "bounces": 6
+    },
+    {
+      "seed": 44,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.042,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.402,
+        "tilt_deg": 10.96,
+        "d_xy": 0.041
+      },
+      "bounces": 10
+    },
+    {
+      "seed": 45,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.086,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.36,
+        "tilt_deg": 2.13,
+        "d_xy": 0.248
+      },
+      "bounces": 10
+    },
+    {
+      "seed": 46,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.097,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.411,
+        "tilt_deg": 1.73,
+        "d_xy": 0.119
+      },
+      "bounces": 8
+    },
+    {
+      "seed": 47,
+      "outcome": "choque_inclinacion",
+      "steps": 188,
+      "d_xy": 0.429,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.19,
+        "tilt_deg": 3.83,
+        "d_xy": 0.113
+      },
+      "bounces": 3
+    },
+    {
+      "seed": 48,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.108,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.305,
+        "tilt_deg": 4.46,
+        "d_xy": 0.17
+      },
+      "bounces": 8
+    },
+    {
+      "seed": 49,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.017,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.365,
+        "tilt_deg": 1.91,
+        "d_xy": 0.133
+      },
+      "bounces": 9
+    },
+    {
+      "seed": 50,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.132,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.376,
+        "tilt_deg": 2.5,
+        "d_xy": 0.081
+      },
+      "bounces": 10
+    },
+    {
+      "seed": 51,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.06,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.401,
+        "tilt_deg": 1.28,
+        "d_xy": 0.131
+      },
+      "bounces": 8
+    },
+    {
+      "seed": 52,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.698,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.439,
+        "tilt_deg": 7.0,
+        "d_xy": 0.061
+      },
+      "bounces": 9
+    },
+    {
+      "seed": 53,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.086,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.359,
+        "tilt_deg": 5.41,
+        "d_xy": 0.087
+      },
+      "bounces": 10
+    },
+    {
+      "seed": 54,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.108,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.348,
+        "tilt_deg": 4.92,
+        "d_xy": 0.05
+      },
+      "bounces": 9
+    },
+    {
+      "seed": 55,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.081,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.362,
+        "tilt_deg": 3.79,
+        "d_xy": 0.104
+      },
+      "bounces": 12
+    },
+    {
+      "seed": 56,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.287,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.459,
+        "tilt_deg": 4.15,
+        "d_xy": 0.18
+      },
+      "bounces": 10
+    },
+    {
+      "seed": 57,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.152,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.345,
+        "tilt_deg": 3.29,
+        "d_xy": 0.089
+      },
+      "bounces": 9
+    },
+    {
+      "seed": 58,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.093,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.392,
+        "tilt_deg": 3.82,
+        "d_xy": 0.134
+      },
+      "bounces": 10
+    },
+    {
+      "seed": 59,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.072,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.373,
+        "tilt_deg": 6.26,
+        "d_xy": 0.063
+      },
+      "bounces": 4
+    },
+    {
+      "seed": 60,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.079,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.328,
+        "tilt_deg": 5.22,
+        "d_xy": 0.136
+      },
+      "bounces": 11
+    },
+    {
+      "seed": 61,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.127,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.409,
+        "tilt_deg": 0.89,
+        "d_xy": 0.161
+      },
+      "bounces": 8
+    },
+    {
+      "seed": 62,
+      "outcome": "choque_plataforma",
+      "steps": 391,
+      "d_xy": 0.306,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.391,
+        "tilt_deg": 7.19,
+        "d_xy": 0.153
+      },
+      "bounces": 9
+    },
+    {
+      "seed": 63,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.055,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.426,
+        "tilt_deg": 8.77,
+        "d_xy": 0.129
+      },
+      "bounces": 11
+    },
+    {
+      "seed": 64,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.044,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.507,
+        "tilt_deg": 7.45,
+        "d_xy": 0.131
+      },
+      "bounces": 11
+    },
+    {
+      "seed": 65,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.084,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.381,
+        "tilt_deg": 5.39,
+        "d_xy": 0.15
+      },
+      "bounces": 9
+    },
+    {
+      "seed": 66,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.02,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.354,
+        "tilt_deg": 3.48,
+        "d_xy": 0.126
+      },
+      "bounces": 11
+    },
+    {
+      "seed": 67,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.019,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.434,
+        "tilt_deg": 4.64,
+        "d_xy": 0.103
+      },
+      "bounces": 7
+    },
+    {
+      "seed": 68,
+      "outcome": "choque_plataforma",
+      "steps": 14,
+      "d_xy": 0.318,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.358,
+        "tilt_deg": 1.15,
+        "d_xy": 0.318
+      },
+      "bounces": 0
+    },
+    {
+      "seed": 69,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.012,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.495,
+        "tilt_deg": 0.93,
+        "d_xy": 0.085
+      },
+      "bounces": 12
+    },
+    {
+      "seed": 70,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.146,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.4,
+        "tilt_deg": 4.21,
+        "d_xy": 0.125
+      },
+      "bounces": 12
+    },
+    {
+      "seed": 71,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.169,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.344,
+        "tilt_deg": 0.87,
+        "d_xy": 0.083
+      },
+      "bounces": 11
+    },
+    {
+      "seed": 72,
+      "outcome": "choque_plataforma",
+      "steps": 48,
+      "d_xy": 0.262,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.407,
+        "tilt_deg": 2.72,
+        "d_xy": 0.27
+      },
+      "bounces": 0
+    },
+    {
+      "seed": 73,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.138,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.412,
+        "tilt_deg": 1.95,
+        "d_xy": 0.083
+      },
+      "bounces": 11
+    },
+    {
+      "seed": 74,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.14,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.532,
+        "tilt_deg": 11.5,
+        "d_xy": 0.194
+      },
+      "bounces": 10
+    },
+    {
+      "seed": 75,
+      "outcome": "choque_plataforma",
+      "steps": 119,
+      "d_xy": 0.315,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.084,
+        "tilt_deg": 7.77,
+        "d_xy": 0.315
+      },
+      "bounces": 0
+    },
+    {
+      "seed": 76,
+      "outcome": "choque_plataforma",
+      "steps": 47,
+      "d_xy": 0.311,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.005,
+        "tilt_deg": 7.38,
+        "d_xy": 0.311
+      },
+      "bounces": 0
+    },
+    {
+      "seed": 77,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.192,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.501,
+        "tilt_deg": 9.44,
+        "d_xy": 0.198
+      },
+      "bounces": 10
+    },
+    {
+      "seed": 78,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.116,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.394,
+        "tilt_deg": 10.06,
+        "d_xy": 0.182
+      },
+      "bounces": 11
+    },
+    {
+      "seed": 79,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.05,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.352,
+        "tilt_deg": 7.67,
+        "d_xy": 0.03
+      },
+      "bounces": 8
+    },
+    {
+      "seed": 80,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.016,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.413,
+        "tilt_deg": 4.33,
+        "d_xy": 0.091
+      },
+      "bounces": 11
+    },
+    {
+      "seed": 81,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.159,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.366,
+        "tilt_deg": 23.23,
+        "d_xy": 0.14
+      },
+      "bounces": 9
+    },
+    {
+      "seed": 82,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.169,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.396,
+        "tilt_deg": 2.85,
+        "d_xy": 0.059
+      },
+      "bounces": 10
+    },
+    {
+      "seed": 83,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.133,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.438,
+        "tilt_deg": 1.7,
+        "d_xy": 0.088
+      },
+      "bounces": 11
+    },
+    {
+      "seed": 84,
+      "outcome": "choque_plataforma",
+      "steps": 66,
+      "d_xy": 0.304,
+      "touchdown": {
+        "contact": "crash",
+        "vz": -0.326,
+        "tilt_deg": 6.68,
+        "d_xy": 0.304
+      },
+      "bounces": 0
+    },
+    {
+      "seed": 85,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.017,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.401,
+        "tilt_deg": 4.84,
+        "d_xy": 0.113
+      },
+      "bounces": 5
+    },
+    {
+      "seed": 86,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.04,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.351,
+        "tilt_deg": 3.14,
+        "d_xy": 0.108
+      },
+      "bounces": 7
+    },
+    {
+      "seed": 87,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.09,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.332,
+        "tilt_deg": 2.58,
+        "d_xy": 0.05
+      },
+      "bounces": 7
+    },
+    {
+      "seed": 88,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.057,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.493,
+        "tilt_deg": 4.06,
+        "d_xy": 0.229
+      },
+      "bounces": 13
+    },
+    {
+      "seed": 89,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.116,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.391,
+        "tilt_deg": 3.65,
+        "d_xy": 0.038
+      },
+      "bounces": 11
+    },
+    {
+      "seed": 90,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.08,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.257,
+        "tilt_deg": 5.27,
+        "d_xy": 0.204
+      },
+      "bounces": 8
+    },
+    {
+      "seed": 91,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.208,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.38,
+        "tilt_deg": 5.12,
+        "d_xy": 0.098
+      },
+      "bounces": 12
+    },
+    {
+      "seed": 92,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.032,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.427,
+        "tilt_deg": 8.14,
+        "d_xy": 0.031
+      },
+      "bounces": 7
+    },
+    {
+      "seed": 93,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.117,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.522,
+        "tilt_deg": 3.86,
+        "d_xy": 0.035
+      },
+      "bounces": 6
+    },
+    {
+      "seed": 94,
+      "outcome": "choque_plataforma",
+      "steps": 33,
+      "d_xy": 0.265,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.375,
+        "tilt_deg": 0.35,
+        "d_xy": 0.271
+      },
+      "bounces": 0
+    },
+    {
+      "seed": 95,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.142,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.397,
+        "tilt_deg": 3.92,
+        "d_xy": 0.087
+      },
+      "bounces": 12
+    },
+    {
+      "seed": 96,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.034,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.45,
+        "tilt_deg": 4.1,
+        "d_xy": 0.158
+      },
+      "bounces": 8
+    },
+    {
+      "seed": 97,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.046,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.396,
+        "tilt_deg": 2.89,
+        "d_xy": 0.086
+      },
+      "bounces": 8
+    },
+    {
+      "seed": 98,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.052,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.365,
+        "tilt_deg": 3.09,
+        "d_xy": 0.163
+      },
+      "bounces": 9
+    },
+    {
+      "seed": 99,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.689,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.382,
+        "tilt_deg": 5.48,
+        "d_xy": 0.019
+      },
+      "bounces": 6
+    },
+    {
+      "seed": 100,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.195,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.223,
+        "tilt_deg": 9.02,
+        "d_xy": 0.181
+      },
+      "bounces": 7
+    },
+    {
+      "seed": 101,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.151,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.397,
+        "tilt_deg": 8.73,
+        "d_xy": 0.174
+      },
+      "bounces": 10
+    },
+    {
+      "seed": 102,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.128,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.408,
+        "tilt_deg": 5.03,
+        "d_xy": 0.153
+      },
+      "bounces": 11
+    },
+    {
+      "seed": 103,
+      "outcome": "choque_plataforma",
+      "steps": 448,
+      "d_xy": 0.299,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.385,
+        "tilt_deg": 6.33,
+        "d_xy": 0.086
+      },
+      "bounces": 8
+    },
+    {
+      "seed": 104,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.071,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.407,
+        "tilt_deg": 1.48,
+        "d_xy": 0.288
+      },
+      "bounces": 7
+    },
+    {
+      "seed": 105,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.106,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.345,
+        "tilt_deg": 3.5,
+        "d_xy": 0.133
+      },
+      "bounces": 12
+    },
+    {
+      "seed": 106,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.131,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.345,
+        "tilt_deg": 4.16,
+        "d_xy": 0.113
+      },
+      "bounces": 13
+    },
+    {
+      "seed": 107,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.058,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.357,
+        "tilt_deg": 4.14,
+        "d_xy": 0.099
+      },
+      "bounces": 11
+    },
+    {
+      "seed": 108,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.062,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.423,
+        "tilt_deg": 5.5,
+        "d_xy": 0.136
+      },
+      "bounces": 11
+    },
+    {
+      "seed": 109,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.116,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.394,
+        "tilt_deg": 2.84,
+        "d_xy": 0.196
+      },
+      "bounces": 9
+    },
+    {
+      "seed": 110,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.028,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.42,
+        "tilt_deg": 1.33,
+        "d_xy": 0.181
+      },
+      "bounces": 12
+    },
+    {
+      "seed": 111,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.089,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.368,
+        "tilt_deg": 4.49,
+        "d_xy": 0.194
+      },
+      "bounces": 9
+    },
+    {
+      "seed": 112,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.04,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.389,
+        "tilt_deg": 1.57,
+        "d_xy": 0.211
+      },
+      "bounces": 7
+    },
+    {
+      "seed": 113,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.109,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.371,
+        "tilt_deg": 6.92,
+        "d_xy": 0.095
+      },
+      "bounces": 11
+    },
+    {
+      "seed": 114,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.107,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.468,
+        "tilt_deg": 14.13,
+        "d_xy": 0.171
+      },
+      "bounces": 15
+    },
+    {
+      "seed": 115,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.039,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.306,
+        "tilt_deg": 6.61,
+        "d_xy": 0.057
+      },
+      "bounces": 8
+    },
+    {
+      "seed": 116,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.026,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.424,
+        "tilt_deg": 5.58,
+        "d_xy": 0.143
+      },
+      "bounces": 9
+    },
+    {
+      "seed": 117,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.136,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.387,
+        "tilt_deg": 2.37,
+        "d_xy": 0.106
+      },
+      "bounces": 11
+    },
+    {
+      "seed": 118,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.058,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.374,
+        "tilt_deg": 3.63,
+        "d_xy": 0.076
+      },
+      "bounces": 11
+    },
+    {
+      "seed": 119,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.113,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.349,
+        "tilt_deg": 2.76,
+        "d_xy": 0.111
+      },
+      "bounces": 8
+    },
+    {
+      "seed": 120,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.106,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.457,
+        "tilt_deg": 2.64,
+        "d_xy": 0.021
+      },
+      "bounces": 7
+    },
+    {
+      "seed": 121,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.034,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.491,
+        "tilt_deg": 7.31,
+        "d_xy": 0.117
+      },
+      "bounces": 10
+    },
+    {
+      "seed": 122,
+      "outcome": "choque_plataforma",
+      "steps": 468,
+      "d_xy": 0.312,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.381,
+        "tilt_deg": 1.96,
+        "d_xy": 0.112
+      },
+      "bounces": 10
+    },
+    {
+      "seed": 123,
+      "outcome": "choque_inclinacion",
+      "steps": 472,
+      "d_xy": 0.403,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.368,
+        "tilt_deg": 5.3,
+        "d_xy": 0.16
+      },
+      "bounces": 6
+    },
+    {
+      "seed": 124,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.077,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.372,
+        "tilt_deg": 4.81,
+        "d_xy": 0.098
+      },
+      "bounces": 10
+    },
+    {
+      "seed": 125,
+      "outcome": "choque_plataforma",
+      "steps": 39,
+      "d_xy": 0.312,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.001,
+        "tilt_deg": 5.38,
+        "d_xy": 0.312
+      },
+      "bounces": 0
+    },
+    {
+      "seed": 126,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.156,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.341,
+        "tilt_deg": 3.93,
+        "d_xy": 0.129
+      },
+      "bounces": 9
+    },
+    {
+      "seed": 127,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.072,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.433,
+        "tilt_deg": 2.21,
+        "d_xy": 0.143
+      },
+      "bounces": 13
+    },
+    {
+      "seed": 128,
+      "outcome": "choque_plataforma",
+      "steps": 32,
+      "d_xy": 0.305,
+      "touchdown": {
+        "contact": "crash",
+        "vz": -0.249,
+        "tilt_deg": 4.32,
+        "d_xy": 0.305
+      },
+      "bounces": 0
+    },
+    {
+      "seed": 129,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.059,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.281,
+        "tilt_deg": 2.19,
+        "d_xy": 0.195
+      },
+      "bounces": 10
+    },
+    {
+      "seed": 130,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.089,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.404,
+        "tilt_deg": 12.95,
+        "d_xy": 0.114
+      },
+      "bounces": 12
+    },
+    {
+      "seed": 131,
+      "outcome": "choque_plataforma",
+      "steps": 17,
+      "d_xy": 0.32,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.4,
+        "tilt_deg": 3.59,
+        "d_xy": 0.32
+      },
+      "bounces": 0
+    },
+    {
+      "seed": 132,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.033,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.4,
+        "tilt_deg": 1.3,
+        "d_xy": 0.183
+      },
+      "bounces": 10
+    },
+    {
+      "seed": 133,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.048,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.362,
+        "tilt_deg": 3.28,
+        "d_xy": 0.176
+      },
+      "bounces": 10
+    },
+    {
+      "seed": 134,
+      "outcome": "choque_plataforma",
+      "steps": 19,
+      "d_xy": 0.319,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.005,
+        "tilt_deg": 11.35,
+        "d_xy": 0.319
+      },
+      "bounces": 0
+    },
+    {
+      "seed": 135,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.025,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.359,
+        "tilt_deg": 0.64,
+        "d_xy": 0.088
+      },
+      "bounces": 8
+    },
+    {
+      "seed": 136,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.092,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.381,
+        "tilt_deg": 3.11,
+        "d_xy": 0.074
+      },
+      "bounces": 7
+    },
+    {
+      "seed": 137,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.201,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.4,
+        "tilt_deg": 4.27,
+        "d_xy": 0.284
+      },
+      "bounces": 12
+    },
+    {
+      "seed": 138,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.256,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.525,
+        "tilt_deg": 2.37,
+        "d_xy": 0.108
+      },
+      "bounces": 13
+    },
+    {
+      "seed": 139,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.17,
+      "touchdown": {
+        "contact": "top",
+        "vz": 0.39,
+        "tilt_deg": 4.51,
+        "d_xy": 0.031
+      },
+      "bounces": 5
+    },
+    {
+      "seed": 140,
+      "outcome": "choque_plataforma",
+      "steps": 55,
+      "d_xy": 0.313,
+      "touchdown": {
+        "contact": "crash",
+        "vz": -0.103,
+        "tilt_deg": 2.32,
+        "d_xy": 0.313
+      },
+      "bounces": 0
+    },
+    {
+      "seed": 141,
+      "outcome": "choque_plataforma",
+      "steps": 25,
+      "d_xy": 0.31,
+      "touchdown": {
+        "contact": "crash",
+        "vz": 0.386,
+        "tilt_deg": 7.7,
+        "d_xy": 0.31
+      },
+      "bounces": 0
+    }
+  ]
+}

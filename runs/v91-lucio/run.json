@@ -1,0 +1,212 @@
+{
+  "run_id": "v91-lucio",
+  "sessions": [
+    {
+      "session": 1,
+      "author": "lucio",
+      "status": "finished",
+      "started_at": "2026-10-25T01:45:30",
+      "start_timesteps": 0,
+      "args": {
+        "load": null,
+        "seed": 42,
+        "timesteps": 1500000,
+        "n_envs": 8,
+        "reward": "suave_bajada_c005",
+        "ent_coef": 0.01,
+        "log_std_init": -0.5,
+        "run_id": "v91-lucio"
+      },
+      "hyperparams": {
+        "algo": "PPO",
+        "learning_rate": 0.0003,
+        "n_steps": 512,
+        "batch_size": 256,
+        "n_epochs": 5,
+        "gamma": 0.99,
+        "gae_lambda": 0.95,
+        "ent_coef": 0.01,
+        "vf_coef": 0.5,
+        "clip_range": 0.2,
+        "max_grad_norm": 0.5,
+        "policy_kwargs": {
+          "log_std_init": -0.5,
+          "net_arch": {
+            "pi": [
+              128,
+              128
+            ],
+            "vf": [
+              128,
+              128
+            ]
+          }
+        },
+        "n_envs": 8
+      },
+      "level": "turtlebot_hard_fixed",
+      "env_kwargs": {
+        "gui": false,
+        "ctrl_freq": 24,
+        "max_episode_seconds": 20,
+        "angular_speed_range": [
+          0.0,
+          3.0
+        ],
+        "spawn_xy_radius": 0.8,
+        "spawn_z_range": [
+          0.5,
+          1.5
+        ],
+        "vary_speed": true,
+        "turt_noise": true,
+        "linear_speed_range": [
+          0.05,
+          0.3
+        ],
+        "reward_distance_coef": 0.1,
+        "reward_action_coef": 0.05,
+        "reward_descent_coef": 0.3,
+        "crash_penalty": 10.0
+      },
+      "obs_dim": 19,
+      "env_constants": {
+        "speed_limit": 0.6,
+        "obs_scale": [
+          1.5,
+          1.5,
+          1.5,
+          1.125,
+          1.125,
+          1.125,
+          0.699999988079071,
+          0.699999988079071,
+          3.1415927410125732,
+          5.0,
+          5.0,
+          5.0,
+          0.75,
+          0.75,
+          0.75,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "git": {
+        "commit": "5f234d6f51284fca2c6d7b3f6d306e8ad4999d2f",
+        "branch": "suavidad-y-centro",
+        "dirty": false,
+        "untracked": []
+      },
+      "files": {
+        "env": "env.py",
+        "levels": "levels.yaml",
+        "rewards": "rewards.yaml"
+      },
+      "results": {
+        "final_timesteps": 1503232,
+        "best_success_rate": 1.0,
+        "best_mean_reward": 20.795833625,
+        "best_mean_ep_length": 54.25,
+        "best_at_timesteps": 1100000,
+        "n_eval_episodes": 8,
+        "evals": [
+          {
+            "timesteps": 100000,
+            "success_rate": 0.0,
+            "mean_reward": -63.619919875,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 200000,
+            "success_rate": 0.0,
+            "mean_reward": -70.206445125,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 300000,
+            "success_rate": 0.0,
+            "mean_reward": -28.511835750000003,
+            "mean_ep_length": 211.375
+          },
+          {
+            "timesteps": 400000,
+            "success_rate": 0.0,
+            "mean_reward": -52.610145375,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 500000,
+            "success_rate": 0.0,
+            "mean_reward": -51.490981375000004,
+            "mean_ep_length": 471.75
+          },
+          {
+            "timesteps": 600000,
+            "success_rate": 0.5,
+            "mean_reward": 4.2307085,
+            "mean_ep_length": 164.375
+          },
+          {
+            "timesteps": 700000,
+            "success_rate": 0.625,
+            "mean_reward": 6.002693750000001,
+            "mean_ep_length": 62.0
+          },
+          {
+            "timesteps": 800000,
+            "success_rate": 1.0,
+            "mean_reward": 16.60665675,
+            "mean_ep_length": 51.5
+          },
+          {
+            "timesteps": 900000,
+            "success_rate": 0.875,
+            "mean_reward": 16.420908124999997,
+            "mean_ep_length": 63.125
+          },
+          {
+            "timesteps": 1000000,
+            "success_rate": 0.75,
+            "mean_reward": 10.75644025,
+            "mean_ep_length": 51.125
+          },
+          {
+            "timesteps": 1100000,
+            "success_rate": 1.0,
+            "mean_reward": 20.795833625,
+            "mean_ep_length": 54.25
+          },
+          {
+            "timesteps": 1200000,
+            "success_rate": 1.0,
+            "mean_reward": 20.670134375,
+            "mean_ep_length": 48.375
+          },
+          {
+            "timesteps": 1300000,
+            "success_rate": 1.0,
+            "mean_reward": 20.41543725,
+            "mean_ep_length": 54.625
+          },
+          {
+            "timesteps": 1400000,
+            "success_rate": 1.0,
+            "mean_reward": 18.822138625,
+            "mean_ep_length": 51.0
+          },
+          {
+            "timesteps": 1500000,
+            "success_rate": 1.0,
+            "mean_reward": 19.262305375,
+            "mean_ep_length": 49.25
+          }
+        ]
+      },
+      "finished_at": "2026-10-25T02:36:13",
+      "duration_s": 3043.1
+    }
+  ]
+}
