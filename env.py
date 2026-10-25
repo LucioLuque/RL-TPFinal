@@ -417,7 +417,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
 
         if self.reward_flare_coef:
             # Tocar suave: castiga bajar a mas de 0.15 m/s estando alineado (adentro del radio) y a menos de 15 cm del
-            # tope. Las politicas tocan a ~0.3 m/s (eval_*.json, touchdown.vz_median).
+            # tope. Las politicas llegan a tocar bajando a ~0.5 m/s (eval_*.json, touchdown.vz_median).
             if d_xy < self.platform_radius and 0.0 < rel_pos[2] < 0.15:
                 reward -= self.reward_flare_coef * max(0.0, -rel_vel[2] - 0.15) / 0.1
 
