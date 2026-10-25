@@ -390,7 +390,7 @@ v43/v48 `PBRS_k10` s1/s2, v44/v49 `A2_k1` s1/s2, v45/v46/v47 seed 4 de `base`/`A
 + desvío 0.61 s2, v60–v62 `base` + desvío 0.37 (s42, 1, 2). Muchas se volvieron a reservar después con otro número
 (v68, v70–v81), y por eso había tantos huecos.
 
-Se corren con su número original las que siguen teniendo sentido (`cola_huecos.txt`): v59, v60–v62, v43, v48, v44 y v49.
+Se corren con su número original las que siguen teniendo sentido (`cola_huecos.txt`, borrada al terminar): v59, v60–v62, v43, v48, v44 y v49.
 Las demás no (`suave_c005` y `suave_c01` ya se probaron sobre `suave_bajada`; `PBRS_k3`, `combo_k3_c002` y `borde_k02`
 son familias descartadas; una quinta seed de `base`, `A2_k3` o `suave_c002` no cambia nada), ni las descartadas de
 esta noche (v85, v88: `suave_bajada_v01`; v89: `suave_bajada_flare`). Los números duplicados (v68, v70–v74) y los de
@@ -409,3 +409,17 @@ Corridas con número reservado del 2026-10-15 (modelo final, 100 episodios):
   mismos choques contra el borde (16 contra 18 en 300 episodios), la misma suavidad y el mismo centrado. **Con desvío
   0.61, el castigo por bajar estando afuera (`reward_descent_coef`) no suma**: hacía falta con desvío 1, porque sin él
   `suave_c002` chocaba el borde (20–26 de 100). Tenerlo en cuenta al elegir la recompensa final.
+
+## 2026-10-25 · lucio (sesión de Claude) · `PBRS_k10` y `A2_k1` con 3 seeds: no sirven
+
+Las otras dos seeds (números reservados del 2026-10-15), modelo final en 100 episodios:
+
+- **`PBRS_k10`** (v25, v43, v48; seeds 42 / 1 / 2): **72 / 1 / 3 % → 25 %**. Con las seeds 1 y 2 queda flotando. Solo la 42
+  salió de la trampa (a 1.2M). La conclusión del 2026-10-15 ("aprende tarde, pero llega a lo mismo que `base`") era
+  optimista por usar una sola seed.
+- **`A2_k1`** (v26, v44, v49): **74 / 0 / 72 % → 49 %**, el mismo patrón que `base` con desvío 1 (72 / 0 / 76 %): con la seed 1
+  flota. El progreso con k = 1 no cambia nada.
+
+Con desvío 1, la seed 1 es la que separa las recompensas robustas de las que no: flotan `base`, `PBRS_k10` y `A2_k1`;
+aprenden `A2_k3` (tarde), `suave_c002`, `suave_bajada` y todas las de desvío 0.61. Con esto se terminaron las corridas
+que tenían número reservado y seguían teniendo sentido (`cola_huecos.txt`, ya borrada).

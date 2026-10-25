@@ -14,8 +14,6 @@ a 3M llegan a 100 %). Detalle en `BITACORA.md`, 2026-10-25.
   antes del final y solo tienen el best.
 - [ ] **Decidir (Lucio)** si cambian `DEFAULT_REWARD` (`utils.py`) y el default de `log_std_init` (`train.py`). Hoy siguen
   `suave_bajada` y 0.
-- [ ] Corriendo (`cola_huecos.txt`): seeds 1 y 2 de `PBRS_k10` (v43, v48) y de `A2_k1` (v44, v49). Registrar, sacar de
-  acá y borrar `cola_huecos.txt` cuando terminen.
 
 ## 2. Ideas sin probar
 
