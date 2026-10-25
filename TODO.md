@@ -102,7 +102,7 @@ porque la plataforma se mueve y cambia `d` aunque el dron no haga nada.
 - [x] Variantes de suavidad y centrado sobre `suave_bajada` (2026-10-25, `BITACORA.md`): castigo a la velocidad pedida y
   a la llegada rápida (flotan), premio terminal al centro (no centra), castigo a la acción 0.1 (no aprende).
 - [ ] **`suave_bajada_c005` + `--log_std_init -0.5`:** la más suave y centrada (v91 100 %, v93 97 %), pero con la seed 1
-  aprende tarde (v92: 61 % a 1.5M). Probar 3M pasos y un castigo intermedio (0.03). Ver v98 (seed 3).
+  aprende tarde con 2 de 4 seeds (v92 61 %, v98 72 % a 1.5M). Probar 3M pasos y un castigo intermedio (0.03).
 - [ ] Centrar mejor: el premio terminal no sirve; probar algo que actúe antes de tocar, sin encarecer bajar (trampa de flotar).
 - [ ] `suave_bajada` con 3M pasos (las curvas siguen subiendo a 1.5M).
 - [ ] `base` con `--log_std_init -1.0` (desvío 0.37).

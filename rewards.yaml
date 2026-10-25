@@ -159,7 +159,7 @@ suave_bajada_w:   # + castigo por bamboleo
   reward_ang_vel_coef: 0.003
   crash_penalty: 10.0
 
-suave_bajada_c005:   # castigo a la accion 2.5 veces mas fuerte (0.05). Pensada con --log_std_init -0.5 (v65-v67 son el control). v91 100 %, v92 61 % (aprende tarde), v93 97 %
+suave_bajada_c005:   # castigo a la accion 2.5 veces mas fuerte (0.05). Pensada con --log_std_init -0.5 (v65-v67 son el control). v91 100 %, v92 61 %, v93 97 %, v98 72 % (2 de 4 aprenden tarde)
   reward_distance_coef: 0.1
   reward_action_coef: 0.05
   reward_descent_coef: 0.3
