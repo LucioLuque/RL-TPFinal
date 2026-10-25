@@ -171,7 +171,7 @@ suave_bajada_c01:   # castigo a la accion 0.1 (5 veces suave_bajada). Con --log_
   reward_descent_coef: 0.3
   crash_penalty: 10.0
 
-suave_bajada_c003:   # castigo a la accion 0.03, entre suave_bajada (0.02) y c005 (0.05, que con 2 de 4 seeds aprende tarde)
+suave_bajada_c003:   # castigo a la accion 0.03, entre suave_bajada (0.02) y c005 (0.05, que con 2 de 4 seeds aprende tarde). v99 (s1) 99 %
   reward_distance_coef: 0.1
   reward_action_coef: 0.03
   reward_descent_coef: 0.3

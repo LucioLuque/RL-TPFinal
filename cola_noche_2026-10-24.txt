@@ -37,3 +37,6 @@ v98-lucio suave_bajada_c005 3 1500000 --log_std_init -0.5
 v99-lucio suave_bajada_c003 1 1500000 --log_std_init -0.5
 # 9. ¿Las seeds lentas de c005 terminan de aprender con mas pasos? (v92, seed 1, a 1.5M: 61 %)
 v100-lucio suave_bajada_c005 1 3000000 --log_std_init -0.5
+# 10. Seeds 42 y 2 de c003 + desvio 0.61 (v99, seed 1: 99 %)
+v101-lucio suave_bajada_c003 42 1500000 --log_std_init -0.5
+v102-lucio suave_bajada_c003 2 1500000 --log_std_init -0.5
