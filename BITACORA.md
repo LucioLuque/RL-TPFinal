@@ -336,7 +336,7 @@ suave + exitosa + centrada, lo siguiente sería entrenar a 3M `suave_bajada` + d
 |---|---|---|---|---|---|
 | 0.02 (`suave_bajada`, v65–v67) | 92 / 97 / 89 % | 92.7 % | 18 | 0.083 m/s | 6.3 cm |
 | **0.03 (`c003`, v101, v99, v102)** | **95 / 99 / 99 %** | **97.7 %** | **4** | 0.081 m/s | 6.2 cm |
-| 0.05 (`c005`, v91–v93; s3 v98: 72 %) | 100 / 61 / 97 % | 86 % | 33 | 0.051 m/s | |
+| 0.05 (`c005`, v91–v93; s3 v98: 72 %) | 100 / 61 / 97 % | 86 % | 31 | 0.051 m/s | |
 | 0.1 (`c01`, v96, v97) | 0 / 42 % | | | | |
 
 - Con 0.03 aprenden las 3 seeds a tiempo (100 % en los evals de 8 episodios desde ~1.0M) y fallan menos que con 0.02.
