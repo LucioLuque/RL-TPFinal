@@ -10,7 +10,7 @@ v66-lucio suave_bajada 1 1500000 --log_std_init -0.5
 v67-lucio suave_bajada 2 1500000 --log_std_init -0.5
 # 2. Tercera seed de suave_c002 + desvio 0.61 (se corto para liberar memoria)
 v68-lucio suave_c002 2 1500000 --log_std_init -0.5
-# 3. Mas largo: las curvas de suave_bajada siguen subiendo a 1.5M
+# 3. Mas largo: las curvas de suave_bajada siguen subiendo a 1.5M. HECHO 2026-10-25 (v69: 99 %)
 v69-lucio suave_bajada 42 3000000
 # 4. Desvio todavia mas bajo (0.37), sin tocar la recompensa
 v70-lucio base 42 1500000 --log_std_init -1.0

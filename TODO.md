@@ -104,7 +104,7 @@ porque la plataforma se mueve y cambia `d` aunque el dron no haga nada.
 - [ ] **`suave_bajada_c005` + `--log_std_init -0.5`:** la más suave y centrada (v91 100 %, v93 97 %), pero con la seed 1
   aprende tarde con 2 de 4 seeds (v92 61 %, v98 72 % a 1.5M). Probar 3M pasos y un castigo intermedio (0.03).
 - [ ] Centrar mejor: el premio terminal no sirve; probar algo que actúe antes de tocar, sin encarecer bajar (trampa de flotar).
-- [ ] `suave_bajada` con 3M pasos (las curvas siguen subiendo a 1.5M).
+- [x] `suave_bajada` con 3M pasos (v69, 2026-10-25): 99 % y 3.7 cm del centro (1.5M: 92 % y 8.1 cm), igual de suave. Faltan más seeds y probar 3M con desvío 0.61.
 - [ ] `base` con `--log_std_init -1.0` (desvío 0.37).
 - [ ] Menos prioritario: más seeds de `PBRS_k10` y `A2_k1`; `suave_c005` y `suave_c01` (curva éxito contra
   suavidad); `combo_k3_c002`; `PBRS_k3`; `borde_k02`.

@@ -318,3 +318,12 @@ Modelo final en 100 episodios, 1.5M pasos:
   Descartada. El centrado se decide antes de tocar y el premio llega tarde.
 - Recomendación (no se cambió ningún default): para un vuelo suave sin perder robustez, `suave_bajada` + desvío 0.61.
   Si se acepta entrenar más pasos, `suave_bajada_c005` + desvío 0.61 promete más suavidad: probarla a 3M o con 0.03.
+
+## 2026-10-25 · lucio (sesión de Claude) · Entrenar más centra más: `suave_bajada` a 3M (v69)
+
+`suave_bajada`, seed 42, 3M pasos (v69) contra 1.5M (v54): **99 % contra 92 %** (199/200 en seeds nuevas), y aterriza
+a **3.7 cm del centro contra 8.1** (60 % contra 24 % a menos de 5 cm). La suavidad no cambia (Δv pedida 0.119 contra
+0.100 m/s). Lo mismo se veía en v17 (`base`, 5M): 99 % y 6.5 cm. **El centrado y el último tramo de éxito vienen de
+entrenar más, no de la recompensa** (el premio terminal al centro no centró). Una sola seed. Para la combinación
+suave + exitosa + centrada, lo siguiente sería entrenar a 3M `suave_bajada` + desvío 0.61 y `c005` + desvío 0.61
+(sus seeds lentas no terminan de aprender a 1.5M).
