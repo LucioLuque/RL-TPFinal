@@ -1,28 +1,25 @@
-# Cola que quedo sin correr el 2026-10-15 (docs/pruebas-recompensas-2026-10-15.md, "Pendiente"), en orden de prioridad.
+# Corridas planeadas que no se corrieron todavia, en orden de prioridad (actualizado el 2026-10-25).
 # Correr con: python -m tools.run_queue cola_pendiente.txt --parallel 2
-# Formato: <run_id> <recompensa> <seed> <timesteps> [args extra de train.py]. Se saltean los run_id que ya existen en
-# runs/. OJO: los numeros estan reservados aca; si alguien entrena a mano mientras tanto, cambiar los numeros
-# (train.py sin --run_id toma el mayor + 1 y podria chocar con uno de esta lista).
+# Formato: <recompensa> <seed> <timesteps> [args extra de train.py]. Sin numero de corrida: tools/run_queue.py le asigna
+# el siguiente libre al lanzarla y marca la linea como "# lanzada como v<N>-<autor>".
+# Lo que se corrio de la cola anterior (v65-v67, v69) y lo de la noche del 2026-10-24: cola_noche_2026-10-24.txt y
+# BITACORA.md (2026-10-24 y 2026-10-25).
 
-# 1. Las dos mejoras juntas: suave_bajada (recompensa) + menos ruido de exploracion. HECHO 2026-10-25 (cola_noche_2026-10-24.txt)
-v65-lucio suave_bajada 42 1500000 --log_std_init -0.5
-v66-lucio suave_bajada 1 1500000 --log_std_init -0.5
-v67-lucio suave_bajada 2 1500000 --log_std_init -0.5
-# 2. Tercera seed de suave_c002 + desvio 0.61 (se corto para liberar memoria)
-v68-lucio suave_c002 2 1500000 --log_std_init -0.5
-# 3. Mas largo: las curvas de suave_bajada siguen subiendo a 1.5M. HECHO 2026-10-25 (v69: 99 %)
-v69-lucio suave_bajada 42 3000000
-# 4. Desvio todavia mas bajo (0.37), sin tocar la recompensa
-v70-lucio base 42 1500000 --log_std_init -1.0
-v71-lucio base 1 1500000 --log_std_init -1.0
-v72-lucio base 2 1500000 --log_std_init -1.0
-# 5. Menos prioritario
-v73-lucio PBRS_k10 1 1500000
-v74-lucio A2_k1 1 1500000
-v75-lucio suave_c005 42 1500000
-v76-lucio suave_c01 42 1500000
-v77-lucio combo_k3_c002 42 1500000
-v78-lucio base 4 1500000
-v79-lucio suave_c002 4 1500000
-v80-lucio PBRS_k3 42 1500000
-v81-lucio borde_k02 42 1500000
+# 1. Las mejores de la noche del 2026-10-24, a 3M completo y con 3 seeds (v103 y v104 se cortaron antes del final)
+suave_bajada_c003 42 3000000 --log_std_init -0.5
+suave_bajada_c003 1 3000000 --log_std_init -0.5
+suave_bajada_c003 2 3000000 --log_std_init -0.5
+suave_bajada_c005 42 3000000 --log_std_init -0.5
+suave_bajada_c005 2 3000000 --log_std_init -0.5
+suave_bajada_c005 3 3000000 --log_std_init -0.5
+# 2. Desvio todavia mas bajo (0.37), sin tocar la recompensa (era v70-v72)
+base 42 1500000 --log_std_init -1.0
+base 1 1500000 --log_std_init -1.0
+base 2 1500000 --log_std_init -1.0
+
+# Sacadas el 2026-10-25 (nunca se corrieron; sus numeros v68 y v73-v81 quedan sin usar):
+#   suave_c002 seed 2 + desvio 0.61 (v68): suave_bajada + desvio 0.61 ya le gana.
+#   suave_c005 y suave_c01 sobre base (v75, v76): probado 0.05 y 0.1 sobre suave_bajada (c005, c01).
+#   PBRS_k10 s1, A2_k1 s1, combo_k3_c002, PBRS_k3, seed 4 de base y suave_c002 (v73, v74, v77-v80): menos prioritarias;
+#   ninguna de esas familias se acerco a suave_bajada.
+#   borde_k02 (v81): castigar estar bajo y afuera lleva a flotar (borde_k1, v28).

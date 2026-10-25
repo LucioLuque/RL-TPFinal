@@ -44,6 +44,8 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
 - **Id**: `v<N>-<autor>`. N es global entre los dos autores (el mayor existente + 1). El autor es la
   primera palabra de `git config user.name`. Hacer `git pull` antes de entrenar.
 - `train.py --run_id <id>` fija el nombre (hace falta para lanzar varias en paralelo; `tools/run_queue.py` lo usa).
+- Las colas (`tools/run_queue.py`) no llevan número: se asigna al lanzar cada corrida. No reservar números de
+  antemano (dejaba huecos: v31, v32, v37–v39, v43–v49, v59–v62, v68, v70–v81, v85, v88, v89 no existen).
 - **Memoria:** cada corrida usa ~3.5 GB de RAM (8 entornos de entrenamiento + 8 de evaluación). En la máquina de
   Lucio (13 GB), no más de 2 corridas a la vez: con 3 se llenó la RAM y se trabó todo.
 - **`runs/<id>/`** tiene todo lo de una corrida, y lo escribe `train.py` solo:

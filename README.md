@@ -126,7 +126,8 @@ nohup python train.py --timesteps 5000000 > train.log 2>&1 &
 tail -f train.log                                 # ver cómo va (Ctrl+C sale del tail, no corta el entrenamiento)
 ```
 
-Varias corridas, en paralelo, con una cola (cada línea: `<run_id> <recompensa> <seed> <timesteps> [args]`):
+Varias corridas, en paralelo, con una cola (cada línea: `<recompensa> <seed> <timesteps> [args]`; el número de la
+corrida se asigna al lanzarla y la línea queda marcada como `# lanzada como v<N>-<autor>`):
 
 ```bash
 setsid nohup python -m tools.run_queue cola_pendiente.txt --parallel 2 > logs/queue.log 2>&1 &
