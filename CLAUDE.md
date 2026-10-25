@@ -62,7 +62,8 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
   repetir algo que ya se probó.
 - **`BITACORA.md`**: ideas, decisiones y observaciones que no son de una sola corrida, con fecha y autor.
   Leerla junto con `EXPERIMENTS.md` antes de proponer cambios. Agregar entradas solo cuando lo pidan.
-- **`TODO.md`**: pendientes generales, en orden. Marcar las tareas a medida que se hacen.
+- **`TODO.md`**: pendientes generales, en orden. **Solo lo que falta:** al terminar una tarea, borrarla (no tacharla);
+  antes, comprobar que quede registrada en `BITACORA.md`, `EXPERIMENTS.md`, una `NOTES.md` o `docs/`.
 - **Robot real y laboratorio: `~/Documents/Tesis/Laboratorio`** (carpeta local de Lucio, no está en este repo). Ahí está todo lo de
   pasar la política al Crazyflie y al turtlebot reales (`SIM2REAL.md`: giro de la plataforma, efecto suelo, observación
   de OptiTrack, frecuencias de la cadena real y el PID a 24 Hz, aceleración del turtlebot, domain randomization) y la

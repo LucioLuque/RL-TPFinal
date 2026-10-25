@@ -37,7 +37,7 @@ Lo sugirió el profe: `VecNormalize` no conviene cuando la distribución es cono
 normalizar con eso. Ahora `env.py` divide cada valor de la observación por una escala fija y recorta a
 [-1, 1]. Las escalas salen de límites del entorno (aparición, choque, límites de velocidad, con 25 % de
 margen), salvo la de la velocidad angular, que es provisoria y sale de datos de v10. Detalle y motivo de
-cada valor en `TODO.md`, punto 1.
+cada valor en `docs/normalizacion-fija.md` (antes `TODO.md`, punto 1).
 
 Ventajas: la misma cuenta sirve para el robot real (sin `.pkl` de estadísticas de simulación), la
 normalización no cambia mientras la política aprende, y el código es más simple.
