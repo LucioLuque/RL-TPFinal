@@ -374,3 +374,10 @@ aprendizaje. A 3M, todas las variantes con castigo a la acción y desvío 0.61 a
 Para un vuelo suave, el castigo a la acción 0.05 (`c005`) es el más suave (Δv pedida ~0.05–0.07 contra ~0.12 de
 `suave_bajada` sola a 3M), pero necesita los 3M; `c003` es casi igual de suave y aprende a tiempo con todas las seeds.
 Una sola seed por variante a 3M. Nada de esto cambió los defaults (`DEFAULT_REWARD`, `log_std_init`): lo decide Lucio.
+
+## 2026-10-25 · lucio · Las colas ya no reservan números de corrida
+
+Reservar números en `cola_pendiente.txt` dejaba huecos (v31, v32, v37–v39, v43–v49, v59–v62, v68, v70–v81, v85, v88,
+v89 no existen) y obligaba a saltearlos. Ahora `tools/run_queue.py` asigna el siguiente número libre al lanzar cada
+corrida y marca la línea como `# lanzada como v<N>-<autor>`. `cola_pendiente.txt` se reescribió sin números, con lo que
+sigue teniendo sentido.
