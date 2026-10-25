@@ -42,3 +42,5 @@ v101-lucio suave_bajada_c003 42 1500000 --log_std_init -0.5
 v102-lucio suave_bajada_c003 2 1500000 --log_std_init -0.5
 # 11. La mas robusta (c003 + desvio 0.61) a 3M: entrenar mas centra (v69)
 v103-lucio suave_bajada_c003 42 3000000 --log_std_init -0.5
+# 12. La otra seed lenta de c005 a 3M (v98, seed 3: 72 % a 1.5M; v100 con la seed 1 llego a 100 %)
+v104-lucio suave_bajada_c005 3 3000000 --log_std_init -0.5
