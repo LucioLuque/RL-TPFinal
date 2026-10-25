@@ -98,6 +98,16 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
     +0.1 tocando el tope, +25 − 50·d_xy al aterrizar, −10 al chocar) + `0.02·Σ(a − a_anterior)²` de castigo por
     cambiar la acción + `0.3·(d_xy − 0.25)₊·(velocidad de bajada)₊/0.1` de castigo por bajar estando afuera y a
     menos de 30 cm del tope. 92 % de éxito medio con 4 seeds a 1.5M, contra 54 % de `base`.
+  - **Candidatas a reemplazarla** (2026-10-25, no se cambió el default: falta correrlas a 3M con 3 seeds,
+    `cola_pendiente.txt`): `suave_bajada_c003` (castigo a la acción 0.03) y `suave_bajada_c005` (0.05), las dos con
+    `--log_std_init -0.5`. Ventajas y desventajas de cada una en el README ("Mejores políticas hasta ahora") y en
+    `docs/pruebas-suavidad-2026-10-25.md`.
+  - Más castigo a la acción da un vuelo más suave pero aprende más lento (0.05: la mitad de las seeds tarda; 0.1 no
+    aprende). Entrenar 3M en vez de 1.5M centra mucho más (3–4 cm contra 6–8 cm). Con desvío 0.61, el término de
+    bajada no suma (`suave_c002` da lo mismo que `suave_bajada`).
+  - **Trampa de flotar:** cualquier término que encarezca acercarse o bajar cerca de la plataforma desde el principio
+    del entrenamiento deja al dron flotando sin aterrizar (A1, B, XY, `borde_k1`, `suave_bajada_v01`, `_flare`). El
+    castigo a la velocidad pedida además tiene una salida: pedir `s = 0`.
   - Con `--load`, se usa la recompensa de esa corrida (`utils.run_reward`; `base` si es vieja y no la tiene).
     Las herramientas que cargan una corrida (`eval.py`, `tools/evaluate.py`, gifs, trayectorias) también.
   - Otros términos: progreso (`reward_progress_coef`, `reward_progress_mode`), PBRS (`reward_pbrs_coef`),
@@ -107,6 +117,13 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
     movimiento de la plataforma (`mode: drone`) se puede explotar persiguiéndola.
 - **Las políticas son casi bang-bang**: `dz` saturado en ~97 % de los pasos (bajan siempre a máxima velocidad) y
   la media de la gaussiana muy afuera de [−1, 1]. Ver `tools/action_saturation.py`.
+- **El PID del dron corre a 24 Hz** (la frecuencia de la política: `BaseAviary.step` calcula las RPM una vez por paso de
+  control) y **oscila solo**, aun con velocidad pedida constante (±8°); a 120–240 Hz queda quieto. No es un error de
+  código, pero el Crazyflie real controla a bordo a ~500 Hz. No se cambia hasta medir el dron real en el laboratorio.
+- **Métricas de la evaluación** (`tools/evaluate.py`, `eval_*.json`): además de éxito y `outcomes`, `landing` (qué tan
+  centrado aterriza), `touchdown` (cómo llega a tocar) y `smoothness`. La suavidad que importa es `cmd_vel_change` (la
+  velocidad pedida, lo que se manda al dron real); inclinación, jerk y velocidad angular están contaminados por el
+  bamboleo del PID a 24 Hz.
 
 ## Convenciones
 
@@ -118,5 +135,8 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
   no aprende; el best (elegido con 8 episodios) puede estar 20 puntos lejos del final. `tools/compare_runs.py
   --by-reward` junta las seeds. Ver `BITACORA.md`, 2026-10-15.
 - **Exploración:** el desvío inicial de la acción (`--log_std_init`, default 0 → desvío 1) pesa tanto como la
-  recompensa: con desvío 0.61 (`-0.5`) `base` aprende en todas las seeds. Tenerlo en cuenta al comparar.
+  recompensa: con desvío 0.61 (`-0.5`) `base` aprende en todas las seeds, y `suave_bajada` vuela más suave y centrada.
+  Con 0.37 (`-1.0`) `base` mejora un poco más pero aprende más tarde. Tenerlo en cuenta al comparar.
+- A 1.5M pasos, las diferencias entre recompensas son sobre todo de velocidad de aprendizaje: para elegir la final,
+  comparar también a 3M.
 - Todo `runs/` se commitea (modelos y TensorBoard), porque es chico y el otro los necesita para evaluar. Los gifs se commitean solo si van al informe.

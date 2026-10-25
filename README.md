@@ -29,6 +29,43 @@ conda env config vars set PYTHONPATH="" -n drone-landing
 Lo de pasar la política al dron y al turtlebot reales (sim2real, guía del laboratorio de OptiTrack y scripts de
 medición) está en `~/Documents/Tesis/Laboratorio`, fuera de este repo.
 
+## Mejores políticas hasta ahora (2026-10-25)
+
+Todavía no se eligió una: hay que correr las candidatas a 3M pasos con 3 seeds (`cola_pendiente.txt`), y por eso la
+recompensa por defecto sigue siendo `suave_bajada` con desvío inicial 1. Las tres que mejor anduvieron, con lo bueno y
+lo malo de cada una (detalle en `docs/pruebas-suavidad-2026-10-25.md`). "Desvío 0.61" es `--log_std_init -0.5`;
+"Δv pedida" es cuánto cambia por paso la velocidad que se le pide al dron (más chico = vuelo más suave); "centro" es la
+mediana de la distancia al centro de la plataforma al aterrizar.
+
+**1. `suave_bajada_c003` + desvío 0.61** — la más robusta. Para verla: `python eval.py --load v101-lucio`.
+```bash
+python train.py --reward suave_bajada_c003 --log_std_init -0.5 --timesteps 1500000
+```
+- Ventajas: 97.7 % de éxito con 3 seeds a 1.5M pasos (95 / 99 / 99 %), y las tres aprenden a tiempo (~1M pasos). Es la
+  que menos choca el borde (4 de 300 episodios). Se entrena en ~50 min.
+- Desventajas: no es más suave que `suave_bajada` con el mismo desvío (Δv pedida 0.081 m/s) y a 1.5M centra a ~6 cm.
+  A 3M solo hay el best de una corrida cortada (v103: 100 %, 4 cm), sin modelo final.
+
+**2. `suave_bajada_c005` + desvío 0.61, entrenada 3M pasos** — la más suave y centrada. Para verla:
+`python eval.py --load v100-lucio`.
+```bash
+python train.py --reward suave_bajada_c005 --log_std_init -0.5 --timesteps 3000000
+```
+- Ventajas: la velocidad pedida más pareja (Δv pedida 0.049–0.072 m/s) y la más centrada (v100: 3.3 cm, 71 % a menos
+  de 5 cm). A 3M aterriza en el 100 % de los episodios (200 de 200 en seeds nuevas).
+- Desventajas: necesita 3M pasos (~1.5 h): a 1.5M la mitad de las seeds aprende tarde (82.5 % de media con 4 seeds).
+  A 3M hay una sola corrida completa (v100) y el best de otra cortada (v104).
+
+**3. `suave_bajada` (la de hoy), entrenada 3M pasos** — sin cambiar nada más que la duración. Para verla:
+`python eval.py --load v69-lucio`.
+```bash
+python train.py --timesteps 3000000
+```
+- Ventajas: es la recompensa y la exploración por defecto. 99 % de éxito (199 de 200 en seeds nuevas) y 3.7 cm del
+  centro.
+- Desventajas: la menos suave de las tres (Δv pedida 0.119 m/s). Con desvío 1 depende más de la seed que con 0.61. Una
+  sola corrida a 3M.
+
 ## Estructura
 
 ```
@@ -158,8 +195,12 @@ confianza del 95 %, cómo terminan los episodios (éxito, choque contra el piso,
 inclinación, o se acaba el tiempo) y cuánto tarda en aterrizar, y lo guarda en `runs/<id>/eval_best.json`
 (o `eval_final.json`). Las evaluaciones durante el entrenamiento son de solo 8 episodios y saltan mucho:
 para comparar corridas, usar esta. **Evaluar también el modelo final:** el best se elige con 8 episodios y puede
-estar lejos del final (v57: best 75 %, final 93 %). También guarda la suavidad (`smoothness`: cuánto cambia la
-acción y la velocidad pedida por paso).
+estar lejos del final (v57: best 75 %, final 93 %). También guarda:
+- `landing`: qué tan centrado aterriza (distancia al centro de la plataforma: media, mediana, p90, % a menos de 5 y 10 cm);
+- `touchdown`: cómo llega a la plataforma (velocidad de bajada e inclinación justo antes de tocar, rebotes);
+- `smoothness`: cuánto cambia la acción y la velocidad pedida por paso (`cmd_vel_change`, la que se transfiere al dron
+  real), los saltos grandes (`cmd_vel_change_p95`), y la aceleración, el jerk, la inclinación y la velocidad angular del
+  dron (estos cuatro, contaminados por el bamboleo del PID a 24 Hz del simulador: ver `docs/pruebas-suavidad-2026-10-25.md`).
 
 ### Comparar corridas
 
@@ -170,7 +211,7 @@ python -m tools.plot_actions v40-lucio v54-lucio --out media/plots/acciones.png
 ```
 
 `compare_runs` imprime una tabla en markdown (éxito en el entrenamiento, cuándo cruza 50 %, best y final en 100
-episodios, cómo falla y suavidad) y, con `--by-reward`, otra que junta las seeds de cada recompensa.
+episodios, cómo falla, suavidad y centrado) y, con `--by-reward`, otra que junta las seeds de cada recompensa.
 
 ### Ver una política volar
 
@@ -185,7 +226,9 @@ python eval.py --load v16-lucio --episodes 10
 | `--episodes` | 5 | Cantidad de episodios |
 | `--seed` | 42 | Semilla del entorno (cambiala para ver otros episodios) |
 
-Abre la ventana de PyBullet, corre en tiempo real e imprime cuántos aterrizajes salieron bien.
+Abre la ventana de PyBullet y corre en tiempo real. Por cada episodio imprime cómo terminó, a cuántos cm del centro
+aterrizó, en cuántos segundos y cuánto salta la velocidad pedida; al final, los éxitos y el mínimo, promedio y máximo
+de esas tres cosas.
 
 ### Gif de un episodio
 
