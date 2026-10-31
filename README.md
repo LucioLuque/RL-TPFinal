@@ -29,42 +29,47 @@ conda env config vars set PYTHONPATH="" -n drone-landing
 Lo de pasar la política al dron y al turtlebot reales (sim2real, guía del laboratorio de OptiTrack y scripts de
 medición) está en `~/Documents/Tesis/Laboratorio`, fuera de este repo.
 
-## Mejores políticas hasta ahora (2026-10-25)
+## Mejores políticas hasta ahora (2026-10-30)
 
-Todavía no se eligió una: hay que correr las candidatas a 3M pasos con 3 seeds (`cola_pendiente.txt`), y por eso la
-recompensa por defecto sigue siendo `suave_bajada` con desvío inicial 1. Las tres que mejor anduvieron, con lo bueno y
-lo malo de cada una (detalle en `docs/pruebas-suavidad-2026-10-25.md`). "Desvío 0.61" es `--log_std_init -0.5`;
-"Δv pedida" es cuánto cambia por paso la velocidad que se le pide al dron (más chico = vuelo más suave); "centro" es la
-mediana de la distancia al centro de la plataforma al aterrizar.
+Todavía no se eligió una (lo decide Lucio), y por eso la recompensa por defecto sigue siendo `suave_bajada` con desvío
+inicial 1. Las tres candidatas ya se entrenaron 3M pasos con 3 seeds o más; resultados del modelo final en 100
+episodios (detalle en `BITACORA.md`, 2026-10-30, y `docs/pruebas-suavidad-2026-10-25.md`). "Desvío 0.61" es
+`--log_std_init -0.5`; "Δv pedida" es cuánto cambia por paso la velocidad que se le pide al dron (más chico = vuelo más
+suave); "centro" es la mediana de la distancia al centro de la plataforma al aterrizar. 3M pasos tardan ~1.5 h en la
+máquina de Lucio y ~35 min en el laboratorio S004.
 
-**1. `suave_bajada_c003` + desvío 0.61** — la más robusta. Para verla: `python eval.py --load v101-lucio`.
+**1. `suave_bajada_c003` + desvío 0.61, 3M pasos** — la recomendada: la más robusta. Para verla:
+`python eval.py --load v107-teo`.
 ```bash
-python train.py --reward suave_bajada_c003 --log_std_init -0.5 --timesteps 1500000
+python train.py --reward suave_bajada_c003 --log_std_init -0.5 --timesteps 3000000
 ```
-- Ventajas: 97.7 % de éxito con 3 seeds a 1.5M pasos (95 / 99 / 99 %), y las tres aprenden a tiempo (~1M pasos). Es la
-  que menos choca el borde (4 de 300 episodios). Se entrena en ~50 min.
-- Desventajas: no es más suave que `suave_bajada` con el mismo desvío (Δv pedida 0.081 m/s) y a 1.5M centra a ~6 cm.
-  A 3M solo hay el best de una corrida cortada (v103: 100 %, 4 cm), sin modelo final.
+- Ventajas: 100 % de éxito con las 3 seeds (v105–v107), que aprenden a tiempo (50 % a ~0.7M pasos). Δv pedida 0.066 m/s
+  y ~4 cm del centro. A 1.5M ya daba 97.7 %.
+- Desventajas: no es la más suave. Como todas, toca la plataforma a ~0.5 m/s.
 
-**2. `suave_bajada_c005` + desvío 0.61, entrenada 3M pasos** — la más suave y centrada. Para verla:
-`python eval.py --load v100-lucio`.
+**2. `suave_bajada_c005` + desvío 0.61, 3M pasos** — la más suave. Para verla: `python eval.py --load v108-teo`.
 ```bash
 python train.py --reward suave_bajada_c005 --log_std_init -0.5 --timesteps 3000000
 ```
-- Ventajas: la velocidad pedida más pareja (Δv pedida 0.049–0.072 m/s) y la más centrada (v100: 3.3 cm, 71 % a menos
-  de 5 cm). A 3M aterriza en el 100 % de los episodios (200 de 200 en seeds nuevas).
-- Desventajas: necesita 3M pasos (~1.5 h): a 1.5M la mitad de las seeds aprende tarde (82.5 % de media con 4 seeds).
-  A 3M hay una sola corrida completa (v100) y el best de otra cortada (v104).
+- Ventajas: la velocidad pedida más pareja (v108: Δv pedida 0.043 m/s, 3.3 cm del centro). 4 de 5 seeds dan 97–100 %.
+- Desventajas: **1 de 5 seeds se quedó flotando** (v109: 0 %), y la misma seed sí había aprendido en otra máquina. A
+  1.5M la mitad de las seeds aprende tarde.
 
-**3. `suave_bajada` (la de hoy), entrenada 3M pasos** — sin cambiar nada más que la duración. Para verla:
-`python eval.py --load v69-lucio`.
+**3. `suave_bajada` (la de hoy) + desvío 0.61, 3M pasos** — solo cambia la exploración y la duración. Para verla:
+`python eval.py --load v131-teo`.
 ```bash
-python train.py --timesteps 3000000
+python train.py --log_std_init -0.5 --timesteps 3000000
 ```
-- Ventajas: es la recompensa y la exploración por defecto. 99 % de éxito (199 de 200 en seeds nuevas) y 3.7 cm del
-  centro.
-- Desventajas: la menos suave de las tres (Δv pedida 0.119 m/s). Con desvío 1 depende más de la seed que con 0.61. Una
-  sola corrida a 3M.
+- Ventajas: es la recompensa por defecto. 100 % con las 3 seeds (v130–v132).
+- Desventajas: algo menos suave que `c003` (Δv pedida 0.079 contra 0.066 m/s de media), aunque las seeds se superponen.
+
+Variantes que se probaron con `c003` a 3M, para mirar comportamientos puntuales:
+- **La que toca más despacio:** `python eval.py --load v127-teo` (acción como velocidad + premio por tocar despacio,
+  `suave_bajada_c003_vel_tocar`): toca a 0.33 m/s, contra ~0.5 de las demás. Solo 1 de 3 seeds aprendió a frenar.
+- **La más centrada:** `python eval.py --load v121-teo` (CAPS, `--caps_temporal 0.01 --caps_spatial 0.01`): 2.7 cm,
+  84 % a menos de 5 cm.
+- **La más suave con `c003`:** `python eval.py --load v119-teo` (gSDE, `--use_sde --sde_sample_freq 4
+  --log_std_init -2`): Δv pedida 0.046 m/s. Con 3 seeds, gSDE suaviza ~15 %.
 
 ## Estructura
 
