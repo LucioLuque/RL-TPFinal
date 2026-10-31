@@ -52,12 +52,8 @@ def crash_kind(raw_env) -> str:
 
 
 def commanded_velocity(raw_env, action) -> np.ndarray:
-    """Velocidad que se le pide al dron (m/s), con la misma cuenta que VelocityAviary."""
-    direction = action[0:3]
-    norm = np.linalg.norm(direction)
-    if norm == 0:
-        return np.zeros(3)
-    return raw_env.SPEED_LIMIT * abs(action[3]) * direction / norm
+    """Velocidad que se le pide al dron (m/s): la cuenta del entorno, que depende de action_mode."""
+    return raw_env._commanded_velocity(action)
 
 
 def run_episode(model, env, seed: int) -> tuple[dict, list, dict]:
