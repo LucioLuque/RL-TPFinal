@@ -48,7 +48,15 @@ class MovingPlatformLandingAviary(VelocityAviary):
         reward_ang_vel_coef: float = 0.0,   # castigo por bamboleo: c * (wx^2 + wy^2), velocidad angular de roll y pitch
         reward_flare_coef: float = 0.0,     # castigo por bajar rapido justo encima del tope (alineado y a < 15 cm)
         landing_dxy_coef: float = 50.0,     # premio al aterrizar = 25 - landing_dxy_coef * d_xy (mas grande = premia mas el centro)
+        landing_vz_coef: float = 0.0,       # premio extra al aterrizar = coef * (1 - v_bajada_al_tocar / SPEED_LIMIT)
         crash_penalty: float = 10.0,        # castigo al chocar
+
+        # Accion
+        action_mode: str = "direction",     # "direction": v = 0.6 * s * dir/|dir| (gym-pybullet-drones); "velocity": v = 0.6 * (dx, dy, dz)
+
+        # Fisica
+        ground_effect: bool = False,        # efecto suelo contra el tope de la plataforma y el piso (ver _groundEffect)
+        ground_effect_scale: float = 1.0,   # multiplica el coeficiente de gym-pybullet-drones
     ):
         self.platform_radius = 0.25
         self.platform_height = 0.35
@@ -72,7 +80,11 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self.reward_ang_vel_coef = reward_ang_vel_coef
         self.reward_flare_coef = reward_flare_coef
         self.landing_dxy_coef = landing_dxy_coef
+        self.landing_vz_coef = landing_vz_coef
         self.crash_penalty = crash_penalty
+        self.ground_effect = ground_effect
+        self.action_mode = action_mode
+        self.ground_effect_scale = ground_effect_scale
 
         self.max_episode_steps = int(max_episode_seconds * ctrl_freq)
 
@@ -105,7 +117,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
             drone_model=DroneModel.CF2X,
             num_drones=1,
             initial_xyzs=initial_xyzs,
-            physics=Physics.PYB,
+            physics=Physics.PYB_GND if ground_effect else Physics.PYB,
             pyb_freq=240,
             ctrl_freq=ctrl_freq,
             gui=gui,
@@ -251,6 +263,8 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self.has_crashed = False
         self.is_truncated = False
         self.prev_action = np.zeros(4, dtype=np.float32)
+        self._descent_speed = 0.0   # velocidad de bajada relativa al tope en el paso anterior (m/s, >= 0)
+        self._touchdown_vz = None   # la de antes del primer contacto (como touchdown.vz de tools/evaluate.py)
 
         if seed is not None:
             self._rng = np.random.default_rng(seed)
@@ -282,14 +296,30 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self._update_platform()
 
         action = np.array(action, dtype=np.float32).reshape(1, 4)
+        if self.action_mode == "velocity":
+            # La velocidad pedida es 0.6 * (dx, dy, dz), con norma <= 0.6: frenar es achicar la accion. Con "direction"
+            # s queda saturado en 1 (media ~3) y la velocidad es siempre 0.6 m/s (tools/action_saturation.py). El cuarto
+            # valor no se usa: se guarda en 0 para que no entre en la observacion ni en el castigo a la accion.
+            action[0, 3] = 0.0
+            v = self._commanded_velocity(action[0]) / self.SPEED_LIMIT
+            speed = np.linalg.norm(v)
+            vel_action = np.zeros((1, 4), dtype=np.float32)
+            if speed > 0:
+                vel_action[0, :3] = v / speed
+                vel_action[0, 3] = speed
+        else:
+            vel_action = action
         self._current_action = action[0].copy()
 
-        super().step(action)
+        super().step(vel_action)
 
         self.episode_step_counter += 1
 
         self._contact = self._platform_contact()
         self._touching = (self._contact == 'top')
+        if self._contact is not None and self._touchdown_vz is None:
+            # Al final del paso con contacto, el choque ya freno al dron: se usa la del paso anterior.
+            self._touchdown_vz = self._descent_speed
         self._update_stable_counter()
         self.has_landed = (self.stable_counter >= 10)
         self.has_crashed = self._crashed()
@@ -301,6 +331,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
         self.prev_action = self._current_action.copy()
         self.prev_d = self._current_d
         self.prev_drone_pos = self._getDroneStateVector(0)[0:3].copy()
+        self._descent_speed = max(0.0, -float(self._getDroneStateVector(0)[12] - self.platform_vel[2]))
 
         obs = self._computeObs()
         info = self._computeInfo()
@@ -427,6 +458,10 @@ class MovingPlatformLandingAviary(VelocityAviary):
         #terminales
         if self.has_landed:
             reward += 25.0 - d_xy * self.landing_dxy_coef
+            if self.landing_vz_coef and self._touchdown_vz is not None:
+                # Tocar suave: se paga una sola vez y solo si aterriza, asi que no encarece acercarse ni bajar
+                # (los castigos por paso cerca del tope, como reward_flare_coef, caen en la trampa de flotar).
+                reward += self.landing_vz_coef * max(0.0, 1.0 - self._touchdown_vz / self.SPEED_LIMIT)
         elif self.has_crashed:
             reward -= self.crash_penalty
 
@@ -435,9 +470,35 @@ class MovingPlatformLandingAviary(VelocityAviary):
     def _commanded_velocity(self, action):
         """Velocidad que se le pide al dron (m/s), con la misma cuenta que VelocityAviary._preprocessAction."""
         norm = np.linalg.norm(action[0:3])
+        if self.action_mode == "velocity":
+            return self.SPEED_LIMIT * np.asarray(action[0:3]) / max(1.0, norm)
         if norm == 0:
             return np.zeros(3)
         return self.SPEED_LIMIT * abs(action[3]) * action[0:3] / norm
+
+    def _groundEffect(self, rpm, nth_drone):
+        """Efecto suelo por helice, como BaseAviary._groundEffect pero con la altura sobre lo que haya debajo.
+
+        El de gym-pybullet-drones mide la altura contra el piso (z = 0), y el tope esta a 0.35 m: ahi casi no
+        empuja. Aca, la helice que esta encima de la plataforma mide contra el tope y la que esta afuera contra
+        el piso, asi que cerca del borde aparece el efecto suelo parcial (algunas helices si, otras no).
+        Empuje extra = KF * rpm^2 * GND_EFF_COEFF * (R / 4h)^2 (Shi et al. 2019); con el coeficiente de la CF2X y
+        en hover da +4 % del peso a 10 cm, +15 % a 5 cm y +27 % desde 3.8 cm para abajo (GND_EFF_H_CLIP). Medido en
+        un Crazyflie real puede ser bastante menos (~5 % a 4.6 cm): ver docs/estado-del-arte-2026-10-30.md.
+        Solo se llama con Physics.PYB_GND (ground_effect=True).
+        """
+        link_states = p.getLinkStates(self.DRONE_IDS[nth_drone], linkIndices=[0, 1, 2, 3],
+                                      physicsClientId=self.CLIENT)
+        props = np.array([link_states[i][0] for i in range(4)])
+        over_top = np.linalg.norm(props[:, :2] - self.platform_pos[:2], axis=1) < self.platform_radius
+        heights = props[:, 2] - np.where(over_top, self.platform_height, 0.0)
+        heights = np.clip(heights, self.GND_EFF_H_CLIP, np.inf)
+        forces = (np.array(rpm) ** 2 * self.KF * self.GND_EFF_COEFF * self.ground_effect_scale
+                  * (self.PROP_RADIUS / (4 * heights)) ** 2)
+        if np.abs(self.rpy[nth_drone, 0]) < np.pi / 2 and np.abs(self.rpy[nth_drone, 1]) < np.pi / 2:
+            for i in range(4):
+                p.applyExternalForce(self.DRONE_IDS[nth_drone], i, forceObj=[0, 0, forces[i]], posObj=[0, 0, 0],
+                                     flags=p.LINK_FRAME, physicsClientId=self.CLIENT)
 
     # Antes se usaba para velocity tracking, se puede borrar
     # def _get_target_velocity(self, rel_pos):

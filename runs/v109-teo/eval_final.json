@@ -1,0 +1,896 @@
+{
+  "run_id": "v109-teo",
+  "model": "final",
+  "episodes": 100,
+  "seeds": [
+    42,
+    141
+  ],
+  "success_rate": 0.0,
+  "success_ci95": [
+    0.0,
+    0.037
+  ],
+  "outcomes": {
+    "tiempo": 100
+  },
+  "landing_time_s": null,
+  "landing": null,
+  "touchdown": null,
+  "smoothness": {
+    "action_change": 0.0,
+    "cmd_vel_change": 0.0,
+    "cmd_vel_change_p95": 0.0,
+    "drone_accel": 0.0,
+    "drone_jerk": 0.0,
+    "tilt_rms_deg": 0.0,
+    "ang_vel_rms": 0.0
+  },
+  "obs_clipped_fraction": {
+    "rel_px": 0.1223,
+    "rel_py": 0.1032,
+    "rel_pz": 0.0,
+    "rel_vx": 0.0,
+    "rel_vy": 0.0,
+    "rel_vz": 0.0,
+    "roll": 0.0,
+    "pitch": 0.0,
+    "yaw": 0.0,
+    "wx": 0.0,
+    "wy": 0.0,
+    "wz": 0.0,
+    "vx": 0.0,
+    "vy": 0.0,
+    "vz": 0.0,
+    "prev_a0": 0.0,
+    "prev_a1": 0.0,
+    "prev_a2": 0.0,
+    "prev_a3": 0.0
+  },
+  "obs_abs_p999": {
+    "rel_px": 3.273,
+    "rel_py": 2.996,
+    "rel_pz": 1.147,
+    "rel_vx": 0.3,
+    "rel_vy": 0.3,
+    "rel_vz": 0.0,
+    "roll": 0.0,
+    "pitch": 0.0,
+    "yaw": 0.0,
+    "wx": 0.0,
+    "wy": 0.0,
+    "wz": 0.0,
+    "vx": 0.0,
+    "vy": 0.0,
+    "vz": 0.0,
+    "prev_a0": 1.0,
+    "prev_a1": 1.0,
+    "prev_a2": 1.0,
+    "prev_a3": 0.0
+  },
+  "obs_scale": {
+    "rel_px": 1.5,
+    "rel_py": 1.5,
+    "rel_pz": 1.5,
+    "rel_vx": 1.125,
+    "rel_vy": 1.125,
+    "rel_vz": 1.125,
+    "roll": 0.7,
+    "pitch": 0.7,
+    "yaw": 3.142,
+    "wx": 5.0,
+    "wy": 5.0,
+    "wz": 5.0,
+    "vx": 0.75,
+    "vy": 0.75,
+    "vz": 0.75,
+    "prev_a0": 1.0,
+    "prev_a1": 1.0,
+    "prev_a2": 1.0,
+    "prev_a3": 1.0
+  },
+  "git_commit": "61c0368296f998bc00fee8f1a8ef35461e5de4de",
+  "evaluated_at": "2026-10-30T01:27:58",
+  "per_episode": [
+    {
+      "seed": 42,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.527,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 43,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.784,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 44,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.532,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 45,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.286,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 46,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.443,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 47,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.73,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 48,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.641,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 49,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.926,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 50,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.629,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 51,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.121,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 52,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.16,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 53,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.785,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 54,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.593,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 55,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.717,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 56,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.899,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 57,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.54,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 58,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.934,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 59,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.984,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 60,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.773,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 61,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.355,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 62,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.482,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 63,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.79,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 64,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.838,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 65,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.691,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 66,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.913,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 67,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.853,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 68,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.778,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 69,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.874,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 70,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.644,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 71,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.724,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 72,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 3.048,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 73,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.707,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 74,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.204,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 75,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.813,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 76,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.432,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 77,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.605,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 78,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.974,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 79,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.693,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 80,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.464,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 81,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.662,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 82,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.853,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 83,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.062,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 84,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 3.301,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 85,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 3.43,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 86,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.538,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 87,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.519,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 88,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.459,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 89,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.016,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 90,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.446,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 91,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.454,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 92,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.285,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 93,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.51,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 94,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.114,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 95,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.868,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 96,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 3.412,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 97,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 3.267,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 98,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.53,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 99,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.836,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 100,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.704,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 101,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.796,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 102,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.832,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 103,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.87,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 104,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.08,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 105,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.591,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 106,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.907,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 107,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.102,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 108,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 3.026,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 109,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.977,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 110,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.395,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 111,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 3.238,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 112,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.768,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 113,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.064,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 114,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.971,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 115,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.81,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 116,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.057,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 117,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.155,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 118,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.114,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 119,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.368,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 120,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.555,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 121,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.489,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 122,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.221,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 123,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.799,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 124,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.006,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 125,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.861,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 126,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.894,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 127,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.002,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 128,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.98,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 129,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.79,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 130,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.686,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 131,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.025,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 132,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.792,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 133,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.794,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 134,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.192,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 135,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.754,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 136,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.755,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 137,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.435,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 138,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.065,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 139,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 1.944,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 140,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 2.539,
+      "touchdown": null,
+      "bounces": 0
+    },
+    {
+      "seed": 141,
+      "outcome": "tiempo",
+      "steps": 480,
+      "d_xy": 0.444,
+      "touchdown": null,
+      "bounces": 0
+    }
+  ]
+}

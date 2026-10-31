@@ -4,11 +4,5 @@
 # Formato: <recompensa> <seed> <timesteps> [args extra de train.py]. Sin numero de corrida: tools/run_queue.py le asigna
 # el siguiente libre al lanzarla y marca la linea como "# lanzada como v<N>-<autor>".
 
-# Las candidatas a recompensa final, a 3M completo y con 3 seeds (TODO.md, punto 1). c003 s42 y c005 s3 repiten
-# completas v103 y v104, que se cortaron antes del final.
-suave_bajada_c003 42 3000000 --log_std_init -0.5
-suave_bajada_c003 1 3000000 --log_std_init -0.5
-suave_bajada_c003 2 3000000 --log_std_init -0.5
-suave_bajada_c005 42 3000000 --log_std_init -0.5
-suave_bajada_c005 2 3000000 --log_std_init -0.5
-suave_bajada_c005 3 3000000 --log_std_init -0.5
+# Vacia: las candidatas a 3M (v105-v110, v114) y las pruebas de la noche del 2026-10-30 (v111-v135) ya se corrieron y
+# se registraron. Lo que sigue esta en TODO.md, punto 2.

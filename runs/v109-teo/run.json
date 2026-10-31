@@ -1,0 +1,303 @@
+{
+  "run_id": "v109-teo",
+  "sessions": [
+    {
+      "session": 1,
+      "author": "teo",
+      "status": "finished",
+      "started_at": "2026-10-30T01:03:19",
+      "start_timesteps": 0,
+      "args": {
+        "load": null,
+        "seed": 2,
+        "timesteps": 3000000,
+        "n_envs": 8,
+        "reward": "suave_bajada_c005",
+        "ent_coef": 0.01,
+        "log_std_init": -0.5,
+        "run_id": "v109-teo"
+      },
+      "hyperparams": {
+        "algo": "PPO",
+        "learning_rate": 0.0003,
+        "n_steps": 512,
+        "batch_size": 256,
+        "n_epochs": 5,
+        "gamma": 0.99,
+        "gae_lambda": 0.95,
+        "ent_coef": 0.01,
+        "vf_coef": 0.5,
+        "clip_range": 0.2,
+        "max_grad_norm": 0.5,
+        "policy_kwargs": {
+          "log_std_init": -0.5,
+          "net_arch": {
+            "pi": [
+              128,
+              128
+            ],
+            "vf": [
+              128,
+              128
+            ]
+          }
+        },
+        "n_envs": 8
+      },
+      "level": "turtlebot_hard_fixed",
+      "env_kwargs": {
+        "gui": false,
+        "ctrl_freq": 24,
+        "max_episode_seconds": 20,
+        "angular_speed_range": [
+          0.0,
+          3.0
+        ],
+        "spawn_xy_radius": 0.8,
+        "spawn_z_range": [
+          0.5,
+          1.5
+        ],
+        "vary_speed": true,
+        "turt_noise": true,
+        "linear_speed_range": [
+          0.05,
+          0.3
+        ],
+        "reward_distance_coef": 0.1,
+        "reward_action_coef": 0.05,
+        "reward_descent_coef": 0.3,
+        "crash_penalty": 10.0
+      },
+      "obs_dim": 19,
+      "env_constants": {
+        "speed_limit": 0.6,
+        "obs_scale": [
+          1.5,
+          1.5,
+          1.5,
+          1.125,
+          1.125,
+          1.125,
+          0.699999988079071,
+          0.699999988079071,
+          3.1415927410125732,
+          5.0,
+          5.0,
+          5.0,
+          0.75,
+          0.75,
+          0.75,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "git": {
+        "commit": "61c0368296f998bc00fee8f1a8ef35461e5de4de",
+        "branch": "main",
+        "dirty": true,
+        "untracked": []
+      },
+      "files": {
+        "diff": "diff.patch",
+        "env": "env.py",
+        "levels": "levels.yaml",
+        "rewards": "rewards.yaml"
+      },
+      "results": {
+        "final_timesteps": 3002368,
+        "best_success_rate": 0.0,
+        "best_mean_reward": -50.6534525,
+        "best_mean_ep_length": 480.0,
+        "best_at_timesteps": 1400000,
+        "n_eval_episodes": 8,
+        "evals": [
+          {
+            "timesteps": 100000,
+            "success_rate": 0.0,
+            "mean_reward": -69.75944312499999,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 200000,
+            "success_rate": 0.0,
+            "mean_reward": -68.8376915,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 300000,
+            "success_rate": 0.0,
+            "mean_reward": -56.737076375,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 400000,
+            "success_rate": 0.0,
+            "mean_reward": -75.25680424999999,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 500000,
+            "success_rate": 0.0,
+            "mean_reward": -66.64144787500001,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 600000,
+            "success_rate": 0.0,
+            "mean_reward": -73.10560075000001,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 700000,
+            "success_rate": 0.0,
+            "mean_reward": -70.660978125,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 800000,
+            "success_rate": 0.0,
+            "mean_reward": -58.316040375,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 900000,
+            "success_rate": 0.0,
+            "mean_reward": -76.84754162499999,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 1000000,
+            "success_rate": 0.0,
+            "mean_reward": -67.586998625,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 1100000,
+            "success_rate": 0.0,
+            "mean_reward": -84.31145225,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 1200000,
+            "success_rate": 0.0,
+            "mean_reward": -69.207364875,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 1300000,
+            "success_rate": 0.0,
+            "mean_reward": -75.51136575,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 1400000,
+            "success_rate": 0.0,
+            "mean_reward": -50.6534525,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 1500000,
+            "success_rate": 0.0,
+            "mean_reward": -59.60158225,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 1600000,
+            "success_rate": 0.0,
+            "mean_reward": -77.95964475,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 1700000,
+            "success_rate": 0.0,
+            "mean_reward": -69.17697212499999,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 1800000,
+            "success_rate": 0.0,
+            "mean_reward": -65.56228875,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 1900000,
+            "success_rate": 0.0,
+            "mean_reward": -70.734369375,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 2000000,
+            "success_rate": 0.0,
+            "mean_reward": -81.62517475,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 2100000,
+            "success_rate": 0.0,
+            "mean_reward": -68.040607625,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 2200000,
+            "success_rate": 0.0,
+            "mean_reward": -79.939317875,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 2300000,
+            "success_rate": 0.0,
+            "mean_reward": -76.14704925,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 2400000,
+            "success_rate": 0.0,
+            "mean_reward": -78.0386265,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 2500000,
+            "success_rate": 0.0,
+            "mean_reward": -66.56482425,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 2600000,
+            "success_rate": 0.0,
+            "mean_reward": -72.662971125,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 2700000,
+            "success_rate": 0.0,
+            "mean_reward": -66.524812125,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 2800000,
+            "success_rate": 0.0,
+            "mean_reward": -59.5620075,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 2900000,
+            "success_rate": 0.0,
+            "mean_reward": -54.69122625,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 3000000,
+            "success_rate": 0.0,
+            "mean_reward": -67.733632,
+            "mean_ep_length": 480.0
+          }
+        ]
+      },
+      "finished_at": "2026-10-30T01:27:02",
+      "duration_s": 1422.2
+    }
+  ]
+}

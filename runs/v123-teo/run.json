@@ -1,0 +1,311 @@
+{
+  "run_id": "v123-teo",
+  "sessions": [
+    {
+      "session": 1,
+      "author": "teo",
+      "status": "finished",
+      "started_at": "2026-10-30T03:46:01",
+      "start_timesteps": 0,
+      "args": {
+        "load": null,
+        "seed": 2,
+        "timesteps": 3000000,
+        "n_envs": 8,
+        "reward": "suave_bajada_c003",
+        "ent_coef": 0.01,
+        "log_std_init": -0.5,
+        "run_id": "v123-teo",
+        "use_sde": false,
+        "sde_sample_freq": -1,
+        "caps_temporal": 0.01,
+        "caps_spatial": 0.01,
+        "caps_sigma": 0.02,
+        "init_from": null
+      },
+      "hyperparams": {
+        "algo": "CAPSPPO",
+        "learning_rate": 0.0003,
+        "n_steps": 512,
+        "batch_size": 256,
+        "n_epochs": 5,
+        "gamma": 0.99,
+        "gae_lambda": 0.95,
+        "ent_coef": 0.01,
+        "vf_coef": 0.5,
+        "clip_range": 0.2,
+        "max_grad_norm": 0.5,
+        "policy_kwargs": {
+          "log_std_init": -0.5,
+          "net_arch": {
+            "pi": [
+              128,
+              128
+            ],
+            "vf": [
+              128,
+              128
+            ]
+          }
+        },
+        "n_envs": 8
+      },
+      "level": "turtlebot_hard_fixed",
+      "env_kwargs": {
+        "gui": false,
+        "ctrl_freq": 24,
+        "max_episode_seconds": 20,
+        "angular_speed_range": [
+          0.0,
+          3.0
+        ],
+        "spawn_xy_radius": 0.8,
+        "spawn_z_range": [
+          0.5,
+          1.5
+        ],
+        "vary_speed": true,
+        "turt_noise": true,
+        "linear_speed_range": [
+          0.05,
+          0.3
+        ],
+        "reward_distance_coef": 0.1,
+        "reward_action_coef": 0.03,
+        "reward_descent_coef": 0.3,
+        "crash_penalty": 10.0
+      },
+      "obs_dim": 19,
+      "env_constants": {
+        "speed_limit": 0.6,
+        "obs_scale": [
+          1.5,
+          1.5,
+          1.5,
+          1.125,
+          1.125,
+          1.125,
+          0.699999988079071,
+          0.699999988079071,
+          3.1415927410125732,
+          5.0,
+          5.0,
+          5.0,
+          0.75,
+          0.75,
+          0.75,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "git": {
+        "commit": "61c0368296f998bc00fee8f1a8ef35461e5de4de",
+        "branch": "main",
+        "dirty": true,
+        "untracked": [
+          "caps.py"
+        ]
+      },
+      "files": {
+        "diff": "diff.patch",
+        "env": "env.py",
+        "levels": "levels.yaml",
+        "rewards": "rewards.yaml"
+      },
+      "results": {
+        "final_timesteps": 3002368,
+        "best_success_rate": 1.0,
+        "best_mean_reward": 21.925208875,
+        "best_mean_ep_length": 48.875,
+        "best_at_timesteps": 2400000,
+        "n_eval_episodes": 8,
+        "evals": [
+          {
+            "timesteps": 100000,
+            "success_rate": 0.0,
+            "mean_reward": -69.75864475,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 200000,
+            "success_rate": 0.0,
+            "mean_reward": -68.816331875,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 300000,
+            "success_rate": 0.0,
+            "mean_reward": -51.016296624999995,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 400000,
+            "success_rate": 0.0,
+            "mean_reward": -44.416194125,
+            "mean_ep_length": 385.25
+          },
+          {
+            "timesteps": 500000,
+            "success_rate": 0.0,
+            "mean_reward": -38.774235125,
+            "mean_ep_length": 351.75
+          },
+          {
+            "timesteps": 600000,
+            "success_rate": 0.0,
+            "mean_reward": -34.6592545,
+            "mean_ep_length": 480.0
+          },
+          {
+            "timesteps": 700000,
+            "success_rate": 0.5,
+            "mean_reward": -5.675073624999999,
+            "mean_ep_length": 216.25
+          },
+          {
+            "timesteps": 800000,
+            "success_rate": 0.875,
+            "mean_reward": 11.594659375,
+            "mean_ep_length": 96.125
+          },
+          {
+            "timesteps": 900000,
+            "success_rate": 0.75,
+            "mean_reward": 11.547407500000002,
+            "mean_ep_length": 89.625
+          },
+          {
+            "timesteps": 1000000,
+            "success_rate": 0.625,
+            "mean_reward": 12.025076375,
+            "mean_ep_length": 143.875
+          },
+          {
+            "timesteps": 1100000,
+            "success_rate": 0.875,
+            "mean_reward": 13.75907125,
+            "mean_ep_length": 54.625
+          },
+          {
+            "timesteps": 1200000,
+            "success_rate": 1.0,
+            "mean_reward": 18.3252095,
+            "mean_ep_length": 49.375
+          },
+          {
+            "timesteps": 1300000,
+            "success_rate": 1.0,
+            "mean_reward": 20.29655325,
+            "mean_ep_length": 53.0
+          },
+          {
+            "timesteps": 1400000,
+            "success_rate": 1.0,
+            "mean_reward": 19.53316125,
+            "mean_ep_length": 54.125
+          },
+          {
+            "timesteps": 1500000,
+            "success_rate": 1.0,
+            "mean_reward": 18.318839875000002,
+            "mean_ep_length": 53.0
+          },
+          {
+            "timesteps": 1600000,
+            "success_rate": 1.0,
+            "mean_reward": 18.194460624999998,
+            "mean_ep_length": 55.0
+          },
+          {
+            "timesteps": 1700000,
+            "success_rate": 1.0,
+            "mean_reward": 21.129410625,
+            "mean_ep_length": 56.625
+          },
+          {
+            "timesteps": 1800000,
+            "success_rate": 1.0,
+            "mean_reward": 21.280971875,
+            "mean_ep_length": 49.375
+          },
+          {
+            "timesteps": 1900000,
+            "success_rate": 1.0,
+            "mean_reward": 20.713435375,
+            "mean_ep_length": 55.625
+          },
+          {
+            "timesteps": 2000000,
+            "success_rate": 1.0,
+            "mean_reward": 20.573724374999998,
+            "mean_ep_length": 50.5
+          },
+          {
+            "timesteps": 2100000,
+            "success_rate": 1.0,
+            "mean_reward": 19.94665325,
+            "mean_ep_length": 52.0
+          },
+          {
+            "timesteps": 2200000,
+            "success_rate": 1.0,
+            "mean_reward": 20.304178874999998,
+            "mean_ep_length": 50.25
+          },
+          {
+            "timesteps": 2300000,
+            "success_rate": 1.0,
+            "mean_reward": 20.117220500000002,
+            "mean_ep_length": 51.375
+          },
+          {
+            "timesteps": 2400000,
+            "success_rate": 1.0,
+            "mean_reward": 21.925208875,
+            "mean_ep_length": 48.875
+          },
+          {
+            "timesteps": 2500000,
+            "success_rate": 1.0,
+            "mean_reward": 21.87271975,
+            "mean_ep_length": 52.0
+          },
+          {
+            "timesteps": 2600000,
+            "success_rate": 1.0,
+            "mean_reward": 20.67575375,
+            "mean_ep_length": 58.0
+          },
+          {
+            "timesteps": 2700000,
+            "success_rate": 1.0,
+            "mean_reward": 21.142965625000002,
+            "mean_ep_length": 46.375
+          },
+          {
+            "timesteps": 2800000,
+            "success_rate": 1.0,
+            "mean_reward": 21.1468355,
+            "mean_ep_length": 51.625
+          },
+          {
+            "timesteps": 2900000,
+            "success_rate": 1.0,
+            "mean_reward": 21.318592625,
+            "mean_ep_length": 55.75
+          },
+          {
+            "timesteps": 3000000,
+            "success_rate": 1.0,
+            "mean_reward": 20.74234525,
+            "mean_ep_length": 56.125
+          }
+        ]
+      },
+      "finished_at": "2026-10-30T04:19:22",
+      "duration_s": 2001.4
+    }
+  ]
+}

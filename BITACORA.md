@@ -423,3 +423,115 @@ Las otras dos seeds (números reservados del 2026-10-15), modelo final en 100 ep
 Con desvío 1, la seed 1 es la que separa las recompensas robustas de las que no: flotan `base`, `PBRS_k10` y `A2_k1`;
 aprenden `A2_k3` (tarde), `suave_c002`, `suave_bajada` y todas las de desvío 0.61. Con esto se terminaron las corridas
 que tenían número reservado y seguían teniendo sentido (`cola_huecos.txt`, ya borrada).
+
+## 2026-10-30 · teo (sesión de Claude) · Primera noche en el laboratorio S004: 31 corridas de 3M (v105–v135)
+
+Primera vez que se entrena en las máquinas de la universidad (`docs/laboratorio-s004-ssh.md`): 3 corridas de 3M en
+paralelo, de 00:29 a 06:41, ~31–41 min por corrida. Todas terminaron bien. Modelo final en 100 episodios, seeds 42 / 1
+/ 2 salvo que se diga otra cosa; todas con desvío inicial 0.61 (`--log_std_init -0.5`) salvo gSDE y la de 0.37:
+
+| Variante | Corridas | Éxito | Δv pedida (media) | Centro | Toca a |
+|---|---|---|---|---|---|
+| `c003` | v105–v107 | 100 / 100 / 100 % | 0.066 m/s | 4.1 / 4.5 / 3.7 cm | 0.50 m/s |
+| `c005` (5 seeds, con v100-lucio) | v108, v109, v110, v114, v100 | 100 / **0** / 97 / 100 / 100 % | 0.060 (sin v109) | 3.3–4.7 cm | 0.50 |
+| `suave_bajada` (control) | v130–v132 | 100 / 100 / 100 % | 0.079 | 4.6 / 3.3 / 4.7 | 0.50 |
+| `c003` + desvío 0.37 | v133–v135 | 100 / 100 / 100 % | 0.064 | 3.5 / 3.2 / 3.2 | 0.51 |
+| `c003` + gSDE | v118–v120 | 100 / 100 / 100 % | 0.056 | 4.2 / 3.3 / 3.2 | 0.50 |
+| `c003` + CAPS | v121–v123 | 100 / 100 / 100 % | 0.058 | **2.7** / 3.2 / 3.8 | 0.50 |
+| `c003` + premio por tocar despacio | v111–v113 | 100 / 100 / 100 % | 0.084 | 5.3 / 4.3 / 3.8 | 0.45 |
+| `c003` + efecto suelo | v115–v117 | 100 / 99 / 98 % | 0.081 | 3.6 / 4.3 / 4.2 | 0.40 |
+| `c003` + acción como velocidad | v124–v126 | 100 / 91 / 100 % | 0.087 | 3.7 / 4.8 / 5.1 | 0.50 |
+| `c003` + velocidad + premio por tocar | v127–v129 | 100 / 100 / 99 % | 0.082 | 3.7 / 5.2 / 4.7 | **0.33** / 0.45 / 0.46 |
+
+Las conclusiones van en las entradas siguientes. Las opciones nuevas del entorno y de `train.py` (efecto suelo, acción
+como velocidad, premio por tocar despacio, gSDE, CAPS, `--init_from`) están apagadas por defecto; ninguna cambió un
+default. Las ideas de la literatura que llevaron a estas pruebas, y las que faltan, están en
+`docs/estado-del-arte-2026-10-30.md`.
+
+## 2026-10-30 · teo (sesión de Claude) · Candidatas a 3M: `c003` aterriza siempre, `c005` a veces flota, y `suave_bajada` también llega a 100 %
+
+- **`c003` a 3M** (v105–v107): 100 % con las 3 seeds, Δv pedida 0.063–0.072 m/s, 4 cm del centro. Repite completa v103,
+  que se había cortado.
+- **`c005` a 3M**, con 5 seeds (v108, v109, v110, v114 y v100-lucio): 100 / **0** / 97 / 100 / 100 %. Es la más suave
+  cuando aprende (v108: 0.043 m/s), pero **v109 (seed 2) se quedó flotando los 480 pasos con `s = 0`**: con el castigo
+  a la acción, no moverse no cuesta nada. **La misma seed aprendió en la máquina de Lucio** (v93, a 1.5M): con
+  subprocesos y otro hardware el entrenamiento no es reproducible, así que caer en la trampa es cuestión de azar y no
+  de la seed. Con 1 falla en 5, `c005` es frágil.
+- **Control, `suave_bajada` a 3M con desvío 0.61** (v130–v132): también 100 % en las 3 seeds (a 1.5M, v65–v67: 92.7 %),
+  con Δv pedida 0.069–0.098 m/s. **Lo que más mejoró de 1.5M a 3M fue entrenar más tiempo, no el castigo a la acción.**
+  `c003` es algo más suave en promedio (0.066 contra 0.079), pero las seeds se superponen.
+- **Recomendación (no se cambió ningún default):** `suave_bajada_c003` con desvío 0.61 y 3M pasos. Con desvío 0.37
+  (v133–v135) centra mejor (3.2–3.5 cm), con la misma suavidad, pero aprende ~0.5M pasos más tarde. Lo decide Lucio.
+
+## 2026-10-30 · teo (sesión de Claude) · La política nunca frena: `s` saturado en 1 el 100 % de los pasos
+
+Todas las políticas tocan la plataforma bajando a ~0.5 m/s (la velocidad máxima es 0.6). `tools/action_saturation.py`
+muestra por qué: **la salida `s` (fracción de la velocidad máxima) está en 1 en el 100 % de los pasos**, con la media
+de la gaussiana en ~3. Con la acción de gym-pybullet-drones (`v = 0.6·s·dir/|dir|`), **el dron vuela siempre a 0.6 m/s**,
+y para bajar más lento tiene que inclinar la dirección hacia los costados. Con media 3 y desvío ~0.6, la exploración
+casi nunca prueba `s < 1`. Esto explica tres cosas:
+- por qué castigar (`_flare`, v83, v86) o premiar la velocidad de toque no le enseña a frenar;
+- por qué la salida de la trampa de `c005` y `suave_bajada_v01` es pedir `s = 0`;
+- por qué `dz` sale saturado (60–85 % de los pasos a 3M).
+
+Lo que se probó:
+- **Premio por tocar despacio** (`landing_vz_coef: 10`: al aterrizar, `+10·(1 − v_toque/0.6)`; se paga una vez y solo
+  si aterriza, así que no causa la trampa de flotar). Con la acción de siempre (`c003_tocar`, v111–v113): 100 %, pero
+  toca a 0.43–0.47 m/s. **Casi no frena.**
+- **Acción como velocidad** (`action_mode: velocity`: `v = 0.6·(dx, dy, dz)`, recortada a norma 1, sin usar `s`). Sola
+  (`c003_vel`, v124–v126): aprende antes (50 % a ~0.5M contra ~0.7M), pero es menos suave (0.087 m/s) y toca igual a
+  0.5 m/s. Poder frenar no alcanza si nada lo pide.
+- **Velocidad + premio por tocar** (`c003_vel_tocar`, v127–v129): **v127 toca a 0.33 m/s de mediana (p90 0.43)**, la más
+  lenta del proyecto (la siguiente es v17-lucio, con 0.38). Las otras dos seeds tocan a 0.45–0.46. **Frenar se puede
+  aprender, pero lo descubre 1 seed de 3.**
+
+Hipótesis: la exploración casi no prueba valores intermedios de `dz`, porque su media está en ~1.6–1.9, muy afuera de
+[−1, 1]. Además, el premio por frenar es chico (pasar de 0.5 a 0.33 m/s suma ~2.8, contra ~23 por aterrizar).
+Próximas pruebas (`TODO.md`): curriculum desde v127 con más premio, el premio a 25 desde cero, y castigar que la media
+de la gaussiana se salga de [−1, 1].
+
+## 2026-10-30 · teo (sesión de Claude) · Suavidad sin tocar la recompensa: gSDE y CAPS suavizan poco, pero centran mejor
+
+Dos ideas de la literatura que suavizan sin cambiar la recompensa (no pueden causar la trampa de flotar), con
+`suave_bajada_c003` a 3M, contra v105–v107:
+- **gSDE** (`--use_sde --sde_sample_freq 4 --log_std_init -2`, v118–v120): ruido de exploración que depende del estado
+  y se sortea cada 4 pasos. Δv pedida 0.056 contra 0.066 m/s (~15 % menos) y centro 3.2–4.2 cm. v119 parecía mucho
+  mejor (0.046 m/s, 81 % a menos de 5 cm); con 3 seeds, la mejora es modesta.
+- **CAPS** (`caps.py`, `--caps_temporal 0.01 --caps_spatial 0.01`, v121–v123): dos términos en la pérdida de PPO que
+  castigan que la media de la acción cambie entre pasos seguidos y ante ruido en la observación. Δv pedida 0.058 m/s
+  (~12 % menos), pero **el mejor centrado del proyecto**: 2.7 / 3.2 / 3.8 cm, 68–84 % a menos de 5 cm.
+  Hipótesis de por qué suaviza poco: CAPS actúa sobre la media de la gaussiana sin recortar, que está muy afuera de
+  [−1, 1], así que gran parte del término castiga cambios que no cambian la acción ejecutada. El término espacial
+  crece durante el entrenamiento (0.08 → 0.2).
+- **Desvío inicial 0.37** (v133–v135), para comparar: también centra mejor (3.2–3.5 cm) y no suaviza.
+
+Las tres centran mejor que `c003` con desvío 0.61, y ninguna resuelve la suavidad: el castigo a la acción en la recompensa (`c003`, `c005`) sigue siendo lo que más
+suaviza. gSDE y CAPS no cuestan éxito y se pueden combinar con lo que se elija.
+
+## 2026-10-30 · teo (sesión de Claude) · Efecto suelo contra el tope de la plataforma
+
+La simulación usaba `Physics.PYB`, sin efecto suelo. El de gym-pybullet-drones (`PYB_GND`) mide la altura contra el
+piso, y el tope está a 0.35 m. Se agregó `ground_effect: true` (`env.py`, `_groundEffect`, apagado por defecto): el
+mismo modelo de la librería, pero cada hélice mide su altura contra el tope si está encima de la plataforma. En hover
+da +4 % de empuje a 10 cm, +15 % a 5 cm y +27 % por debajo de 3.8 cm; en el borde, con 2 hélices adentro, +13.5 % y
+además inclina. `ground_effect_scale` lo escala.
+
+- **Entrenar con efecto suelo** (`c003_gnd`, v115–v117): 100 / 99 / 98 %, tocando a 0.38–0.41 m/s (el colchón de aire
+  frena). 2 de 3 seeds aprenden más tarde (50 % a 1.0–1.3M).
+- **Prueba cruzada** (50 episodios): las políticas entrenadas con efecto suelo y sin él aterrizan 50 de 50 con el
+  efecto ×0, ×0.3, ×1 y ×1.5. Con este modelo, el efecto suelo amortigua y no compromete el aterrizaje.
+- **La magnitud es dudosa:** el modelo da ~18 % a 4.6 cm, y mediciones publicadas en un Crazyflie 2.0 dan ~5 %. Hay que
+  medirlo en el laboratorio y, mientras tanto, aleatorizar la escala (`TODO.md`, punto 7).
+
+## 2026-10-31 · teo (sesión de Claude) · Dejar a Claude entrenando por SSH: qué falló y cómo se evita
+
+La noche del 2026-10-29, las 31 corridas terminaron bien, pero Claude solo trajo y registró hasta v119. Las otras 16
+(v120–v135) se trajeron recién la noche del 31. Pasaron tres cosas:
+- la espera en segundo plano (`until ssh ...; do sleep 60; done`) se trabó sin dejar errores, probablemente por la
+  conexión SSH compartida (`ControlMaster`);
+- Claude solo se despertaba si se cumplía la condición, y como nunca se cumplió, no volvió a mirar;
+- a las 07:00 se cortaron el SSH (como todos los días hábiles) y la VPN, ~8 h después de levantarla.
+
+No se perdió nada, porque `runs/` está en el home del laboratorio. Las reglas nuevas, y los comandos probados, están en
+`docs/laboratorio-s004-ssh.md`, "Dejar a Claude entrenando solo": tope de tiempo en cada `ssh`, espera que sale a los
+30 min aunque no pase nada, traer cada corrida apenas termina y contar con que la VPN dura ~8 h.

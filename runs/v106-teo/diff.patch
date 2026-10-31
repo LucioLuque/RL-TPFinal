@@ -1,0 +1,15 @@
+diff --git a/cola_pendiente.txt b/cola_pendiente.txt
+index 989bafa..7f4ab43 100644
+--- a/cola_pendiente.txt
++++ b/cola_pendiente.txt
+@@ -6,8 +6,8 @@
+ 
+ # Las candidatas a recompensa final, a 3M completo y con 3 seeds (TODO.md, punto 1). c003 s42 y c005 s3 repiten
+ # completas v103 y v104, que se cortaron antes del final.
+-suave_bajada_c003 42 3000000 --log_std_init -0.5
+-suave_bajada_c003 1 3000000 --log_std_init -0.5
++# lanzada como v105-teo (00:29): suave_bajada_c003 42 3000000 --log_std_init -0.5
++# lanzada como v106-teo (00:30): suave_bajada_c003 1 3000000 --log_std_init -0.5
+ suave_bajada_c003 2 3000000 --log_std_init -0.5
+ suave_bajada_c005 42 3000000 --log_std_init -0.5
+ suave_bajada_c005 2 3000000 --log_std_init -0.5

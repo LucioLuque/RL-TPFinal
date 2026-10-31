@@ -11,6 +11,7 @@ archivo). gym-pybullet-drones (2.2.0) se instala desde GitHub, fijado a un commi
 python train.py                                  # corrida nueva -> v<N>-<autor>, recompensa suave_bajada
 python train.py --reward base --seed 1 --log_std_init -0.5   # otra recompensa, seed y desvío inicial
 python train.py --load v16-lucio --timesteps 500000   # seguir entrenando una corrida (con su recompensa)
+python train.py --init_from v105-teo --reward suave_bajada_c003_tocar --timesteps 1000000   # corrida NUEVA desde otra (curriculum)
 python eval.py --load v16-lucio --episodes 5     # con GUI; sin --load usa la última
 python -m tools.evaluate --load v17-lucio --best # 100 episodios sin GUI -> runs/<id>/eval_best.json
 python -m tools.evaluate --load v17-lucio        # lo mismo con el modelo final -> eval_final.json
@@ -28,11 +29,13 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
 
 ## Estructura
 
-- Raíz: núcleo (`env.py`, `train.py`, `eval.py`, `utils.py`, `run_registry.py`, `levels.yaml`).
+- Raíz: núcleo (`env.py`, `train.py`, `eval.py`, `utils.py`, `run_registry.py`, `levels.yaml`, `caps.py`).
 - `runs/<id>/`: todo lo de una corrida (ver abajo).
 - `tools/`: análisis (gifs, trayectorias, curvas, índice de experimentos).
 - `media/`: gifs y plots para el informe o la presentación.
 - `docs/`: consigna, informe, presentación y reportes de experimentos (`pruebas-recompensas-2026-10-15.md`).
+  Para entrenar por SSH en las máquinas del laboratorio S004 de la universidad: `docs/laboratorio-s004-ssh.md`.
+  Ideas de la literatura (tocar suave, acciones suaves, efecto suelo, variables reales): `docs/estado-del-arte-2026-10-30.md`.
 - `cola_pendiente.txt`: corridas planeadas que no se corrieron todavía (para `tools/run_queue.py`). **Es la única cola:**
   no crear otros archivos de cola; lo que se planea va ahí y, una vez registrado, se borra.
 - `logs/landing_level_1/`: TensorBoard de las corridas de curriculum viejas. `logs/` está en
@@ -78,7 +81,15 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
 ## Entorno (`env.py`, `MovingPlatformLandingAviary`)
 
 - **Acción** (VelocityAviary): `[dx, dy, dz] ∈ [-1, 1]` es la dirección y `s ∈ [0, 1]` la fracción de la velocidad máxima
-  (`DRONE_SPEED_LIMIT = 0.6` m/s en `env.py`; tiene que coincidir con el límite del Crazyflie real).
+  (`DRONE_SPEED_LIMIT = 0.6` m/s en `env.py`; tiene que coincidir con el límite del Crazyflie real). Con
+  `action_mode: velocity` (opción, apagada por defecto) la velocidad pedida es `0.6·(dx, dy, dz)` y `s` no se usa.
+- **Opciones nuevas del 2026-10-30, todas apagadas por defecto** (resultados en `docs/estado-del-arte-2026-10-30.md` y
+  `BITACORA.md`): `landing_vz_coef` (premio al aterrizar por tocar despacio), `ground_effect` / `ground_effect_scale`
+  (efecto suelo contra el tope, `_groundEffect`; antes la física era `PYB`, sin efecto suelo), `action_mode`. En
+  `train.py`: `--use_sde` (gSDE), `--caps_temporal` / `--caps_spatial` (CAPS, `caps.py`: suavidad en la pérdida, no en
+  la recompensa) e `--init_from`. Qué dio cada una a 3M con 3 seeds (`BITACORA.md`, 2026-10-30): gSDE y CAPS
+  suavizan solo ~12–15 % pero centran mejor (CAPS: 2.7–3.8 cm); el efecto suelo no rompe el aterrizaje; la acción como
+  velocidad aprende antes pero es menos suave.
 - **Observación** (19 dimensiones): pos relativa al tope de la plataforma (3), vel relativa (3), rpy (3),
   vel angular (3), vel del dron (3) y acción previa (4). Se normaliza a [-1, 1] con escalas fijas
   (`_obs_scale`, constantes `OBS_*` en `env.py`); `_computeRawObs` da los valores físicos. No se usa
@@ -98,10 +109,11 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
     +0.1 tocando el tope, +25 − 50·d_xy al aterrizar, −10 al chocar) + `0.02·Σ(a − a_anterior)²` de castigo por
     cambiar la acción + `0.3·(d_xy − 0.25)₊·(velocidad de bajada)₊/0.1` de castigo por bajar estando afuera y a
     menos de 30 cm del tope. 92 % de éxito medio con 4 seeds a 1.5M, contra 54 % de `base`.
-  - **Candidatas a reemplazarla** (2026-10-25, no se cambió el default: falta correrlas a 3M con 3 seeds,
-    `cola_pendiente.txt`): `suave_bajada_c003` (castigo a la acción 0.03) y `suave_bajada_c005` (0.05), las dos con
-    `--log_std_init -0.5`. Ventajas y desventajas de cada una en el README ("Mejores políticas hasta ahora") y en
-    `docs/pruebas-suavidad-2026-10-25.md`.
+  - **Candidatas a reemplazarla** (no se cambió el default: lo decide Lucio): `suave_bajada_c003` (castigo a la acción
+    0.03) y `suave_bajada_c005` (0.05), con `--log_std_init -0.5`. A 3M (2026-10-30): `c003` da 100 % con 3 seeds
+    (v105–v107); `c005` es más suave, pero 1 de 5 seeds flota (v109); y `suave_bajada` también da 100 % (v130–v132),
+    algo menos suave. La recomendación es `c003` + desvío 0.61 + 3M. Detalle en el README ("Mejores políticas hasta
+    ahora"), `BITACORA.md` y `docs/pruebas-suavidad-2026-10-25.md`.
   - Más castigo a la acción da un vuelo más suave pero aprende más lento (0.05: la mitad de las seeds tarda; 0.1 no
     aprende). Entrenar 3M en vez de 1.5M centra mucho más (3–4 cm contra 6–8 cm). Con desvío 0.61, el término de
     bajada no suma (`suave_c002` da lo mismo que `suave_bajada`).
@@ -115,8 +127,12 @@ Todo se corre desde la raíz del repo: las rutas son relativas a ella, y los scr
     `reward_dz_coef`). Qué dio cada uno: `docs/pruebas-recompensas-2026-10-15.md` y `BITACORA.md`.
   - Ojo: el progreso `k·(d_ant − d)` **no** es shaping por potencial (es PBRS − (1−γ)·k·d), y medirlo sin el
     movimiento de la plataforma (`mode: drone`) se puede explotar persiguiéndola.
-- **Las políticas son casi bang-bang**: `dz` saturado en ~97 % de los pasos (bajan siempre a máxima velocidad) y
-  la media de la gaussiana muy afuera de [−1, 1]. Ver `tools/action_saturation.py`.
+- **Las políticas son casi bang-bang**: `dz` saturado en 60–97 % de los pasos (bajan casi siempre a máxima velocidad) y
+  la media de la gaussiana muy afuera de [−1, 1]. Ver `tools/action_saturation.py`. Además, **`s` está en 1 en el 100 %
+  de los pasos** (media ~3): con la acción de dirección, el dron va siempre a 0.6 m/s y no puede frenar al tocar
+  (llega a ~0.5 m/s). Por eso ni castigar (`_flare`) ni premiar (`_tocar`, v111–v113) la velocidad de toque funcionó.
+  Con la acción como velocidad y el premio por tocar despacio (`suave_bajada_c003_vel_tocar`), 1 seed de 3 aprende a
+  frenar (v127: toca a 0.33 m/s); es el punto de partida para tocar suave (`TODO.md`, punto 2).
 - **El PID del dron corre a 24 Hz** (la frecuencia de la política: `BaseAviary.step` calcula las RPM una vez por paso de
   control) y **oscila solo**, aun con velocidad pedida constante (±8°); a 120–240 Hz queda quieto. No es un error de
   código, pero el Crazyflie real controla a bordo a ~500 Hz. No se cambia hasta medir el dron real en el laboratorio.

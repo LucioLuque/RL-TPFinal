@@ -6,6 +6,7 @@ from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv
 
+from caps import CAPSPPO
 from run_registry import RunRecord, previous_best
 from utils import (
     parse_args,
@@ -179,6 +180,12 @@ def train(
     run_id: str | None = None,
     ent_coef: float = 0.01,
     log_std_init: float = 0.0,
+    use_sde: bool = False,
+    sde_sample_freq: int = -1,
+    caps_temporal: float = 0.0,
+    caps_spatial: float = 0.0,
+    caps_sigma: float = 0.02,
+    init_from: str | None = None,
 ):
     # Sin VecNormalize: el entorno ya devuelve la observacion normalizada con escalas fijas
     # (env._computeObs) y la recompensa va sin normalizar, porque su escala es conocida (TODO.md, punto 1).
@@ -197,10 +204,21 @@ def train(
 
         model.tensorboard_log = get_log_dir(version)
         reset_num_timesteps = False
+    elif init_from is not None:
+        # Curriculum: corrida nueva que arranca desde el modelo final de otra, por ejemplo con otra recompensa
+        # (--load sigue la misma corrida y pisaria su model.zip). La exploracion y CAPS vienen del modelo cargado.
+        version = run_id or get_next_run_id()
+        model = PPO.load(get_model_path(init_from, with_extension=True), env=env)
+        model.tensorboard_log = get_log_dir(version)
+        model_path = get_model_path(version, with_extension=True)
+        reset_num_timesteps = True
     else:
         # --run_id fija el nombre: hace falta al lanzar varias corridas a la vez (si no, pueden sacar el mismo numero).
         version = run_id or get_next_run_id()
-        model = PPO(
+        # CAPS (caps.py): suavidad de la accion como termino de la perdida de la politica, no de la recompensa.
+        caps = (dict(caps_temporal=caps_temporal, caps_spatial=caps_spatial, caps_sigma=caps_sigma)
+                if caps_temporal or caps_spatial else {})
+        model = (CAPSPPO if caps else PPO)(
             "MlpPolicy",
             env,
             learning_rate=3e-4,
@@ -211,6 +229,10 @@ def train(
             gae_lambda=0.95,
             ent_coef=ent_coef,
             clip_range=0.2,
+            # gSDE (Raffin et al. 2021): el ruido de exploracion depende del estado y se sortea cada
+            # sde_sample_freq pasos, asi que la accion explorada no salta de un paso al siguiente.
+            use_sde=use_sde,
+            sde_sample_freq=sde_sample_freq,
             policy_kwargs=dict(
                 log_std_init=log_std_init,  # desvio inicial de la accion = exp(log_std_init)
                 net_arch=dict(
@@ -221,6 +243,7 @@ def train(
             seed=seed,
             verbose=1,
             tensorboard_log=get_log_dir(version),
+            **caps,
         )
         model_path = get_model_path(version, with_extension=True)
         reset_num_timesteps = True
@@ -270,11 +293,18 @@ def main():
                 ("ent_coef", float, 0.01, "PPO entropy coefficient."),
                 ("log_std_init", float, 0.0, "Initial log std of the Gaussian policy (0 -> std 1)."),
                 ("run_id", str, None, "Name of the new run (default: next v<N>-<author>). Use it to launch runs in parallel."),
+                ("use_sde", bool, False, "Use generalized state-dependent exploration (gSDE) instead of per-step Gaussian noise."),
+                ("sde_sample_freq", int, -1, "With --use_sde: resample the noise every N steps (-1: once per rollout)."),
+                ("caps_temporal", float, 0.0, "CAPS temporal smoothness weight (caps.py; 0: off)."),
+                ("caps_spatial", float, 0.0, "CAPS spatial smoothness weight (caps.py; 0: off)."),
+                ("caps_sigma", float, 0.02, "CAPS: std of the noise added to the normalized observation."),
+                ("init_from", str, None, "Start a NEW run from the final model of this run (curriculum; --load continues the same run)."),
     ]
     args = parse_args(new_args=new_args)
     set_global_seeds(args.seed)
     model_path = train(args.load, args.timesteps, args.seed, args.n_envs, SAVE_BEST_MODEL, vars(args), args.reward, args.run_id,
-                       args.ent_coef, args.log_std_init)
+                       args.ent_coef, args.log_std_init, args.use_sde, args.sde_sample_freq,
+                       args.caps_temporal, args.caps_spatial, args.caps_sigma, args.init_from)
 
     print(f"Saved model to {model_path}")
 

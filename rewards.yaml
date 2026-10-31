@@ -176,3 +176,39 @@ suave_bajada_c003:   # castigo a la accion 0.03, entre suave_bajada (0.02) y c00
   reward_action_coef: 0.03
   reward_descent_coef: 0.3
   crash_penalty: 10.0
+
+# ---- Pruebas 2026-10-30 (teo, sesion de Claude; docs/estado-del-arte-2026-10-30.md). c003 + un termino. ----
+#   landing_vz_coef: premio extra al aterrizar = coef * (1 - v_bajada_al_tocar / 0.6). Se paga una vez y solo si
+#                    aterriza: a diferencia de reward_flare_coef (castigo por paso), no encarece acercarse.
+#   ground_effect:   efecto suelo contra el tope (no es recompensa: cambia la fisica, para ver si la politica aguanta).
+
+suave_bajada_c003_tocar:   # + premio por tocar despacio (+8.3 tocando a 0.1 m/s, +1.7 a 0.5)
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.03
+  reward_descent_coef: 0.3
+  landing_vz_coef: 10.0
+  crash_penalty: 10.0
+
+suave_bajada_c003_gnd:   # c003 con efecto suelo (coeficiente de gym-pybullet-drones)
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.03
+  reward_descent_coef: 0.3
+  crash_penalty: 10.0
+  ground_effect: true
+
+# Accion como velocidad (action_mode: velocity, env.py): v = 0.6 * (dx, dy, dz). Con la accion de gym-pybullet-drones,
+# s queda saturado (media ~3) y el dron va siempre a 0.6 m/s: no puede frenar sin inclinar la direccion (v105, v111).
+suave_bajada_c003_vel:
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.03
+  reward_descent_coef: 0.3
+  crash_penalty: 10.0
+  action_mode: velocity
+
+suave_bajada_c003_vel_tocar:   # + premio por tocar despacio (como suave_bajada_c003_tocar)
+  reward_distance_coef: 0.1
+  reward_action_coef: 0.03
+  reward_descent_coef: 0.3
+  landing_vz_coef: 10.0
+  crash_penalty: 10.0
+  action_mode: velocity
