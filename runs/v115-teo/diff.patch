@@ -1,0 +1,268 @@
+diff --git a/cola_pendiente.txt b/cola_pendiente.txt
+index 989bafa..04b633f 100644
+--- a/cola_pendiente.txt
++++ b/cola_pendiente.txt
+@@ -6,9 +6,37 @@
+ 
+ # Las candidatas a recompensa final, a 3M completo y con 3 seeds (TODO.md, punto 1). c003 s42 y c005 s3 repiten
+ # completas v103 y v104, que se cortaron antes del final.
+-suave_bajada_c003 42 3000000 --log_std_init -0.5
+-suave_bajada_c003 1 3000000 --log_std_init -0.5
+-suave_bajada_c003 2 3000000 --log_std_init -0.5
+-suave_bajada_c005 42 3000000 --log_std_init -0.5
+-suave_bajada_c005 2 3000000 --log_std_init -0.5
+-suave_bajada_c005 3 3000000 --log_std_init -0.5
++# lanzada como v105-teo (00:29): suave_bajada_c003 42 3000000 --log_std_init -0.5
++# lanzada como v106-teo (00:30): suave_bajada_c003 1 3000000 --log_std_init -0.5
++# lanzada como v107-teo (00:30): suave_bajada_c003 2 3000000 --log_std_init -0.5
++# lanzada como v108-teo (01:02): suave_bajada_c005 42 3000000 --log_std_init -0.5
++# lanzada como v109-teo (01:03): suave_bajada_c005 2 3000000 --log_std_init -0.5
++# lanzada como v110-teo (01:03): suave_bajada_c005 3 3000000 --log_std_init -0.5
++
++# 2026-10-30, noche en el laboratorio S004 (teo, sesion de Claude). Ideas de docs/estado-del-arte-2026-10-30.md.
++# Tocar suave: premio terminal por tocar despacio (no castiga acercarse, a diferencia de _flare).
++# lanzada como v111-teo (01:28): suave_bajada_c003_tocar 42 3000000 --log_std_init -0.5
++# lanzada como v112-teo (01:35): suave_bajada_c003_tocar 1 3000000 --log_std_init -0.5
++# lanzada como v113-teo (01:36): suave_bajada_c003_tocar 2 3000000 --log_std_init -0.5
++# c005: v109 (s2) quedo flotando con s = 0 (0 %); las otras 3 seeds a 3M dan 97-100 %. Una seed mas para decidir.
++# lanzada como v114-teo (02:01): suave_bajada_c005 4 3000000 --log_std_init -0.5
++# Efecto suelo contra el tope: ver si c003 aprende igual con la fisica mas real.
++# lanzada como v115-teo (02:07): suave_bajada_c003_gnd 42 3000000 --log_std_init -0.5
++suave_bajada_c003_gnd 1 3000000 --log_std_init -0.5
++suave_bajada_c003_gnd 2 3000000 --log_std_init -0.5
++# Exploracion suave (gSDE, Raffin et al. 2021): ruido que depende del estado, re-sorteado cada 4 pasos.
++suave_bajada_c003 42 3000000 --use_sde --sde_sample_freq 4 --log_std_init -2
++suave_bajada_c003 1 3000000 --use_sde --sde_sample_freq 4 --log_std_init -2
++suave_bajada_c003 2 3000000 --use_sde --sde_sample_freq 4 --log_std_init -2
++# CAPS (Mysore et al. 2021, caps.py): suavidad en la perdida de la politica, no en la recompensa (no puede dejarlo flotando).
++suave_bajada_c003 42 3000000 --log_std_init -0.5 --caps_temporal 0.01 --caps_spatial 0.01
++suave_bajada_c003 1 3000000 --log_std_init -0.5 --caps_temporal 0.01 --caps_spatial 0.01
++suave_bajada_c003 2 3000000 --log_std_init -0.5 --caps_temporal 0.01 --caps_spatial 0.01
++# Control: la recompensa por defecto con desvio 0.61, a 3M. Hace falta c003/c005 o alcanza con explorar menos y entrenar mas?
++suave_bajada 42 3000000 --log_std_init -0.5
++suave_bajada 1 3000000 --log_std_init -0.5
++suave_bajada 2 3000000 --log_std_init -0.5
++# c003 con desvio 0.37 (TODO.md, punto 2).
++suave_bajada_c003 42 3000000 --log_std_init -1.0
++suave_bajada_c003 1 3000000 --log_std_init -1.0
++suave_bajada_c003 2 3000000 --log_std_init -1.0
+diff --git a/env.py b/env.py
+index caac343..6101c11 100644
+--- a/env.py
++++ b/env.py
+@@ -48,7 +48,12 @@ class MovingPlatformLandingAviary(VelocityAviary):
+         reward_ang_vel_coef: float = 0.0,   # castigo por bamboleo: c * (wx^2 + wy^2), velocidad angular de roll y pitch
+         reward_flare_coef: float = 0.0,     # castigo por bajar rapido justo encima del tope (alineado y a < 15 cm)
+         landing_dxy_coef: float = 50.0,     # premio al aterrizar = 25 - landing_dxy_coef * d_xy (mas grande = premia mas el centro)
++        landing_vz_coef: float = 0.0,       # premio extra al aterrizar = coef * (1 - v_bajada_al_tocar / SPEED_LIMIT)
+         crash_penalty: float = 10.0,        # castigo al chocar
++
++        # Fisica
++        ground_effect: bool = False,        # efecto suelo contra el tope de la plataforma y el piso (ver _groundEffect)
++        ground_effect_scale: float = 1.0,   # multiplica el coeficiente de gym-pybullet-drones
+     ):
+         self.platform_radius = 0.25
+         self.platform_height = 0.35
+@@ -72,7 +77,10 @@ class MovingPlatformLandingAviary(VelocityAviary):
+         self.reward_ang_vel_coef = reward_ang_vel_coef
+         self.reward_flare_coef = reward_flare_coef
+         self.landing_dxy_coef = landing_dxy_coef
++        self.landing_vz_coef = landing_vz_coef
+         self.crash_penalty = crash_penalty
++        self.ground_effect = ground_effect
++        self.ground_effect_scale = ground_effect_scale
+ 
+         self.max_episode_steps = int(max_episode_seconds * ctrl_freq)
+ 
+@@ -105,7 +113,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
+             drone_model=DroneModel.CF2X,
+             num_drones=1,
+             initial_xyzs=initial_xyzs,
+-            physics=Physics.PYB,
++            physics=Physics.PYB_GND if ground_effect else Physics.PYB,
+             pyb_freq=240,
+             ctrl_freq=ctrl_freq,
+             gui=gui,
+@@ -251,6 +259,8 @@ class MovingPlatformLandingAviary(VelocityAviary):
+         self.has_crashed = False
+         self.is_truncated = False
+         self.prev_action = np.zeros(4, dtype=np.float32)
++        self._descent_speed = 0.0   # velocidad de bajada relativa al tope en el paso anterior (m/s, >= 0)
++        self._touchdown_vz = None   # la de antes del primer contacto (como touchdown.vz de tools/evaluate.py)
+ 
+         if seed is not None:
+             self._rng = np.random.default_rng(seed)
+@@ -290,6 +300,9 @@ class MovingPlatformLandingAviary(VelocityAviary):
+ 
+         self._contact = self._platform_contact()
+         self._touching = (self._contact == 'top')
++        if self._contact is not None and self._touchdown_vz is None:
++            # Al final del paso con contacto, el choque ya freno al dron: se usa la del paso anterior.
++            self._touchdown_vz = self._descent_speed
+         self._update_stable_counter()
+         self.has_landed = (self.stable_counter >= 10)
+         self.has_crashed = self._crashed()
+@@ -301,6 +314,7 @@ class MovingPlatformLandingAviary(VelocityAviary):
+         self.prev_action = self._current_action.copy()
+         self.prev_d = self._current_d
+         self.prev_drone_pos = self._getDroneStateVector(0)[0:3].copy()
++        self._descent_speed = max(0.0, -float(self._getDroneStateVector(0)[12] - self.platform_vel[2]))
+ 
+         obs = self._computeObs()
+         info = self._computeInfo()
+@@ -427,6 +441,10 @@ class MovingPlatformLandingAviary(VelocityAviary):
+         #terminales
+         if self.has_landed:
+             reward += 25.0 - d_xy * self.landing_dxy_coef
++            if self.landing_vz_coef and self._touchdown_vz is not None:
++                # Tocar suave: se paga una sola vez y solo si aterriza, asi que no encarece acercarse ni bajar
++                # (los castigos por paso cerca del tope, como reward_flare_coef, caen en la trampa de flotar).
++                reward += self.landing_vz_coef * max(0.0, 1.0 - self._touchdown_vz / self.SPEED_LIMIT)
+         elif self.has_crashed:
+             reward -= self.crash_penalty
+ 
+@@ -439,6 +457,30 @@ class MovingPlatformLandingAviary(VelocityAviary):
+             return np.zeros(3)
+         return self.SPEED_LIMIT * abs(action[3]) * action[0:3] / norm
+ 
++    def _groundEffect(self, rpm, nth_drone):
++        """Efecto suelo por helice, como BaseAviary._groundEffect pero con la altura sobre lo que haya debajo.
++
++        El de gym-pybullet-drones mide la altura contra el piso (z = 0), y el tope esta a 0.35 m: ahi casi no
++        empuja. Aca, la helice que esta encima de la plataforma mide contra el tope y la que esta afuera contra
++        el piso, asi que cerca del borde aparece el efecto suelo parcial (algunas helices si, otras no).
++        Empuje extra = KF * rpm^2 * GND_EFF_COEFF * (R / 4h)^2 (Shi et al. 2019); con el coeficiente de la CF2X y
++        en hover da +4 % del peso a 10 cm, +15 % a 5 cm y +27 % desde 3.8 cm para abajo (GND_EFF_H_CLIP). Medido en
++        un Crazyflie real puede ser bastante menos (~5 % a 4.6 cm): ver docs/estado-del-arte-2026-10-30.md.
++        Solo se llama con Physics.PYB_GND (ground_effect=True).
++        """
++        link_states = p.getLinkStates(self.DRONE_IDS[nth_drone], linkIndices=[0, 1, 2, 3],
++                                      physicsClientId=self.CLIENT)
++        props = np.array([link_states[i][0] for i in range(4)])
++        over_top = np.linalg.norm(props[:, :2] - self.platform_pos[:2], axis=1) < self.platform_radius
++        heights = props[:, 2] - np.where(over_top, self.platform_height, 0.0)
++        heights = np.clip(heights, self.GND_EFF_H_CLIP, np.inf)
++        forces = (np.array(rpm) ** 2 * self.KF * self.GND_EFF_COEFF * self.ground_effect_scale
++                  * (self.PROP_RADIUS / (4 * heights)) ** 2)
++        if np.abs(self.rpy[nth_drone, 0]) < np.pi / 2 and np.abs(self.rpy[nth_drone, 1]) < np.pi / 2:
++            for i in range(4):
++                p.applyExternalForce(self.DRONE_IDS[nth_drone], i, forceObj=[0, 0, forces[i]], posObj=[0, 0, 0],
++                                     flags=p.LINK_FRAME, physicsClientId=self.CLIENT)
++
+     # Antes se usaba para velocity tracking, se puede borrar
+     # def _get_target_velocity(self, rel_pos):
+     #     v_max = 1.0
+diff --git a/rewards.yaml b/rewards.yaml
+index 4ac4b74..e3dfd35 100644
+--- a/rewards.yaml
++++ b/rewards.yaml
+@@ -176,3 +176,22 @@ suave_bajada_c003:   # castigo a la accion 0.03, entre suave_bajada (0.02) y c00
+   reward_action_coef: 0.03
+   reward_descent_coef: 0.3
+   crash_penalty: 10.0
++
++# ---- Pruebas 2026-10-30 (teo, sesion de Claude; docs/estado-del-arte-2026-10-30.md). c003 + un termino. ----
++#   landing_vz_coef: premio extra al aterrizar = coef * (1 - v_bajada_al_tocar / 0.6). Se paga una vez y solo si
++#                    aterriza: a diferencia de reward_flare_coef (castigo por paso), no encarece acercarse.
++#   ground_effect:   efecto suelo contra el tope (no es recompensa: cambia la fisica, para ver si la politica aguanta).
++
++suave_bajada_c003_tocar:   # + premio por tocar despacio (+8.3 tocando a 0.1 m/s, +1.7 a 0.5)
++  reward_distance_coef: 0.1
++  reward_action_coef: 0.03
++  reward_descent_coef: 0.3
++  landing_vz_coef: 10.0
++  crash_penalty: 10.0
++
++suave_bajada_c003_gnd:   # c003 con efecto suelo (coeficiente de gym-pybullet-drones)
++  reward_distance_coef: 0.1
++  reward_action_coef: 0.03
++  reward_descent_coef: 0.3
++  crash_penalty: 10.0
++  ground_effect: true
+diff --git a/train.py b/train.py
+index 531a956..3779682 100644
+--- a/train.py
++++ b/train.py
+@@ -6,6 +6,7 @@ from stable_baselines3.common.callbacks import BaseCallback
+ from stable_baselines3.common.evaluation import evaluate_policy
+ from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv
+ 
++from caps import CAPSPPO
+ from run_registry import RunRecord, previous_best
+ from utils import (
+     parse_args,
+@@ -179,6 +180,12 @@ def train(
+     run_id: str | None = None,
+     ent_coef: float = 0.01,
+     log_std_init: float = 0.0,
++    use_sde: bool = False,
++    sde_sample_freq: int = -1,
++    caps_temporal: float = 0.0,
++    caps_spatial: float = 0.0,
++    caps_sigma: float = 0.02,
++    init_from: str | None = None,
+ ):
+     # Sin VecNormalize: el entorno ya devuelve la observacion normalizada con escalas fijas
+     # (env._computeObs) y la recompensa va sin normalizar, porque su escala es conocida (TODO.md, punto 1).
+@@ -197,10 +204,21 @@ def train(
+ 
+         model.tensorboard_log = get_log_dir(version)
+         reset_num_timesteps = False
++    elif init_from is not None:
++        # Curriculum: corrida nueva que arranca desde el modelo final de otra, por ejemplo con otra recompensa
++        # (--load sigue la misma corrida y pisaria su model.zip). La exploracion y CAPS vienen del modelo cargado.
++        version = run_id or get_next_run_id()
++        model = PPO.load(get_model_path(init_from, with_extension=True), env=env)
++        model.tensorboard_log = get_log_dir(version)
++        model_path = get_model_path(version, with_extension=True)
++        reset_num_timesteps = True
+     else:
+         # --run_id fija el nombre: hace falta al lanzar varias corridas a la vez (si no, pueden sacar el mismo numero).
+         version = run_id or get_next_run_id()
+-        model = PPO(
++        # CAPS (caps.py): suavidad de la accion como termino de la perdida de la politica, no de la recompensa.
++        caps = (dict(caps_temporal=caps_temporal, caps_spatial=caps_spatial, caps_sigma=caps_sigma)
++                if caps_temporal or caps_spatial else {})
++        model = (CAPSPPO if caps else PPO)(
+             "MlpPolicy",
+             env,
+             learning_rate=3e-4,
+@@ -211,6 +229,10 @@ def train(
+             gae_lambda=0.95,
+             ent_coef=ent_coef,
+             clip_range=0.2,
++            # gSDE (Raffin et al. 2021): el ruido de exploracion depende del estado y se sortea cada
++            # sde_sample_freq pasos, asi que la accion explorada no salta de un paso al siguiente.
++            use_sde=use_sde,
++            sde_sample_freq=sde_sample_freq,
+             policy_kwargs=dict(
+                 log_std_init=log_std_init,  # desvio inicial de la accion = exp(log_std_init)
+                 net_arch=dict(
+@@ -221,6 +243,7 @@ def train(
+             seed=seed,
+             verbose=1,
+             tensorboard_log=get_log_dir(version),
++            **caps,
+         )
+         model_path = get_model_path(version, with_extension=True)
+         reset_num_timesteps = True
+@@ -270,11 +293,18 @@ def main():
+                 ("ent_coef", float, 0.01, "PPO entropy coefficient."),
+                 ("log_std_init", float, 0.0, "Initial log std of the Gaussian policy (0 -> std 1)."),
+                 ("run_id", str, None, "Name of the new run (default: next v<N>-<author>). Use it to launch runs in parallel."),
++                ("use_sde", bool, False, "Use generalized state-dependent exploration (gSDE) instead of per-step Gaussian noise."),
++                ("sde_sample_freq", int, -1, "With --use_sde: resample the noise every N steps (-1: once per rollout)."),
++                ("caps_temporal", float, 0.0, "CAPS temporal smoothness weight (caps.py; 0: off)."),
++                ("caps_spatial", float, 0.0, "CAPS spatial smoothness weight (caps.py; 0: off)."),
++                ("caps_sigma", float, 0.02, "CAPS: std of the noise added to the normalized observation."),
++                ("init_from", str, None, "Start a NEW run from the final model of this run (curriculum; --load continues the same run)."),
+     ]
+     args = parse_args(new_args=new_args)
+     set_global_seeds(args.seed)
+     model_path = train(args.load, args.timesteps, args.seed, args.n_envs, SAVE_BEST_MODEL, vars(args), args.reward, args.run_id,
+-                       args.ent_coef, args.log_std_init)
++                       args.ent_coef, args.log_std_init, args.use_sde, args.sde_sample_freq,
++                       args.caps_temporal, args.caps_spatial, args.caps_sigma, args.init_from)
+ 
+     print(f"Saved model to {model_path}")
+ 
