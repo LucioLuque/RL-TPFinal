@@ -217,6 +217,9 @@ def main():
             gif_path,
             gif_frames,
             fps=args.gif_fps,
+            # loop=0: repetir siempre. Sin esto, imageio (con Pillow) no escribe la extension NETSCAPE y el
+            # gif se reproduce una sola vez (en Google Slides queda quieto en el ultimo cuadro).
+            loop=0,
         )
 
         print(f"GIF guardado en: {gif_path}")

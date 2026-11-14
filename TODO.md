@@ -91,6 +91,23 @@ gira.
 ## 6. Sim2real
 
 - [ ] Resolver lo de `SIM2REAL.md` (`~/Documents/Tesis/Laboratorio`; ahí también está la guía del laboratorio).
+- [ ] **Grabar bags del turtlebot real** para caracterizar su dinámica y ajustar la simulación: comandos de velocidad,
+  movimiento estimado (odometría) y pose de OptiTrack, en el mismo bag. Conviene que tengan rectas a varias
+  velocidades, arranques y frenadas, giros en el lugar y el patrón aleatorio que usa la simulación. Con eso se puede
+  medir el retardo entre el comando y el movimiento, la aceleración, el ruido y cuánto se aparta la odometría de
+  OptiTrack. Hoy la plataforma simulada cambia de velocidad al instante, sin aceleración (`_update_platform` en
+  `env.py`), con ruido uniforme (`turt_noise`). Revisar antes `SIM2REAL.md` (Lucio): ya menciona la aceleración del
+  turtlebot.
+- [ ] **Replicar un episodio real en la simulación:** que el entorno pueda mover la plataforma siguiendo la trayectoria
+  de un bag (pose o velocidades de OptiTrack, en lugar del movimiento aleatorio) y arrancar el dron en la posición
+  inicial del episodio real. Así se puede correr el mismo episodio en el robot real y en la simulación, y comparar las
+  trayectorias. Necesita los bags del ítem anterior.
+- [ ] **¿Aterriza sobre una plataforma quieta o que gira en el lugar?** En el entrenamiento la velocidad lineal se
+  sortea entre 0.05 y 0.3 m/s (`turtlebot_hard_fixed`, `levels.yaml`), así que esos casos no aparecen a propósito
+  (solo cuando el ruido baja la velocidad casi a 0). Evaluar las mejores políticas (por ejemplo v107) con
+  `linear_speed_range` en 0, sin y con giro (`angular_speed_range` hasta 2.84 rad/s, el máximo real). Si fallan,
+  agregar esos casos al entrenamiento: por ejemplo, que el rango lineal empiece en 0 o una fracción de episodios con la
+  plataforma quieta o girando en el lugar.
 
 ## 7. Efecto suelo y otras variables reales que faltan en la simulación
 
